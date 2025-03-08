@@ -60,12 +60,12 @@ const ShowCase = () => {
       </h2>
 
       {/* Categories */}
-      <div className="flex justify-center space-x-8 text-lg font-semibold mt-15">
+      <div className="flex justify-center space-x-8 text-lg font-semibold mt-15 cursor-pointer">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-4 py-2 rounded-lg transition-all ${
+            className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
               selectedCategory === category
                 ? "bg-transparent text-white"
                 : "bg-transparent text-main"
