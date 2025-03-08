@@ -1,17 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;700&family=Poppins:wght@300;400;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  /* Colors */
+  --text-main: #3D3D3D;
+  --cta-main: #008CFF;
+  --cta-hover: #0070E0; /* Darker blue for hover */
+  --secondary-gradient-start: #55C39F;
+  --secondary-gradient-end: #D3EBC6;
+
+  /* Fonts */
+  --font-sans: "Poppins", sans-serif;
+  --font-heading: "Oswald", sans-serif;
+
+  /* Backgrounds */
+  --bg-main: #F8F8FF;
+  --bg-second: linear-gradient(100deg, var(--secondary-gradient-start) 0%, var(--secondary-gradient-end) 100%);
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,8 +27,54 @@
   }
 }
 
+/* Apply global styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* CTA Button */
+.cta-button {
+  background-color: var(--cta-main);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background 0.3s ease-in-out;
+}
+
+.cta-button:hover {
+  background-color: var(--cta-hover);
+}
+
+/* Background classes */
+.bg-main {
+  background: var(--bg-main);
+}
+
+.bg-second {
+  background: var(--bg-second);
+}
+
+/* FIXED Background for the Contact Section */
+.bg-third {
+  background-image: url('/background/Wave.png'); /* Ensure the path is correct */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Text Color */
+.text-main {
+  color: var(--text-main);
+}
+
+html {
+  scroll-behavior: smooth;
 }
