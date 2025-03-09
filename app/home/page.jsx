@@ -40,7 +40,7 @@ const HomePage = () => {
           draggable="false" // Prevent dragging
           onDragStart={preventImageActions} // Prevent dragging events
           onContextMenu={preventImageActions} // Disable right-click on image
-          className="h-full w-full object-contain"
+          className="cursor-pointer h-full w-full object-contain transition-transform duration-300 ease-out hover:scale-105"
         />
         <h1 className="text-main text-left text-6xl font-bold text-gray-800 mt-4 leading-tight">
           AUGMENT YOUR <br /> IMAGES
@@ -59,7 +59,9 @@ const HomePage = () => {
           </button>
           <p className="text-main pt-2">OR DRAG YOUR IMAGE</p>
         </div>
-        <p className="text-main text-2xl mt-4">Quickly generate dataset variations</p>
+        <p className="text-main text-2xl mt-4">
+          Quickly generate dataset variations
+        </p>
 
         {/* Example Images Section */}
         <div className="flex justify-between h-[9%] w-[80%] bg-main flex-row mt-4">
@@ -68,13 +70,25 @@ const HomePage = () => {
             Try one of these:
           </p>
           <div className="h-full w-26 bg-white rounded-[12px] shadow-md">
-            <img src="/images/Animal.png" alt="Animal" className="h-full w-full object-contain" />
+            <img
+              src="/images/Animal.png"
+              alt="Animal"
+              className="h-full w-full object-contain"
+            />
           </div>
           <div className="h-full w-26 bg-white rounded-[12px] shadow-md">
-            <img src="/images/Object.png" alt="Object" className="h-full w-full object-contain" />
+            <img
+              src="/images/Object.png"
+              alt="Object"
+              className="h-full w-full object-contain"
+            />
           </div>
           <div className="h-full w-26 bg-white rounded-[12px] shadow-md">
-            <img src="/images/Pest.png" alt="Pest" className="h-full w-full object-contain" />
+            <img
+              src="/images/Pest.png"
+              alt="Pest"
+              className="h-full w-full object-contain"
+            />
           </div>
         </div>
       </section>

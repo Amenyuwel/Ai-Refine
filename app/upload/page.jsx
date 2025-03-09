@@ -16,7 +16,7 @@ const ControlsPage = () => {
     <div className="h-screen w-full bg-gray-200">
       {/* Navbar at the top */}
       <Navbar />
-      
+
       {/* Centered Content: Image & Button in Column */}
       <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] gap-4">
         {uploadedImage ? (
@@ -28,16 +28,14 @@ const ControlsPage = () => {
         ) : (
           <p className="text-gray-600">No image uploaded</p>
         )}
-        
+
         <button className="flex flex-row justify-center items-center gap-2 h-[5%] w-[10%] rounded-[200px] bg-[#008CFF] text-white">
-       
           DOWNLOAD
           {/* OPENS A SELECT */}
-          <MdKeyboardArrowDown className="w-auto h-auto"/>
+          <MdKeyboardArrowDown className="w-auto h-auto" />
         </button>
-
-        </div>
       </div>
+    </div>
   );
 };
 

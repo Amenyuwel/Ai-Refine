@@ -1,21 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;700&family=Poppins:wght@300;400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;700&family=Poppins:wght@300;400;700&display=swap");
 @import "tailwindcss";
 
 :root {
   /* Colors */
-  --text-main: #3D3D3D;
-  --cta-main: #008CFF;
-  --cta-hover: #0070E0; /* Darker blue for hover */
-  --secondary-gradient-start: #55C39F;
-  --secondary-gradient-end: #D3EBC6;
+  --text-main: #3d3d3d;
+  --cta-main: #008cff;
+  --cta-hover: #0070e0; /* Darker blue for hover */
+  --secondary-gradient-start: #55c39f;
+  --secondary-gradient-end: #d3ebc6;
 
   /* Fonts */
   --font-sans: "Poppins", sans-serif;
   --font-heading: "Oswald", sans-serif;
 
   /* Backgrounds */
-  --bg-main: #F8F8FF;
-  --bg-second: linear-gradient(100deg, var(--secondary-gradient-start) 0%, var(--secondary-gradient-end) 100%);
+  --bg-main: #f8f8ff;
+  --bg-second: linear-gradient(
+    100deg,
+    var(--secondary-gradient-start) 0%,
+    var(--secondary-gradient-end) 100%
+  );
   --foreground: #171717;
 }
 
@@ -35,7 +39,12 @@ body {
 }
 
 /* Headings */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
 }
 
@@ -64,7 +73,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* FIXED Background for the Contact Section */
 .bg-third {
-  background-image: url('/background/Wave.png'); /* Ensure the path is correct */
+  background-image: url("/background/Wave.png"); /* Ensure the path is correct */
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -73,6 +82,22 @@ h1, h2, h3, h4, h5, h6 {
 /* Text Color */
 .text-main {
   color: var(--text-main);
+}
+
+@keyframes updown {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.hover-animate-updown:hover {
+  animation: updown 1.5s ease-in-out infinite;
 }
 
 html {

@@ -85,6 +85,9 @@ const ShowCase = () => {
 };
 
 const ImageShowcase = ({ category }) => {
+  const preventImageActions = (event) => {
+    event.preventDefault();
+  };
   return (
     <div className="flex flex-wrap justify-center items-center w-full gap-8">
       {/* Original Image */}
@@ -92,15 +95,23 @@ const ImageShowcase = ({ category }) => {
         <img
           src={imagePaths[category].Original}
           alt="Original"
+          draggable="false" // Prevent dragging
+          onDragStart={preventImageActions} // Prevent dragging events
+          onContextMenu={preventImageActions} // Disable right-click on image
           className="w-54 h-70 object-contain"
         />
-        <figcaption className="text-center font-semibold mt-2 text-lg">ORIGINAL</figcaption>
+        <figcaption className="text-center font-semibold mt-2 text-lg">
+          ORIGINAL
+        </figcaption>
       </figure>
 
       {/* Augmented Images */}
       {augmentations.slice(1).map((aug) => (
         <figure key={aug} className="p-4 bg-white rounded-lg shadow-lg">
           <img
+            draggable="false" // Prevent dragging
+            onDragStart={preventImageActions} // Prevent dragging events
+            onContextMenu={preventImageActions} // Disable right-click on image
             src={imagePaths[category][aug]}
             alt={aug}
             className="w-56 h-70 object-contain"
