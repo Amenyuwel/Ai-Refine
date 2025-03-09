@@ -22,7 +22,7 @@ const Navbar = ({ scrollToSection, homeRef, aboutRef, contactRef }) => {
   };
 
   return (
-    <header className="z-50 h-[8%] w-full bg-[#F8F9FA] text-black flex items-center justify-between px-6 sticky top-0 shadow-md">
+    <header className="z-50 h-[8%] w-full bg-[#F8F9FA]  flex items-center justify-between px-6 sticky top-0 shadow-md opacity-95">
       {/* LOGO & BRAND NAME - Both Clickable */}
       <div className="flex items-center gap-3">
       <a
