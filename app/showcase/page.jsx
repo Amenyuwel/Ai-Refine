@@ -53,14 +53,14 @@ const ShowCase = () => {
   const [selectedCategory, setSelectedCategory] = useState("People");
 
   return (
-    <div className="h-screen w-full bg-second pt-[5%] items-center justify-center flex-col">
+    <section className="h-screen w-full bg-second pt-[5%] items-center justify-center flex-col">
       {/* Title */}
       <h2 className="text-center text-5xl font-bold mt-2">
         SEE IT FOR YOURSELF!
       </h2>
 
       {/* Categories */}
-      <div className="flex justify-center space-x-8 text-lg font-semibold mt-15 cursor-pointer">
+      <nav className="flex justify-center space-x-8 text-lg font-semibold mt-15 cursor-pointer">
         {categories.map((category) => (
           <button
             key={category}
@@ -74,13 +74,13 @@ const ShowCase = () => {
             {category.toUpperCase()}
           </button>
         ))}
-      </div>
+      </nav>
 
       {/* Image Augmentation Showcase */}
       <div className="flex flex-col items-center mt-25">
         <ImageShowcase category={selectedCategory} />
       </div>
-    </div>
+    </section>
   );
 };
 
@@ -88,27 +88,27 @@ const ImageShowcase = ({ category }) => {
   return (
     <div className="flex flex-wrap justify-center items-center w-full gap-8">
       {/* Original Image */}
-      <div className="p-4 bg-white rounded-lg shadow-lg">
+      <figure className="p-4 bg-white rounded-lg shadow-lg">
         <img
           src={imagePaths[category].Original}
           alt="Original"
           className="w-54 h-70 object-contain"
         />
-        <p className="text-center font-semibold mt-2 text-lg">ORIGINAL</p>
-      </div>
+        <figcaption className="text-center font-semibold mt-2 text-lg">ORIGINAL</figcaption>
+      </figure>
 
       {/* Augmented Images */}
       {augmentations.slice(1).map((aug) => (
-        <div key={aug} className="p-4 bg-white rounded-lg shadow-lg">
+        <figure key={aug} className="p-4 bg-white rounded-lg shadow-lg">
           <img
             src={imagePaths[category][aug]}
             alt={aug}
             className="w-56 h-70 object-contain"
           />
-          <p className="text-center font-semibold mt-2 text-lg">
+          <figcaption className="text-center font-semibold mt-2 text-lg">
             {aug.toUpperCase()}
-          </p>
-        </div>
+          </figcaption>
+        </figure>
       ))}
     </div>
   );
