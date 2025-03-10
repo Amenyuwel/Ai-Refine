@@ -3,13 +3,7 @@
 import React, { useState } from "react";
 
 const categories = ["People", "Object", "Pests", "Animals", "Plant"];
-const augmentations = [
-  "Original",
-  "Flipped",
-  "Blurred",
-  "Grayscale",
-  "Rotated",
-];
+const augmentations = ["Original", "Flipped", "Blurred", "Grayscale", "Rotated"];
 
 const imagePaths = {
   People: {
@@ -53,22 +47,18 @@ const ShowCase = () => {
   const [selectedCategory, setSelectedCategory] = useState("People");
 
   return (
-    <section className="h-screen w-full bg-second pt-[5%] items-center justify-center flex-col">
+    <section className="h-screen w-full bg-second flex flex-col items-center justify-center px-6 py-12">
       {/* Title */}
-      <h2 className="text-center text-5xl font-bold mt-2">
-        SEE IT FOR YOURSELF!
-      </h2>
+      <h2 className="text-center text-5xl font-bold mb-8">SEE IT FOR YOURSELF!</h2>
 
       {/* Categories */}
-      <nav className="flex justify-center space-x-8 text-lg font-semibold mt-15 cursor-pointer">
+      <nav className="flex justify-center space-x-6 text-lg font-semibold py-4">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
-              selectedCategory === category
-                ? "bg-transparent text-white"
-                : "bg-transparent text-main"
+            className={`px-6 py-3 rounded-lg transition-all cursor-pointer ${
+              selectedCategory === category ? "bg-transparent text-white" : "bg-transparent text-main"
             }`}
           >
             {category.toUpperCase()}
@@ -77,7 +67,7 @@ const ShowCase = () => {
       </nav>
 
       {/* Image Augmentation Showcase */}
-      <div className="flex flex-col items-center mt-25">
+      <div className="flex flex-col items-center w-full mt-8">
         <ImageShowcase category={selectedCategory} />
       </div>
     </section>
@@ -88,37 +78,34 @@ const ImageShowcase = ({ category }) => {
   const preventImageActions = (event) => {
     event.preventDefault();
   };
+
   return (
-    <div className="flex flex-wrap justify-center items-center w-full gap-8">
+    <div className="flex flex-wrap justify-center items-center w-full gap-6">
       {/* Original Image */}
-      <figure className="p-4 bg-white rounded-lg shadow-lg">
+      <figure className="bg-white rounded-lg shadow-lg p-4">
         <img
           src={imagePaths[category].Original}
           alt="Original"
-          draggable="false" // Prevent dragging
-          onDragStart={preventImageActions} // Prevent dragging events
-          onContextMenu={preventImageActions} // Disable right-click on image
-          className="w-54 h-70 object-contain"
+          draggable="false"
+          onDragStart={preventImageActions}
+          onContextMenu={preventImageActions}
+          className="w-52 h-64 object-contain"
         />
-        <figcaption className="text-center font-semibold mt-2 text-lg">
-          ORIGINAL
-        </figcaption>
+        <figcaption className="text-center font-semibold text-lg mt-2">ORIGINAL</figcaption>
       </figure>
 
       {/* Augmented Images */}
       {augmentations.slice(1).map((aug) => (
-        <figure key={aug} className="p-4 bg-white rounded-lg shadow-lg">
+        <figure key={aug} className="bg-white rounded-lg shadow-lg p-4">
           <img
-            draggable="false" // Prevent dragging
-            onDragStart={preventImageActions} // Prevent dragging events
-            onContextMenu={preventImageActions} // Disable right-click on image
             src={imagePaths[category][aug]}
             alt={aug}
-            className="w-56 h-70 object-contain"
+            draggable="false"
+            onDragStart={preventImageActions}
+            onContextMenu={preventImageActions}
+            className="w-52 h-64 object-contain"
           />
-          <figcaption className="text-center font-semibold mt-2 text-lg">
-            {aug.toUpperCase()}
-          </figcaption>
+          <figcaption className="text-center font-semibold text-lg mt-2">{aug.toUpperCase()}</figcaption>
         </figure>
       ))}
     </div>

@@ -3,7 +3,7 @@ import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <div className="bg-main h-[200px] w-full flex items-center justify-center space-x-6 relative">
+    <div className="bg-[#F8F9FA] h-[120px] w-full flex items-center justify-center space-x-6 relative">
       {/* GitHub Icon */}
       <a
         href="https://github.com/Amenyuwel"

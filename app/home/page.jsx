@@ -24,6 +24,11 @@ const HomePage = () => {
     onDragLeave: () => setIsDragging(false),
   });
 
+  
+  const preventImageActions = (event) => {
+    event.preventDefault();
+  };
+
   return (
     <main
       {...getRootProps()}
@@ -60,6 +65,7 @@ const HomePage = () => {
           src="/images/pixel.png"
           alt="Pixel"
           draggable="false"
+          onContextMenu={preventImageActions}
           className="cursor-pointer h-full w-full object-contain transition-transform duration-300 ease-out hover:scale-105"
         />
         <h1 className="text-main text-left text-6xl font-bold text-gray-800 mt-4 leading-tight">
