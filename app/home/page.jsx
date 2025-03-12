@@ -24,7 +24,6 @@ const HomePage = () => {
     onDragLeave: () => setIsDragging(false),
   });
 
-  
   const preventImageActions = (event) => {
     event.preventDefault();
   };
@@ -66,8 +65,9 @@ const HomePage = () => {
           alt="Pixel"
           draggable="false"
           onContextMenu={preventImageActions}
-          className="cursor-pointer h-full w-full object-contain transition-transform duration-300 ease-out hover:scale-105"
+          className="cursor-pointer h-full w-full object-contain transition-all duration-300 ease-out hover:scale-105 hover:grayscale"
         />
+
         <h1 className="text-main text-left text-6xl font-bold text-gray-800 mt-4 leading-tight">
           AUGMENT YOUR <br /> IMAGES
         </h1>
@@ -79,7 +79,7 @@ const HomePage = () => {
           isDragging ? "opacity-50" : "opacity-100"
         }`}
       >
-        <div className="flex flex-col w-[80%] h-[60%] rounded-[50px] bg-white shadow-xl elevation-3 items-center justify-center">
+        <div className="flex flex-col w-[80%] h-[60%] rounded-[50px] bg-white shadow-2xl elevation-3 items-center justify-center">
           <button
             type="button"
             className="text-sans rounded-full h-[10%] w-[40%] bg-[#008CFF] text-white text-2xl shadow-md cursor-pointer"
