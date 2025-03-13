@@ -7,7 +7,7 @@ const AboutPage = () => {
   };
 
   return (
-    <main className="h-screen w-full bg-main flex items-center justify-center px-6">
+    <main className="h-[90vh] w-full bg-main flex items-center justify-center px-6">
       <section className="flex flex-row items-center justify-between w-[80%]">
         <article className="flex flex-col w-[50%]">
           <h1 className="text-main text-6xl leading-tight">

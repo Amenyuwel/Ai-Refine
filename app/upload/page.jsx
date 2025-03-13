@@ -31,6 +31,8 @@ const ControlsPage = () => {
     }
   }, []);
 
+  
+
   // Function to download the image
   const handleDownload = () => {
     if (!uploadedImage) return;
@@ -57,7 +59,7 @@ const ControlsPage = () => {
         <input {...getInputProps()} className="hidden" />
         
         {/* Content Wrapper */}
-        <div className="flex justify-center items-start w-full bg-green-600 p-8">
+        <div className="flex justify-center items-start w-full bg-main p-8">
           {/* Image Display Section */}
           {uploadedImage && (
             <div className="flex flex-col items-center w-[50%]">
@@ -69,8 +71,8 @@ const ControlsPage = () => {
               />
               {/* Download Button */}
               <button
-                className="mt-4 px-6 py-2 rounded-full bg-[#008CFF] text-white transition-all"
-                style={{ width: "200px" }}
+                className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#008CFF] text-white transition-all"
+                style={{ width: "150px" }}
                 onClick={handleDownload}
               >
                 DOWNLOAD
@@ -79,7 +81,7 @@ const ControlsPage = () => {
           )}
 
           {/* Controls Section */}
-          <div className="bg-main w-[20%] h-auto flex flex-col gap-4 p-4 rounded-lg shadow-md">
+          <div className="place-self-center bg-main w-[20%] h-auto flex flex-col gap-4 py-8 px-8 rounded-lg shadow-lg">
             {/* First Control */}
             <button className="cursor-pointer flex items-center gap-x-4 rounded-lg p-4 bg-white shadow">
               <AiFillControl className="w-10 h-10 text-main" />
