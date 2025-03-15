@@ -1,16 +1,17 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { quantum } from "ldrs";
 import { useDropzone } from "react-dropzone";
-
-quantum.register();
+import Toast, { showToast } from "../components/Toast";
+import { ClipLoader } from "react-spinners"; // Importing React Spinner
 
 const HomePage = () => {
   const router = useRouter();
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imageUploaded, setImageUploaded] = useState(false); // Track if image is uploaded
+  const [toastMessage, setToastMessage] = useState(""); // For Toast
 
   const handleFileUpload = (file) => {
     if (!file) return;
@@ -18,6 +19,7 @@ const HomePage = () => {
     setLoading(true);
     const previewUrl = URL.createObjectURL(file);
     sessionStorage.setItem("uploadedImage", previewUrl);
+    setImageUploaded(true);
 
     setTimeout(() => {
       setLoading(false);
@@ -26,14 +28,27 @@ const HomePage = () => {
   };
 
   const onDrop = (acceptedFiles) => {
-    if (acceptedFiles.length === 0) return;
+    if (acceptedFiles.length === 0) {
+      setToastMessage("No image uploaded, please upload an image");
+      setTimeout(() => setToastMessage(""), 3000); // Clear the toast after 3 seconds
+      return;
+    }
 
-    setIsDragging(false);
-
-    setLoading(true);
     const file = acceptedFiles[0];
+
+    // Check if the uploaded file is an image
+    if (!file.type.startsWith("image/")) {
+      setToastMessage("Please upload a valid image file (e.g., .jpg, .png, .jpeg)");
+      setTimeout(() => setToastMessage(""), 3000); // Clear the toast after 3 seconds
+      return;
+    }
+
+    setIsDragging(false);  // Reset dragging state to remove green screen
+    setLoading(true);
+
     const previewUrl = URL.createObjectURL(file);
     sessionStorage.setItem("uploadedImage", previewUrl);
+    setImageUploaded(true);
 
     setTimeout(() => {
       setLoading(false);
@@ -42,7 +57,7 @@ const HomePage = () => {
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: "image/*",
+    accept: "image/*", // Ensure only images are accepted
     onDrop,
     noClick: true,
     onDragEnter: () => setIsDragging(true),
@@ -62,9 +77,8 @@ const HomePage = () => {
     >
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center z-50 flex-col">
-          <l-quantum size="100" speed="1.75" color="black"></l-quantum>
+          <ClipLoader size={50} color={"#000000"} loading={loading} /> {/* Updated loader */}
           <p className="text-main text-semibold">Uploading...</p>
-          
         </div>
       )}
 
@@ -143,6 +157,9 @@ const HomePage = () => {
           ))}
         </div>
       </section>
+
+      {/* Toast Message */}
+      {toastMessage && <Toast message={toastMessage} />}
     </main>
   );
 };
