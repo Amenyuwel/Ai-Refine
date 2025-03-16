@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Toast, { showToast } from "../components/Toast";
 import Navbar from "../components/Navbar";
 import { FaDiceThree } from "react-icons/fa";
@@ -7,10 +7,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageFooter from "./ImageFooter";
 import ControlsModal from "./ControlsModal";
+import ClipLoader from "react-spinners/ClipLoader"; // Loader for animation
 
 const ControlsPage = () => {
   const [modalType, setModalType] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [loading, setLoading] = useState(false); // New loading state
   const imageRef = useRef(null);
 
   const onDrop = (acceptedFiles) => {
@@ -18,43 +20,28 @@ const ControlsPage = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      showToast("Please upload a valid image file!", "error");
+      showToast("invalidImage");
       return;
     }
 
-    const previewUrl = URL.createObjectURL(file);
-    setUploadedImage(previewUrl);
-    sessionStorage.setItem("uploadedImage", previewUrl);
+    if (uploadedImage) {
+      URL.revokeObjectURL(uploadedImage);
+    }
+
+    setLoading(true); // Show loader
+    setTimeout(() => {
+      const previewUrl = URL.createObjectURL(file);
+      setUploadedImage(previewUrl);
+      sessionStorage.setItem("uploadedImage", previewUrl);
+      setLoading(false); // Hide loader
+    }, 200); // Simulated loading time
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: "image/*",
+    accept: { "image/jpeg": [], "image/png": [] },
     onDrop,
     noClick: true,
   });
-
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      showToast("Please upload a valid image file!", "error");
-      return;
-    }
-
-    const previewUrl = URL.createObjectURL(file);
-    setUploadedImage(previewUrl);
-    sessionStorage.setItem("uploadedImage", previewUrl);
-  };
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setUploadedImage(sessionStorage.getItem("uploadedImage"));
-    }
-  }, []);
-
-  const openModal = (type) => setModalType(type);
-  const closeModal = () => setModalType(null);
 
   const handleDownload = () => {
     if (!uploadedImage) return;
@@ -66,19 +53,62 @@ const ControlsPage = () => {
     document.body.removeChild(link);
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUploadedImage(sessionStorage.getItem("uploadedImage"));
+    }
+  }, []);
+
+  const openModal = (type) => setModalType(type);
+  const closeModal = () => setModalType(null);
+
   return (
     <div className="h-screen w-full bg-gray-200 flex flex-col">
       <Navbar />
+      <Toast />
+
+      {/* Dragging Dropzone */}
       <div
         {...getRootProps()}
         className={`relative h-screen w-full flex items-center justify-center transition-all duration-300 ${
-          isDragActive ? "bg-[#d3ebc6] bg-opacity-80 z-150" : "bg-main"
-        }`}
+          isDragActive ? "bg-[#d3ebc6] bg-opacity-80 z-[70]" : "bg-main"
+        } ${loading ? "backdrop-blur-md" : "bg-[#d3ebc6]"}`}
       >
-        <input {...getInputProps()} className="hidden" />
-        <div className="flex justify-center items-start w-full bg-main p-8">
-          {uploadedImage && (
-            <div className="flex flex-col items-center w-[50%]">
+        <label htmlFor="fileUpload" className="hidden">
+          Upload an image
+        </label>
+        <input id="fileUpload" {...getInputProps()} className="hidden" />
+
+        {/* Loading Spinner */}
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center z-50 flex-col">
+            <ClipLoader size={50} color={"#000000"} loading={loading} />
+            <p className="text-main text-semibold">Uploading...</p>
+          </div>
+        )}
+
+        {/* Dragging Text */}
+        {isDragActive && (
+          <p className="z-60 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-main">
+            Drop your image here!
+          </p>
+        )}
+
+        {/* Dragging Corners */}
+        {isDragActive && (
+          <>
+            <div className="absolute top-8 left-8 w-[80px] h-[80px] border-t-[8px] border-l-[8px] border-white rounded-tl-3xl"></div>
+            <div className="absolute top-8 right-8 w-[80px] h-[80px] border-t-[8px] border-r-[8px] border-white rounded-tr-3xl"></div>
+            <div className="absolute bottom-8 left-8 w-[80px] h-[80px] border-b-[8px] border-l-[8px] border-white rounded-bl-3xl"></div>
+            <div className="absolute bottom-8 right-8 w-[80px] h-[80px] border-b-[8px] border-r-[8px] border-white rounded-br-3xl"></div>
+          </>
+        )}
+
+        {/* Uploaded Image Display */}
+        {uploadedImage && !loading && (
+          <div className="grid grid-cols-[auto_1fr] gap-6 items-center">
+            {/* Image + Download Button */}
+            <div className="flex flex-col items-center">
               <img
                 ref={imageRef}
                 src={uploadedImage}
@@ -93,36 +123,38 @@ const ControlsPage = () => {
                 DOWNLOAD
               </button>
             </div>
-          )}
 
-          <section className="place-self-center bg-main w-[20%] h-auto flex flex-col gap-4 py-8 px-8 rounded-lg">
-            <button
-              onClick={() => openModal("controls")}
-              className="cursor-pointer flex items-center gap-x-4 rounded-lg p-4 bg-white shadow-lg hover:scale-105 transition-all duration-300"
-            >
-              <AiFillControl className="w-10 h-10 text-main" />
-              <p className="text-main text-lg font-semibold">CONTROLS</p>
-            </button>
+            {/* Control Buttons */}
+            <section className="bg-transparent h-auto align-items-center flex flex-col gap-4 py-8 px-6 rounded-lg w-full">
+              <button
+                onClick={() => openModal("controls")}
+                className="cursor-pointer flex items-center gap-x-4 rounded-lg p-4 bg-white shadow-lg hover:scale-105 transition-all duration-300"
+              >
+                <AiFillControl className="w-10 h-10 text-main" />
+                <p className="text-main text-lg font-semibold">CONTROLS</p>
+              </button>
 
-            <button
-              onClick={() => openModal("randomize")}
-              className="cursor-pointer flex items-center gap-x-4 rounded-lg p-4 bg-white shadow-lg hover:scale-105 transition-all duration-300"
-            >
-              <FaDiceThree className="w-10 h-10 text-main" />
-              <p className="text-main text-lg font-semibold">RANDOMIZE</p>
-            </button>
-          </section>
-        </div>
+              <button
+                onClick={() => openModal("randomize")}
+                className="cursor-pointer flex items-center gap-x-4 rounded-lg p-4 bg-white shadow-lg hover:scale-105 transition-all duration-300"
+              >
+                <FaDiceThree className="w-10 h-10 text-main" />
+                <p className="text-main text-lg font-semibold">RANDOMIZE</p>
+              </button>
+            </section>
+          </div>
+        )}
       </div>
 
+      {/* Modal & Footer */}
       {modalType && (
-        <ControlsModal isOpen={!!modalType} type={modalType} onClose={closeModal} />
+        <ControlsModal
+          isOpen={!!modalType}
+          type={modalType}
+          onClose={closeModal}
+        />
       )}
-
       <ImageFooter />
-
-      {/* Use global Toast component */}
-      <Toast />
     </div>
   );
 };

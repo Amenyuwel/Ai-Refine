@@ -11,7 +11,6 @@ const HomePage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imageUploaded, setImageUploaded] = useState(false); // Track if image is uploaded
-  const [toastMessage, setToastMessage] = useState(""); // For Toast
 
   const handleFileUpload = (file) => {
     if (!file) return;
@@ -28,36 +27,26 @@ const HomePage = () => {
   };
 
   const onDrop = (acceptedFiles) => {
+    setIsDragging(false); // Reset dragging state immediately
+  
     if (acceptedFiles.length === 0) {
-      setToastMessage("No image uploaded, please upload an image");
-      setTimeout(() => setToastMessage(""), 3000); // Clear the toast after 3 seconds
+      showToast("noImage"); // Uses predefined message from Toast.jsx
       return;
     }
-
+  
     const file = acceptedFiles[0];
-
+  
     // Check if the uploaded file is an image
     if (!file.type.startsWith("image/")) {
-      setToastMessage("Please upload a valid image file (e.g., .jpg, .png, .jpeg)");
-      setTimeout(() => setToastMessage(""), 3000); // Clear the toast after 3 seconds
+      showToast("invalidImage"); // Uses predefined message from Toast.jsx
       return;
     }
-
-    setIsDragging(false);  // Reset dragging state to remove green screen
-    setLoading(true);
-
-    const previewUrl = URL.createObjectURL(file);
-    sessionStorage.setItem("uploadedImage", previewUrl);
-    setImageUploaded(true);
-
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/upload");
-    }, 2000);
+  
+    handleFileUpload(file);
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: "image/*", // Ensure only images are accepted
+    accept: { "image/jpeg": [], "image/png": [] },
     onDrop,
     noClick: true,
     onDragEnter: () => setIsDragging(true),
@@ -75,6 +64,9 @@ const HomePage = () => {
         isDragging ? "bg-[#d3ebc6] bg-opacity-80" : "bg-main"
       } ${loading ? "backdrop-blur-md" : ""}`}
     >
+      {/* Add the Toast Component Here */}
+      <Toast />
+
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center z-50 flex-col">
           <ClipLoader size={50} color={"#000000"} loading={loading} /> {/* Updated loader */}
@@ -157,9 +149,6 @@ const HomePage = () => {
           ))}
         </div>
       </section>
-
-      {/* Toast Message */}
-      {toastMessage && <Toast message={toastMessage} />}
     </main>
   );
 };

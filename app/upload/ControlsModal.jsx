@@ -17,7 +17,7 @@ const ControlsModal = ({ isOpen, type, onClose }) => {
   };
 
   return (
-    <main className="fixed inset-0 flex items-center justify-center z-50 flex-col">
+    <main className="fixed inset-0 flex items-center justify-center z-[50] flex-col">
       <FaTimes
         title="Close"
         className="flex text-white cursor-pointer ml-[31%]"
