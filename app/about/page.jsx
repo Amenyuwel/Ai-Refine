@@ -10,7 +10,7 @@ const AboutPage = () => {
     <main className="h-[90vh] w-full bg-main flex items-center justify-center px-6">
       <section className="flex flex-row items-center justify-between w-[80%]">
         <article className="flex flex-col w-[50%]">
-          <h1 className="text-main text-6xl leading-tight">
+          <h1 className="text-main text-6xl leading-tight font-bold">
             Quickly augment your images automatically
           </h1>
           <p className="text-2xl text-main mt-4">{description}</p>

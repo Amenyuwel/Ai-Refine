@@ -28,20 +28,20 @@ const HomePage = () => {
 
   const onDrop = (acceptedFiles) => {
     setIsDragging(false); // Reset dragging state immediately
-  
+
     if (acceptedFiles.length === 0) {
       showToast("noImage"); // Uses predefined message from Toast.jsx
       return;
     }
-  
+
     const file = acceptedFiles[0];
-  
+
     // Check if the uploaded file is an image
     if (!file.type.startsWith("image/")) {
       showToast("invalidImage"); // Uses predefined message from Toast.jsx
       return;
     }
-  
+
     handleFileUpload(file);
   };
 
@@ -61,7 +61,7 @@ const HomePage = () => {
     <main
       {...getRootProps()}
       className={`relative h-screen w-full flex items-center justify-center transition-all duration-300 ${
-        isDragging ? "bg-[#d3ebc6] bg-opacity-80" : "bg-main"
+        isDragging ? "bg-[#d3ebc6] bg-opacity-80 z-50" : "bg-main"
       } ${loading ? "backdrop-blur-md" : ""}`}
     >
       {/* Add the Toast Component Here */}
@@ -69,14 +69,15 @@ const HomePage = () => {
 
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center z-50 flex-col">
-          <ClipLoader size={50} color={"#000000"} loading={loading} /> {/* Updated loader */}
+          <ClipLoader size={50} color={"#000000"} loading={loading} />{" "}
+          {/* Updated loader */}
           <p className="text-main text-semibold">Uploading...</p>
         </div>
       )}
 
       {/* Text Displayed While Dragging */}
       {isDragging && (
-        <p className="z-60 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-main">
+        <p className="z-60 background-blur-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[9rem] font-bold whitespace-nowrap text-main">
           Drop your image here!
         </p>
       )}

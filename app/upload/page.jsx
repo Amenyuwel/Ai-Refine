@@ -55,7 +55,10 @@ const ControlsPage = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setUploadedImage(sessionStorage.getItem("uploadedImage"));
+      const storedImage = sessionStorage.getItem("uploadedImage");
+      if (storedImage) {
+        setUploadedImage(storedImage);
+      }
     }
   }, []);
 
@@ -63,7 +66,7 @@ const ControlsPage = () => {
   const closeModal = () => setModalType(null);
 
   return (
-    <div className="h-screen w-full bg-gray-200 flex flex-col">
+    <main className="h-screen w-full bg-gray-200 flex flex-col">
       <Navbar />
       <Toast />
 
@@ -71,8 +74,8 @@ const ControlsPage = () => {
       <div
         {...getRootProps()}
         className={`relative h-screen w-full flex items-center justify-center transition-all duration-300 ${
-          isDragActive ? "bg-[#d3ebc6] bg-opacity-80 z-[70]" : "bg-main"
-        } ${loading ? "backdrop-blur-md" : "bg-[#d3ebc6]"}`}
+          isDragActive ? "bg-[#B2D3A8] bg-opacity-80 z-50" : "bg-main"
+        } ${loading ? "backdrop-blur-md opacity-80" : ""}`}
       >
         <label htmlFor="fileUpload" className="hidden">
           Upload an image
@@ -89,7 +92,7 @@ const ControlsPage = () => {
 
         {/* Dragging Text */}
         {isDragActive && (
-          <p className="z-60 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-main">
+          <p className="z-60 background-blur-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[9rem] font-bold whitespace-nowrap text-main">
             Drop your image here!
           </p>
         )}
@@ -108,7 +111,11 @@ const ControlsPage = () => {
         {uploadedImage && !loading && (
           <div className="grid grid-cols-[auto_1fr] gap-6 items-center">
             {/* Image + Download Button */}
-            <div className="flex flex-col items-center">
+            <div
+              className={`flex flex-col items-center ${
+                isDragActive || loading ? "opacity-50" : "opacity-100"
+              }`}
+            >
               <img
                 ref={imageRef}
                 src={uploadedImage}
@@ -125,7 +132,11 @@ const ControlsPage = () => {
             </div>
 
             {/* Control Buttons */}
-            <section className="bg-transparent h-auto align-items-center flex flex-col gap-4 py-8 px-6 rounded-lg w-full">
+            <section
+              className={`bg-transparent h-auto flex flex-col gap-4 py-8 px-6 rounded-lg w-full ${
+                isDragActive || loading ? "opacity-50" : "opacity-100"
+              }`}
+            >
               <button
                 onClick={() => openModal("controls")}
                 className="cursor-pointer flex items-center gap-x-4 rounded-lg p-4 bg-white shadow-lg hover:scale-105 transition-all duration-300"
@@ -155,7 +166,7 @@ const ControlsPage = () => {
         />
       )}
       <ImageFooter />
-    </div>
+    </main>
   );
 };
 
