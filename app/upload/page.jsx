@@ -15,26 +15,31 @@ const ControlsPage = () => {
   const [loading, setLoading] = useState(false); // New loading state
   const imageRef = useRef(null);
 
-  const onDrop = (acceptedFiles) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
+  const onDrop = (acceptedFiles, rejectedFiles) => {
+    if (rejectedFiles.length > 0) {
       showToast("invalidImage");
       return;
     }
-
+  
+    const file = acceptedFiles[0];
+    if (!file) return;
+  
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      showToast("invalidImage");
+      return;
+    }
+  
     if (uploadedImage) {
       URL.revokeObjectURL(uploadedImage);
     }
-
-    setLoading(true); // Show loader
+  
+    setLoading(true);
     setTimeout(() => {
       const previewUrl = URL.createObjectURL(file);
       setUploadedImage(previewUrl);
       sessionStorage.setItem("uploadedImage", previewUrl);
-      setLoading(false); // Hide loader
-    }, 200); // Simulated loading time
+      setLoading(false);
+    }, 200);
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -68,7 +73,6 @@ const ControlsPage = () => {
   return (
     <main className="h-screen w-full bg-gray-200 flex flex-col">
       <Navbar />
-      <Toast />
 
       {/* Dragging Dropzone */}
       <div
@@ -166,6 +170,7 @@ const ControlsPage = () => {
         />
       )}
       <ImageFooter />
+      <Toast />
     </main>
   );
 };

@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import Toast, { showToast } from "../components/Toast";
+import Image from "next/image";
 import { ClipLoader } from "react-spinners"; // Importing React Spinner
 
 const HomePage = () => {
@@ -150,6 +151,8 @@ const HomePage = () => {
           ))}
         </div>
       </section>
+      <Image src="/images/arrow.svg" className="hover-animate-downup cursor-pointer absolute left-1/2 top-[calc(100vh-75px)] -translate-x-1/2" alt="Arrow" width={150} height={200} loading="eager"  />
+      <Image src="/images/light.svg" className="rotate-light cursor-pointer absolute top-5 right-55" alt="Light" width={150} height={200} loading="eager" />
     </main>
   );
 };
