@@ -11,7 +11,8 @@ import ClipLoader from "react-spinners/ClipLoader"; // Loader for animation
 
 const ControlsPage = () => {
   const [modalType, setModalType] = useState(null);
-  const [uploadedImage, setUploadedImage] = useState(null);
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(false); // New loading state
   const imageRef = useRef(null);
 
@@ -20,50 +21,57 @@ const ControlsPage = () => {
       showToast("invalidImage");
       return;
     }
-  
-    const file = acceptedFiles[0];
-    if (!file) return;
-  
-    if (!["image/jpeg", "image/png"].includes(file.type)) {
-      showToast("invalidImage");
-      return;
-    }
-  
-    if (uploadedImage) {
-      URL.revokeObjectURL(uploadedImage);
-    }
-  
-    setLoading(true);
-    setTimeout(() => {
-      const previewUrl = URL.createObjectURL(file);
-      setUploadedImage(previewUrl);
-      sessionStorage.setItem("uploadedImage", previewUrl);
-      setLoading(false);
-    }, 200);
+
+    // Limit the number of files to 100
+    const files = acceptedFiles.slice(0, 100);
+
+    // Map files to object URLs for previewing
+    const newUploadedImages = files.map((file) => URL.createObjectURL(file));
+    setUploadedImages((prev) => {
+      const updatedImages = [...prev, ...newUploadedImages];
+      
+      // Set preview image logic
+      if (updatedImages.length === 1) {
+        setPreviewImage(newUploadedImages[0]); // If only one image, automatically preview
+      } else if (updatedImages.length <= 100 && !previewImage) {
+        setPreviewImage(newUploadedImages[0]); // Preview the first image if it's under 100 images
+      }
+
+      // Save uploaded images to sessionStorage
+      sessionStorage.setItem("uploadedImages", JSON.stringify(updatedImages));
+      return updatedImages;
+    });
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { "image/jpeg": [], "image/png": [] },
+    accept: {
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+    },
     onDrop,
     noClick: true,
   });
 
   const handleDownload = () => {
-    if (!uploadedImage) return;
-    const link = document.createElement("a");
-    link.href = uploadedImage;
-    link.download = "image.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (uploadedImages.length === 0) return;
+
+    // Loop through each uploaded image and download it
+    uploadedImages.forEach((image, index) => {
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = `image_${index + 1}.png`; // You can customize the naming here
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedImage = sessionStorage.getItem("uploadedImage");
-      if (storedImage) {
-        setUploadedImage(storedImage);
-      }
+    const storedImages = sessionStorage.getItem("uploadedImages");
+    if (storedImages) {
+      const images = JSON.parse(storedImages);
+      setUploadedImages(images);
+      setPreviewImage(images[0] || null);
     }
   }, []);
 
@@ -112,51 +120,37 @@ const ControlsPage = () => {
         )}
 
         {/* Uploaded Image Display */}
-        {uploadedImage && !loading && (
-          <div className="grid grid-cols-[auto_1fr] gap-6 items-center">
-            {/* Image + Download Button */}
-            <div
-              className={`flex flex-col items-center ${
-                isDragActive || loading ? "opacity-50" : "opacity-100"
-              }`}
-            >
-              <img
-                ref={imageRef}
-                src={uploadedImage}
-                alt="Uploaded Preview"
-                className="max-w-[350px] max-h-[350px] w-auto h-auto rounded-lg shadow-lg object-contain"
-              />
+        {previewImage && !loading && (
+          <div
+            className={`flex flex-col items-center  mr-[20%] ${
+              isDragActive || loading ? "opacity-50" : "opacity-100"
+            }`}
+          >
+            <img
+              ref={imageRef}
+              src={previewImage}
+              alt="Uploaded Preview"
+              className="max-w-[650px] max-h-[650px] w-auto h-auto rounded-lg shadow-lg object-contain"
+            />
+            <div className="flex flex-row gap-4 pt-8">
+              {/* Download Button */}
               <button
                 className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#008CFF] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
-                style={{ width: "150px" }}
+                style={{ width: "150px", height: "50px" }} // Add height here
                 onClick={handleDownload}
               >
                 DOWNLOAD
               </button>
-            </div>
 
-            {/* Control Buttons */}
-            <section
-              className={`bg-transparent h-auto flex flex-col gap-4 py-8 px-6 rounded-lg w-full ${
-                isDragActive || loading ? "opacity-50" : "opacity-100"
-              }`}
-            >
+              {/* Controls Button */}
               <button
+                className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#B7B7B7] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
+                style={{ width: "150px", height: "50px" }} // Add height here
                 onClick={() => openModal("controls")}
-                className="cursor-pointer flex items-center gap-x-4 rounded-lg p-4 bg-white shadow-lg hover:scale-105 transition-all duration-300"
               >
-                <AiFillControl className="w-10 h-10 text-main" />
-                <p className="text-main text-lg font-semibold">CONTROLS</p>
+                CONTROLS
               </button>
-
-              <button
-                onClick={() => openModal("randomize")}
-                className="cursor-pointer flex items-center gap-x-4 rounded-lg p-4 bg-white shadow-lg hover:scale-105 transition-all duration-300"
-              >
-                <FaDiceThree className="w-10 h-10 text-main" />
-                <p className="text-main text-lg font-semibold">RANDOMIZE</p>
-              </button>
-            </section>
+            </div>
           </div>
         )}
       </div>
@@ -169,7 +163,7 @@ const ControlsPage = () => {
           onClose={closeModal}
         />
       )}
-      <ImageFooter />
+      <ImageFooter images={uploadedImages.slice(1)} />
       <Toast />
     </main>
   );

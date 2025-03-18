@@ -11,43 +11,49 @@ const HomePage = () => {
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [imageUploaded, setImageUploaded] = useState(false); // Track if image is uploaded
+  const [previewImage, setPreviewImage] = useState(null);
 
-  const handleFileUpload = (file) => {
-    if (!file) return;
+  const handleFileUpload = (files) => {
+    if (files.length === 0) return;
 
     setLoading(true);
-    const previewUrl = URL.createObjectURL(file);
-    sessionStorage.setItem("uploadedImage", previewUrl);
-    setImageUploaded(true);
+
+    const previewUrls = files.map((file) => URL.createObjectURL(file));
+    setPreviewImage(previewUrls[0]); // Store the first image preview URL
 
     setTimeout(() => {
       setLoading(false);
-      router.push("/upload");
-    }, 2000);
+      router.push("/upload"); // Redirect to upload page
+    }, 2000);  
   };
 
   const onDrop = (acceptedFiles) => {
-    setIsDragging(false); // Reset dragging state immediately
+    setIsDragging(false);
 
     if (acceptedFiles.length === 0) {
-      showToast("noImage"); // Uses predefined message from Toast.jsx
+      showToast("noImage");
       return;
     }
 
-    const file = acceptedFiles[0];
-
-    // Check if the uploaded file is an image
-    if (!file.type.startsWith("image/")) {
-      showToast("invalidImage"); // Uses predefined message from Toast.jsx
+    if (acceptedFiles.length > 100) {
+      showToast("tooManyImages");
       return;
     }
 
-    handleFileUpload(file);
+    const files = acceptedFiles.filter((file) => file.type.startsWith("image/"));
+
+    if (files.length === 0){
+      showToast("invalidImage");
+      return;
+    }
+    handleFileUpload(files);
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: { "image/jpeg": [], "image/png": [] },
+    accept: {
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+    },
     onDrop,
     noClick: true,
     onDragEnter: () => setIsDragging(true),
@@ -151,8 +157,22 @@ const HomePage = () => {
           ))}
         </div>
       </section>
-      <Image src="/images/arrow.svg" className="hover-animate-downup cursor-pointer absolute left-1/2 top-[calc(100vh-75px)] -translate-x-1/2" alt="Arrow" width={150} height={200} loading="eager"  />
-      <Image src="/images/light.svg" className="rotate-light cursor-pointer absolute top-5 right-55" alt="Light" width={150} height={200} loading="eager" />
+      <Image
+        src="/images/arrow.svg"
+        className="hover-animate-downup cursor-pointer absolute left-1/2 top-[calc(100vh-75px)] -translate-x-1/2"
+        alt="Arrow"
+        width={150}
+        height={200}
+        loading="eager"
+      />
+      <Image
+        src="/images/light.svg"
+        className="rotate-light cursor-pointer absolute top-5 right-55"
+        alt="Light"
+        width={150}
+        height={200}
+        loading="eager"
+      />
     </main>
   );
 };

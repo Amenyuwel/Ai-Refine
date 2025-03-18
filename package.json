@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@svgr/webpack": "^8.1.0",
+    "@tensorflow/tfjs": "^4.22.0",
     "ldrs": "^1.1.2",
     "next": "15.2.1",
     "react": "^19.0.0",
