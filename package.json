@@ -13,6 +13,7 @@
     "@tensorflow/tfjs": "^4.22.0",
     "ldrs": "^1.1.2",
     "next": "15.2.1",
+    "pocketbase": "^0.25.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",

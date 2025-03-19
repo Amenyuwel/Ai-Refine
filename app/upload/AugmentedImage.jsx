@@ -1,139 +1,162 @@
 "use client";
 import Toast, { showToast } from "../components/Toast";
 import Navbar from "../components/Navbar";
-import { FaDiceThree } from "react-icons/fa";
-import { AiFillControl } from "react-icons/ai";
 import React, { useState, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageFooter from "./ImageFooter";
 import ControlsModal from "./ControlsModal";
-import ClipLoader from "react-spinners/ClipLoader"; // Loader for animation
+import ClipLoader from "react-spinners/ClipLoader";
+import AugmentedImage from "./AugmentedImage";
+import PocketBase from "pocketbase";
 
-// Helper function that applies permanent augmentations and returns a data URL
+// Helper: Convert dataURL to Blob
+const dataURLToBlob = (dataUrl) => {
+  const arr = dataUrl.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while(n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
+};
+
+// Helper function to permanently augment an image and return a data URL
 const getAugmentedDataUrl = (imageUrl, flip, rotation, grayscale, blur) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    // Set crossOrigin if needed (for external images)
-    img.crossOrigin = "anonymous";
+    img.crossOrigin = "anonymous"; // needed if image comes from an external source
     img.src = imageUrl;
     img.onload = () => {
-      // Original dimensions
       const width = img.naturalWidth;
       const height = img.naturalHeight;
-      // Convert rotation (in degrees) to radians
       const radians = rotation * (Math.PI / 180);
-      // Compute new canvas dimensions to fully fit the rotated image
       const cos = Math.abs(Math.cos(radians));
       const sin = Math.abs(Math.sin(radians));
       const newWidth = Math.floor(width * cos + height * sin);
       const newHeight = Math.floor(width * sin + height * cos);
-
+      
       const canvas = document.createElement("canvas");
       canvas.width = newWidth;
       canvas.height = newHeight;
       const ctx = canvas.getContext("2d");
-
-      // Set the filter for grayscale and blur; note that flip/rotation we'll do via transforms
+      
+      // Set filters for grayscale and blur
       ctx.filter = `grayscale(${grayscale}%) blur(${blur}px)`;
-
-      // Move the origin to the center of the canvas
+      
+      // Translate, rotate and flip
       ctx.translate(newWidth / 2, newHeight / 2);
-      // Rotate the canvas
       ctx.rotate(radians);
-      // Apply horizontal flip if needed
-      if (flip) {
-        ctx.scale(-1, 1);
-      }
-      // Draw the image centered at the origin
+      if (flip) ctx.scale(-1, 1);
       ctx.drawImage(img, -width / 2, -height / 2, width, height);
-
+      
       resolve(canvas.toDataURL("image/png"));
     };
     img.onerror = reject;
   });
 };
 
+const pb = new PocketBase("http://127.0.0.1:8090"); // Replace with your Pocketbase URL
+
 const ControlsPage = () => {
-  // Existing states for image management
+  // State for original image management
   const [modalType, setModalType] = useState(null);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const imageRef = useRef(null);
 
-  // New augmentation states (for permanent image manipulation)
+  // Augmentation parameters (for both preview and permanent augmentation)
   const [flip, setFlip] = useState(false);
-  const [rotation, setRotation] = useState(0); // degrees
+  const [rotation, setRotation] = useState(0); // in degrees
   const [grayscale, setGrayscale] = useState(0); // percentage (0-100)
   const [blur, setBlur] = useState(0); // in pixels
 
-  // For preview, we display the image with CSS filters/transforms
+  // We store the augmented preview data URL (from AugmentedImage component)
+  const [augmentedPreviewUrl, setAugmentedPreviewUrl] = useState(null);
+
+  // Build inline style for real-time preview (CSS only)
   const previewStyle = {
     filter: `grayscale(${grayscale}%) blur(${blur}px)`,
     transform: `${flip ? "scaleX(-1)" : ""} rotate(${rotation}deg)`
   };
 
-  // File drop/upload handler
+  // Handle file drop/upload
   const onDrop = (acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) {
       showToast("invalidImage");
       return;
     }
-    // Limit the number of files to 100
     const files = acceptedFiles.slice(0, 100);
     const newUploadedImages = files.map((file) => URL.createObjectURL(file));
     setUploadedImages((prev) => {
       const updatedImages = [...prev, ...newUploadedImages];
-      // Set preview image if not already set
       if (updatedImages.length === 1) {
         setPreviewImage(newUploadedImages[0]);
       } else if (updatedImages.length <= 100 && !previewImage) {
         setPreviewImage(newUploadedImages[0]);
       }
+      // Save original images in Pocketbase as well as in sessionStorage
       sessionStorage.setItem("uploadedImages", JSON.stringify(updatedImages));
+      // Optionally, you could also upload the original file here to pb.collection("uploadedImages")
       return updatedImages;
     });
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: {
-      "image/jpeg": [".jpg", ".jpeg"],
-      "image/png": [".png"],
-    },
+    accept: { "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"] },
     onDrop,
     noClick: true,
   });
 
-  // Permanent (canvas-based) download for the preview image
+  // Download preview (augmented) image and save it to Pocketbase
   const handleDownloadPreview = async () => {
     if (!previewImage) return;
     try {
       const dataURL = await getAugmentedDataUrl(previewImage, flip, rotation, grayscale, blur);
+      // Trigger local download
       const link = document.createElement("a");
       link.href = dataURL;
       link.download = "augmented_preview.png";
       link.click();
+      
+      // Convert to Blob and upload to Pocketbase
+      const blob = dataURLToBlob(dataURL);
+      const formData = new FormData();
+      formData.append("file", blob, "augmented_preview.png");
+      // You can also attach extra metadata fields if needed (e.g., original image URL, parameters)
+      const record = await pb.collection("augmentedImages").create(formData);
+      console.log("Augmented preview saved to Pocketbase:", record);
     } catch (error) {
       console.error("Error downloading preview:", error);
     }
   };
 
-  // Batch download: process all uploaded images using the same augmentation parameters
+  // Batch download all images: for each, generate augmented image, download locally, and save to Pocketbase
   const handleBatchDownload = async () => {
     for (let i = 0; i < uploadedImages.length; i++) {
       try {
         const dataURL = await getAugmentedDataUrl(uploadedImages[i], flip, rotation, grayscale, blur);
+        // Trigger local download for each image
         const link = document.createElement("a");
         link.href = dataURL;
         link.download = `augmented_image_${i + 1}.png`;
         link.click();
+
+        // Upload each augmented image to Pocketbase
+        const blob = dataURLToBlob(dataURL);
+        const formData = new FormData();
+        formData.append("file", blob, `augmented_image_${i + 1}.png`);
+        const record = await pb.collection("augmentedImages").create(formData);
+        console.log(`Augmented image ${i + 1} saved to Pocketbase:`, record);
       } catch (error) {
         console.error("Error processing image", i, error);
       }
     }
   };
 
-  // Function to load redirected images from sessionStorage
+  // Load images from sessionStorage on mount
   const loadRedirectedImages = () => {
     const preview = sessionStorage.getItem("previewImage");
     const footer = sessionStorage.getItem("footerImages");
@@ -246,12 +269,14 @@ const ControlsPage = () => {
               isDragActive || loading ? "opacity-50" : "opacity-100"
             }`}
           >
-            <img
-              ref={imageRef}
-              src={previewImage}
-              alt="Uploaded Preview"
-              style={previewStyle}
-              className="max-w-[650px] max-h-[650px] w-auto h-auto rounded-lg shadow-lg object-contain"
+            {/* Use AugmentedImage component to display a permanent augmented preview */}
+            <AugmentedImage
+              imageUrl={previewImage}
+              flip={flip}
+              rotation={rotation}
+              grayscale={grayscale}
+              blur={blur}
+              onDataUrlChange={(url) => setAugmentedPreviewUrl(url)}
             />
             <div className="flex flex-row gap-4 pt-8">
               <button
@@ -276,7 +301,7 @@ const ControlsPage = () => {
       {modalType && (
         <ControlsModal isOpen={!!modalType} type={modalType} onClose={closeModal} />
       )}
-      <ImageFooter images={uploadedImages.slice(1)} imageStyle={previewStyle} />
+      <ImageFooter images={uploadedImages.slice(1)} imageStyle={{}} />
       <Toast />
     </main>
   );
