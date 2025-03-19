@@ -66,15 +66,32 @@ const ControlsPage = () => {
     });
   };
 
-  useEffect(() => {
-    const storedImages = sessionStorage.getItem("uploadedImages");
-    if (storedImages) {
-      const images = JSON.parse(storedImages);
-      setUploadedImages(images);
-      setPreviewImage(images[0] || null);
+  // New function to load redirected images from sessionStorage
+  const loadRedirectedImages = () => {
+    const preview = sessionStorage.getItem("previewImage");
+    const footer = sessionStorage.getItem("footerImages");
+    if (preview) {
+      setPreviewImage(preview);
+      if (footer) {
+        const footerImages = JSON.parse(footer);
+        setUploadedImages([preview, ...footerImages]);
+      } else {
+        setUploadedImages([preview]);
+      }
+    } else {
+      const storedImages = sessionStorage.getItem("uploadedImages");
+      if (storedImages) {
+        const images = JSON.parse(storedImages);
+        setUploadedImages(images);
+        setPreviewImage(images[0] || null);
+      }
     }
-  }, []);
+  };
 
+  useEffect(() => {
+    loadRedirectedImages();
+  }, []);
+  
   const openModal = (type) => setModalType(type);
   const closeModal = () => setModalType(null);
 
