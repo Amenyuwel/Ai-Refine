@@ -24,7 +24,7 @@ const HomePage = () => {
     setTimeout(() => {
       setLoading(false);
       router.push("/upload"); // Redirect to upload page
-    }, 2000);  
+    }, 2000);
   };
 
   const onDrop = (acceptedFiles) => {
@@ -40,9 +40,11 @@ const HomePage = () => {
       return;
     }
 
-    const files = acceptedFiles.filter((file) => file.type.startsWith("image/"));
+    const files = acceptedFiles.filter((file) =>
+      file.type.startsWith("image/")
+    );
 
-    if (files.length === 0){
+    if (files.length === 0) {
       showToast("invalidImage");
       return;
     }
@@ -129,7 +131,7 @@ const HomePage = () => {
         <div className="flex flex-col w-[80%] h-[60%] rounded-[50px] bg-white shadow-2xl elevation-3 items-center justify-center">
           <button
             type="button"
-            className="text-sans rounded-full h-[10%] w-[40%] bg-[#008CFF] text-white text-2xl shadow-md cursor-pointer"
+            className="text-sans rounded-full h-[10%] w-[40%] bg-[#008CFF] text-white text-2xl shadow-md cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#006FCC] hover:shadow-lg hover:scale-105"
             onClick={() => fileInputRef.current?.click()}
           >
             UPLOAD IMAGE
@@ -145,8 +147,9 @@ const HomePage = () => {
           </p>
           {["Animal", "Object", "Pest"].map((item) => (
             <div
+              title="Drag and drop this image to upload"
               key={item}
-              className="h-full w-26 bg-white rounded-[12px] shadow-md"
+              className="h-full w-26 bg-white rounded-[12px] shadow-md cursor-pointer"
             >
               <img
                 src={`/images/${item}.png`}
@@ -158,19 +161,11 @@ const HomePage = () => {
         </div>
       </section>
       <Image
-        src="/images/arrow.svg"
-        className="hover-animate-downup cursor-pointer absolute left-1/2 top-[calc(100vh-75px)] -translate-x-1/2"
-        alt="Arrow"
-        width={150}
-        height={200}
-        loading="eager"
-      />
-      <Image
         src="/images/light.svg"
-        className="rotate-light cursor-pointer absolute top-5 right-55"
+        className="rotate-light cursor-pointer absolute bottom-48 left-135"
         alt="Light"
-        width={150}
-        height={200}
+        width={110}
+        height={150}
         loading="eager"
       />
     </main>
