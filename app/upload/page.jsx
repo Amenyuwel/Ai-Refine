@@ -1,8 +1,6 @@
 "use client";
 import Toast, { showToast } from "../components/Toast";
 import Navbar from "../components/Navbar";
-import { FaDiceThree } from "react-icons/fa";
-import { AiFillControl } from "react-icons/ai";
 import React, { useState, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageFooter from "./ImageFooter";
