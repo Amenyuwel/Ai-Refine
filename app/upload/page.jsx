@@ -2,6 +2,7 @@
 import Toast, { showToast } from "../components/Toast";
 import Navbar from "../components/Navbar";
 import Download from "./Download";
+import Share from "../components/Share";
 import React, { useState, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageFooter from "./ImageFooter";
@@ -155,6 +156,7 @@ const ControlsPage = () => {
               />
             </div>
             <div className="flex flex-row gap-4 pt-8">
+              <Share/>
               <Download
                 uploadedImages={uploadedImages}
                 previewImage={previewImage}
