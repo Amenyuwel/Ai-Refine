@@ -10,35 +10,29 @@ import ClipLoader from "react-spinners/ClipLoader"; // Loader for animation
 const ControlsPage = () => {
   const [modalType, setModalType] = useState(null);
   const [uploadedImages, setUploadedImages] = useState([]);
-  const [previewImage, setPreviewImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(uploadedImages[0]);
   const [loading, setLoading] = useState(false); // New loading state
   const imageRef = useRef(null);
 
   const onDrop = (acceptedFiles, rejectedFiles) => {
-    if (rejectedFiles.length > 0) {
-      showToast("invalidImage");
-      return;
-    }
+    if (rejectedFiles.length > 0) return showToast("invalidImage");
 
-    // Limit the number of files to 100
     const files = acceptedFiles.slice(0, 100);
-
-    // Map files to object URLs for previewing
     const newUploadedImages = files.map((file) => URL.createObjectURL(file));
+
     setUploadedImages((prev) => {
       const updatedImages = [...prev, ...newUploadedImages];
-      
-      // Set preview image logic
-      if (updatedImages.length === 1) {
-        setPreviewImage(newUploadedImages[0]); // If only one image, automatically preview
-      } else if (updatedImages.length <= 100 && !previewImage) {
-        setPreviewImage(newUploadedImages[0]); // Preview the first image if it's under 100 images
+
+      // Set preview image if none exists or if there's only one image
+      if (!previewImage || updatedImages.length === 1) {
+        setPreviewImage(newUploadedImages[0]);
       }
 
-      // Save uploaded images to sessionStorage
       sessionStorage.setItem("uploadedImages", JSON.stringify(updatedImages));
       return updatedImages;
     });
+
+    sessionStorage.setItem("previewImage", newUploadedImages[0]);
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -50,47 +44,44 @@ const ControlsPage = () => {
     noClick: true,
   });
 
+  const handleImageClick = (image) => {
+    setPreviewImage(image);
+  };
+
   const handleDownload = () => {
     if (uploadedImages.length === 0) return;
 
-    // Loop through each uploaded image and download it
     uploadedImages.forEach((image, index) => {
       const link = document.createElement("a");
       link.href = image;
-      link.download = `image_${index + 1}.png`; // You can customize the naming here
+      link.download = `image_${index + 1}.png`;
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      link.remove();
     });
   };
 
-  // New function to load redirected images from sessionStorage
   const loadRedirectedImages = () => {
     const preview = sessionStorage.getItem("previewImage");
     const footer = sessionStorage.getItem("footerImages");
+
     if (preview) {
       setPreviewImage(preview);
-      if (footer) {
-        const footerImages = JSON.parse(footer);
-        setUploadedImages([preview, ...footerImages]);
-      } else {
-        setUploadedImages([preview]);
-      }
-    } else {
-      const storedImages = sessionStorage.getItem("uploadedImages");
-      if (storedImages) {
-        const images = JSON.parse(storedImages);
-        setUploadedImages(images);
-        setPreviewImage(images[0] || null);
-      }
+      setUploadedImages([preview, ...(footer ? JSON.parse(footer) : [])]);
+      return;
+    }
+
+    const storedImages = sessionStorage.getItem("uploadedImages");
+    if (storedImages) {
+      const images = JSON.parse(storedImages);
+      setUploadedImages(images);
+      setPreviewImage(images[0] || null);
     }
   };
 
-  useEffect(() => {
-    loadRedirectedImages();
-  }, []);
-  
-  const openModal = (type) => setModalType(type);
+  useEffect(loadRedirectedImages, []);
+
+  const openModal = setModalType;
   const closeModal = () => setModalType(null);
 
   return (
@@ -178,7 +169,12 @@ const ControlsPage = () => {
           onClose={closeModal}
         />
       )}
-      <ImageFooter images={uploadedImages.slice(1)} />
+      <ImageFooter
+        setImages={setUploadedImages}
+        onImageClick={handleImageClick}
+        images={uploadedImages.slice(1)}
+        previewImage={previewImage}
+      />
       <Toast />
     </main>
   );

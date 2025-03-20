@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import Toast, { showToast } from "../components/Toast";
@@ -13,53 +13,63 @@ const HomePage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Consolidated function: filters files, updates state, converts to Base64, saves in sessionStorage, and redirects.
-  const uploadAndRedirect = (files) => {
+  // Monitor loading changes for debugging
+  useEffect(() => {
+    console.log("Loading state:", loading);
+  }, [loading]);
+
+  // Converts images to Base64 and handles redirection
+  const uploadAndRedirect = async (files) => {
     const imageFiles = files.filter((file) => file.type.startsWith("image"));
     if (imageFiles.length + images.length > 100) {
       alert("You can only upload up to 100 images.");
       return;
     }
+
     const newImages = [...images, ...imageFiles].slice(0, 100);
     setImages(newImages);
     setLoading(true);
 
-    Promise.all(
-      newImages.map(
-        (file) =>
-          new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onloadend = () => resolve(reader.result);
-            reader.onerror = reject;
-          })
-      )
-    )
-      .then((base64Images) => {
-        sessionStorage.setItem("previewImage", base64Images[0]);
-        sessionStorage.setItem(
-          "footerImages",
-          JSON.stringify(base64Images.slice(1))
-        );
+    try {
+      const base64Images = await Promise.all(
+        newImages.map(
+          (file) =>
+            new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.onloadend = () => resolve(reader.result);
+              reader.onerror = reject;
+            })
+        )
+      );
+
+      sessionStorage.setItem("previewImage", base64Images[0]);
+      sessionStorage.setItem("footerImages", JSON.stringify(base64Images.slice(1)));
+
+      // ⏳ Add 2-second delay before stopping loading & navigating
+      setTimeout(() => {
         setLoading(false);
         router.push("/upload");
-      })
-      .catch((error) => {
-        console.error("Error converting images:", error);
-        alert("Failed to process images. Please try again.");
-        setLoading(false);
-      });
+      }, 2000);
+      
+    } catch (error) {
+      console.error("Error converting images:", error);
+      alert("Failed to process images. Please try again.");
+      setLoading(false);
+    }
   };
 
-  // Updated onDrop to accept both acceptedFiles and fileRejections
+  // Handles dropped files
   const onDrop = (acceptedFiles, fileRejections) => {
     if (fileRejections.length > 0) {
       showToast("invalidImage");
     }
+
     if (acceptedFiles.length > 0) {
       uploadAndRedirect(acceptedFiles);
     }
-    setIsDragging(false);
+
+    setIsDragging(false); // Ensure dragging state resets
   };
 
   const handleFileUpload = (event) => {
