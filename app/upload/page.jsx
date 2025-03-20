@@ -13,6 +13,12 @@ const ControlsPage = () => {
   const [previewImage, setPreviewImage] = useState(uploadedImages[0]);
   const [loading, setLoading] = useState(false); // New loading state
   const imageRef = useRef(null);
+  const [settings, setSettings] = useState({
+    grayscale: { value: 0 }, // Default grayscale is 0%
+    blur: { enabled: false, value: 0 },
+    brightness: { enabled: false, value: 100 }, // Default brightness is 100%
+    flip: { enabled: false, value: 1 }, // 1 (normal), -1 (flipped)
+  });
 
   const onDrop = (acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) return showToast("invalidImage");
@@ -59,6 +65,10 @@ const ControlsPage = () => {
       link.click();
       link.remove();
     });
+  };
+
+  const handleSettingsChange = (updatedSettings) => {
+    setSettings(updatedSettings);
   };
 
   const loadRedirectedImages = () => {
@@ -128,21 +138,31 @@ const ControlsPage = () => {
         {/* Uploaded Image Display */}
         {previewImage && !loading && (
           <div
-            className={`flex flex-col items-center  mr-[20%] ${
+            className={`flex flex-col items-center mr-[20%] ${
               isDragActive || loading ? "opacity-50" : "opacity-100"
             }`}
           >
-            <img
-              ref={imageRef}
-              src={previewImage}
-              alt="Uploaded Preview"
-              className="max-w-[650px] max-h-[650px] w-auto h-auto rounded-lg shadow-lg object-contain"
-            />
+            <div className="max-w-[650px] max-h-[650px] w-auto h-auto rounded-lg shadow-lg">
+              <img
+                ref={imageRef}
+                src={previewImage}
+                alt="Uploaded Preview"
+                className="max-w-[650px] max-h-[650px] w-auto h-auto rounded-lg shadow-lg object-contain"
+                style={{
+                  filter: `
+                    grayscale(${settings.grayscale.value}%)
+                    blur(${settings.blur.enabled ? settings.blur.value + "px" : "0px"})
+                    brightness(${settings.brightness.enabled ? settings.brightness.value + "%" : "100%"})
+                  `,
+                  transform: `scaleX(${settings.flip.enabled ? settings.flip.value : "1"})`,
+                }}
+              />
+            </div>
             <div className="flex flex-row gap-4 pt-8">
               {/* Download Button */}
               <button
                 className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#008CFF] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
-                style={{ width: "150px", height: "50px" }} // Add height here
+                style={{ width: "150px", height: "50px" }}
                 onClick={handleDownload}
               >
                 DOWNLOAD
@@ -151,7 +171,7 @@ const ControlsPage = () => {
               {/* Controls Button */}
               <button
                 className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#B7B7B7] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
-                style={{ width: "150px", height: "50px" }} // Add height here
+                style={{ width: "150px", height: "50px" }}
                 onClick={() => openModal("controls")}
               >
                 CONTROLS
@@ -164,11 +184,14 @@ const ControlsPage = () => {
       {/* Modal & Footer */}
       {modalType && (
         <ControlsModal
-          isOpen={!!modalType}
-          type={modalType}
-          onClose={closeModal}
+          isOpen={modalType}
+          type="controls"
+          onClose={() => setModalType(false)}
+          settings={settings}
+          onSettingsChange={handleSettingsChange}
         />
       )}
+
       <ImageFooter
         setImages={setUploadedImages}
         onImageClick={handleImageClick}
