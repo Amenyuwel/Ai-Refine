@@ -75,7 +75,7 @@ const ControlsModal = ({
         <div className="mt-4 space-y-6">
           {/* Flip Toggle */}
           <div className="flex items-center justify-between">
-            <label className="uppercase font-medium">Flip</label>
+            <label className="uppercase text-main text-bold">Flip</label>
             <button
               onClick={toggleFlip}
               className={`w-10 h-5 rounded-full ${

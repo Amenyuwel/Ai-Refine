@@ -1,6 +1,7 @@
 "use client";
 import Toast, { showToast } from "../components/Toast";
 import Navbar from "../components/Navbar";
+import Download from "./Download";
 import React, { useState, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageFooter from "./ImageFooter";
@@ -52,19 +53,6 @@ const ControlsPage = () => {
 
   const handleImageClick = (image) => {
     setPreviewImage(image);
-  };
-
-  const handleDownload = () => {
-    if (uploadedImages.length === 0) return;
-
-    uploadedImages.forEach((image, index) => {
-      const link = document.createElement("a");
-      link.href = image;
-      link.download = `image_${index + 1}.png`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    });
   };
 
   const handleSettingsChange = (updatedSettings) => {
@@ -151,28 +139,36 @@ const ControlsPage = () => {
                 style={{
                   filter: `
                     grayscale(${settings.grayscale.value}%)
-                    blur(${settings.blur.enabled ? settings.blur.value + "px" : "0px"})
-                    brightness(${settings.brightness.enabled ? settings.brightness.value + "%" : "100%"})
+                    blur(${
+                      settings.blur.enabled ? settings.blur.value + "px" : "0px"
+                    })
+                    brightness(${
+                      settings.brightness.enabled
+                        ? settings.brightness.value + "%"
+                        : "100%"
+                    })
                   `,
-                  transform: `scaleX(${settings.flip.enabled ? settings.flip.value : "1"})`,
+                  transform: `scaleX(${
+                    settings.flip.enabled ? settings.flip.value : "1"
+                  })`,
                 }}
               />
             </div>
             <div className="flex flex-row gap-4 pt-8">
-              {/* Download Button */}
-              <button
-                className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#008CFF] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
-                style={{ width: "150px", height: "50px" }}
-                onClick={handleDownload}
-              >
-                DOWNLOAD
-              </button>
-
+              <Download
+                uploadedImages={uploadedImages}
+                previewImage={previewImage}
+                settings={settings}
+              />
               {/* Controls Button */}
               <button
                 className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#B7B7B7] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
-                style={{ width: "150px", height: "50px" }}
-                onClick={() => openModal("controls")}
+                style={{ width: "200px", height: "50px" }}
+                onClick={() =>
+                  setModalType((prev) =>
+                    prev === "controls" ? null : "controls"
+                  )
+                }
               >
                 CONTROLS
               </button>
