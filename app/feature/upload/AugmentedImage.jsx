@@ -1,6 +1,6 @@
 "use client";
-import Toast, { showToast } from "../components/Toast";
-import Navbar from "../components/Navbar";
+import Toast, { showToast } from "../../components/Toast";
+import Navbar from "../../components/Navbar";
 import React, { useState, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageFooter from "./ImageFooter";

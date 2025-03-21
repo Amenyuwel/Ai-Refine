@@ -1,5 +1,5 @@
 import React from "react";
-import Footer from "../components/Footer";
+import Footer from "@/components/Footer";
 import { FaAngleDoubleUp } from "react-icons/fa";
 
 const ContactPage = ({ scrollToHome }) => {

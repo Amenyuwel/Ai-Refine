@@ -1,10 +1,19 @@
 "use client";
 import { FaPlus } from "react-icons/fa";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 const ImageFooter = ({ images = [], setImages, onImageClick }) => {
-  const [selectedImage, setSelectedImage] = useState(null);
+  // Initialize selectedImage with the first image if available
+  const [selectedImage, setSelectedImage] = useState(images[0] || null);
   const fileInputRef = useRef(null);
+
+  // When images update, set the default selected image if none is selected or if the current selection is missing
+  useEffect(() => {
+    if ((!selectedImage || !images.includes(selectedImage)) && images.length > 0) {
+      setSelectedImage(images[0]);
+      onImageClick(images[0]);
+    }
+  }, [images, selectedImage, onImageClick]);
 
   // Handle Image Upload
   const handleImageUpload = (event) => {
@@ -15,8 +24,9 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
       setImages((prevImages) => {
         const updatedImages = [...prevImages, newImage];
 
-        // Ensure the newly uploaded image becomes the preview image
-        onImageClick(newImage); // 🔥 Set preview image immediately
+        // Set the newly uploaded image as both preview and selected image immediately
+        onImageClick(newImage);
+        setSelectedImage(newImage);
 
         return updatedImages;
       });
@@ -43,14 +53,14 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
           onChange={handleImageUpload}
         />
 
-        {/* Show Uploaded Images */}
+        {/* Render Footer Images */}
         {images.map((image, index) => (
           <div
+            key={index}
             onClick={() => {
               onImageClick(image);
               setSelectedImage(image);
             }}
-            key={index}
             className={`h-24 w-24 rounded-lg flex items-center justify-center cursor-pointer ${
               selectedImage === image ? "border-2 border-[#009CFF]" : ""
             }`}

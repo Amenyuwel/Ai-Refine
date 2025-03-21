@@ -1,10 +1,24 @@
 "use client";
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 const Navbar = ({ scrollToSection, homeRef, aboutRef, contactRef }) => {
+  const [darkMode, setDarkMode] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
+  useEffect(() => {
+    const storedMode = localStorage.getItem("darkMode") === "true";
+    setDarkMode(storedMode);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
 
   const handleNavigation = (sectionRef, route) => {
     if (pathname === "/") {
@@ -22,35 +36,36 @@ const Navbar = ({ scrollToSection, homeRef, aboutRef, contactRef }) => {
   };
 
   return (
-    <header className="z-[50] h-[8%] w-full bg-[#F8F9FA]  flex items-center justify-between px-6 sticky top-0 shadow-md opacity-95">
-      {/* LOGO & BRAND NAME - Both Clickable */}
-      <div className="flex items-center gap-3">
-      <a
-    href="#"
-    onClick={(e) => {
-      e.preventDefault();
-      handleNavigation(homeRef, "/");
-    }}
-    className="inline-flex items-center gap-2 cursor-pointer px-2 py-1  rounded-md"
-  >
-    <img src="/images/logo.svg" alt="Logo" className="h-10 w-auto" />
-    <span className="pl-2 text-5xl font-bold text-main">AI-REFINE</span>
-  </a>
-      </div>
-
+    <header
+      className={`z-[50] h-[8%] w-full justify-end flex items-center px-6 sticky top-0 shadow-md opacity-95 
+  ${darkMode ? "bg-gray-900 text-white" : "bg-[#F8F9FA] text-black"}`}
+    >
       {/* NAVIGATION LINKS */}
       <nav className="flex gap-6">
-        <button className="font-sans px-4 py-2 rounded-lg transition text-xl text-main cursor-pointer"
-          onClick={() => handleNavigation(homeRef, "/")}>
+        <button
+          className="font-sans px-4 py-2 rounded-lg transition text-xl dark:text-main cursor-pointer"
+          onClick={() => handleNavigation(homeRef, "/")}
+        >
           HOME
         </button>
-        <button className="font-sans px-4 py-2 rounded-lg transition text-xl text-main cursor-pointer"
-          onClick={() => handleNavigation(aboutRef, "/")}>
+        <button
+          className="font-sans px-4 py-2 rounded-lg transition text-xl dark:text-main cursor-pointer"
+          onClick={() => handleNavigation(aboutRef, "/")}
+        >
           ABOUT
         </button>
-        <button className="font-sans px-4 py-2 rounded-lg transition text-xl text-main cursor-pointer"
-          onClick={() => handleNavigation(contactRef, "/")}>
+        <button
+          className="font-sans px-4 py-2 rounded-lg transition text-xl cursor-pointer dark:text-main"
+          onClick={() => handleNavigation(contactRef, "/")}
+        >
           CONTACT
+        </button>
+
+        <button
+          onClick={toggleDarkMode}
+          className="h-16 w-16 dark:text-main text-xl font-sans"
+        >
+          {darkMode ? "LIGHT" : "DARK"}
         </button>
       </nav>
     </header>

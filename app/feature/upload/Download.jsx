@@ -27,9 +27,7 @@ const Download = ({ uploadedImages, previewImage, settings }) => {
       ctx.filter = `
         grayscale(${settings.grayscale.value}%)
         blur(${settings.blur.enabled ? `${settings.blur.value}px` : "0px"})
-        brightness(${
-          settings.brightness.enabled ? `${settings.brightness.value}%` : "100%"
-        })
+        brightness(${settings.brightness.enabled ? `${settings.brightness.value}%` : "100%"})
       `;
 
       // Apply horizontal flip if enabled
@@ -62,10 +60,13 @@ const Download = ({ uploadedImages, previewImage, settings }) => {
     setDropdownOpen(false);
   };
 
-  // Downloads all uploaded images with applied settings
+  // Downloads all images, deduplicating the list to avoid duplicate downloads
   const handleDownloadAll = () => {
     if (!uploadedImages?.length) return;
-    uploadedImages.forEach((image, index) =>
+
+    // Create a deduplicated array of images
+    const uniqueImages = Array.from(new Set(uploadedImages));
+    uniqueImages.forEach((image, index) =>
       downloadImageWithFilters(image, `image_${index + 1}.png`)
     );
     setDropdownOpen(false);

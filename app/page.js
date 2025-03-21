@@ -1,11 +1,11 @@
 "use client";
 import React, { useRef } from "react";
-import Navbar from "./components/Navbar";
-import ControlPage from "./upload/page";
-import HomePage from "./home/page";
-import AboutPage from "./about/page";
-import ShowCase from "./showcase/page";
-import ContactPage from "./contact/page";
+import Navbar from "@/components/Navbar"; // Absolute import using @
+import ControlPage from "@/feature/upload/page"; // Fix absolute import
+import HomePage from "@/pages/home/page";
+import AboutPage from "@/pages/about/page";
+import ShowCase from "@/pages/showcase/page";
+import ContactPage from "@/pages/contact/page"; // Fix contact import
 
 const Page = () => {
   // Create refs for each section

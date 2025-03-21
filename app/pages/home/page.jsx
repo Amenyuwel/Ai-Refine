@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
-import Toast, { showToast } from "../components/Toast";
+import Toast, { showToast } from "@/components/Toast";
 import Image from "next/image";
 import { ClipLoader } from "react-spinners";
 
@@ -43,15 +43,15 @@ const HomePage = () => {
         )
       );
 
+      // Store all images in footerImages, including the first one
       sessionStorage.setItem("previewImage", base64Images[0]);
-      sessionStorage.setItem("footerImages", JSON.stringify(base64Images.slice(1)));
+      sessionStorage.setItem("footerImages", JSON.stringify(base64Images));
 
       // ⏳ Add 2-second delay before stopping loading & navigating
       setTimeout(() => {
         setLoading(false);
-        router.push("/upload");
+        router.push("feature/upload");
       }, 2000);
-      
     } catch (error) {
       console.error("Error converting images:", error);
       alert("Failed to process images. Please try again.");
@@ -97,9 +97,8 @@ const HomePage = () => {
   return (
     <main
       {...getRootProps()}
-      className={`relative h-screen w-full flex items-center justify-center transition-all duration-300 ${
-        isDragging ? "bg-[#d3ebc6] bg-opacity-80 z-50" : "bg-main"
-      } ${loading ? "backdrop-blur-md" : ""}`}
+      className={`relative h-screen w-full flex items-center justify-center transition-all duration-300
+    ${loading ? "backdrop-blur-md" : ""}`}
     >
       <Toast />
 
@@ -140,8 +139,18 @@ const HomePage = () => {
           className="cursor-pointer h-full w-full object-contain transition-all duration-300 ease-out hover:scale-105 hover:grayscale"
         />
 
-        <h1 className="text-main text-left text-6xl font-bold text-gray-800 mt-4 leading-tight">
+        <h1 className="text-main text-left text-6xl font-bold text-gray-800 mt-4 leading-tight relative">
           AUGMENT YOUR <br /> IMAGES
+          <span className="inline-block align-middle -mt-7 -ml-4">
+            <Image
+              src="/images/light.svg"
+              className="rotate-light cursor-pointer"
+              alt="Light"
+              width={100}
+              height={100}
+              loading="eager"
+            />
+          </span>
         </h1>
       </section>
 
@@ -180,14 +189,6 @@ const HomePage = () => {
           ))}
         </div>
       </section>
-      <Image
-        src="/images/light.svg"
-        className="rotate-light cursor-pointer absolute bottom-48 left-135"
-        alt="Light"
-        width={110}
-        height={150}
-        loading="eager"
-      />
     </main>
   );
 };
