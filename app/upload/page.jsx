@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageFooter from "./ImageFooter";
 import ControlsModal from "./ControlsModal";
-import ClipLoader from "react-spinners/ClipLoader"; // Loader for animation
+import ClipLoader from "react-spinners/ClipLoader";
 
 const ControlsPage = () => {
   const [modalType, setModalType] = useState(null);
@@ -17,14 +17,15 @@ const ControlsPage = () => {
   const imageRef = useRef(null);
   const [settings, setSettings] = useState({
     grayscale: { value: 0 }, // Default grayscale is 0%
-    blur: { enabled: false, value: 0 },
+    blur: { enabled: false, value: 0 }, // Toggle for blur and default value
     brightness: { enabled: false, value: 100 }, // Default brightness is 100%
     flip: { enabled: false, value: 1 }, // 1 (normal), -1 (flipped)
   });
 
+  // Function to handle image drop
   const onDrop = (acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) return showToast("invalidImage");
-
+    // Maximum of 100 images
     const files = acceptedFiles.slice(0, 100);
     const newUploadedImages = files.map((file) => URL.createObjectURL(file));
 
@@ -43,6 +44,7 @@ const ControlsPage = () => {
     sessionStorage.setItem("previewImage", newUploadedImages[0]);
   };
 
+  // Acceptable formats for images
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       "image/jpeg": [".jpg", ".jpeg"],
@@ -156,7 +158,7 @@ const ControlsPage = () => {
               />
             </div>
             <div className="flex flex-row gap-4 pt-8">
-              <Share/>
+              <Share />
               <Download
                 uploadedImages={uploadedImages}
                 previewImage={previewImage}

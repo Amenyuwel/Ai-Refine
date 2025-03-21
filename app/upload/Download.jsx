@@ -4,36 +4,44 @@ import React, { useState } from "react";
 const Download = ({ uploadedImages, previewImage, settings }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
+  // Toggle the dropdown menu visibility
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 
-  // Helper function to download a single image with applied filters
+  /**
+   * Downloads a single image with applied filters.
+   * @param {string} imageUrl - The URL of the image to process.
+   * @param {string} fileName - The name for the downloaded file.
+   */
   const downloadImageWithFilters = (imageUrl, fileName) => {
     const img = new Image();
-    img.crossOrigin = "anonymous";
+    img.crossOrigin = "anonymous"; // Prevents CORS issues
     img.src = imageUrl;
+
     img.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
       const ctx = canvas.getContext("2d");
 
-      // Build filter string based on augmentation settings
-      const grayscale = `${settings.grayscale.value}%`;
-      const blur = settings.blur.enabled ? `${settings.blur.value}px` : "0px";
-      const brightness = settings.brightness.enabled
-        ? `${settings.brightness.value}%`
-        : "100%";
-      ctx.filter = `grayscale(${grayscale}) blur(${blur}) brightness(${brightness})`;
+      // Construct the filter string based on user settings
+      ctx.filter = `
+        grayscale(${settings.grayscale.value}%)
+        blur(${settings.blur.enabled ? `${settings.blur.value}px` : "0px"})
+        brightness(${
+          settings.brightness.enabled ? `${settings.brightness.value}%` : "100%"
+        })
+      `;
 
-      // Flip horizontally if enabled
+      // Apply horizontal flip if enabled
       if (settings.flip.enabled && settings.flip.value === -1) {
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
       }
 
+      // Draw the processed image onto the canvas
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      // Trigger download of the processed image
+      // Convert canvas to a downloadable image
       const dataURL = canvas.toDataURL("image/png");
       const link = document.createElement("a");
       link.href = dataURL;
@@ -43,24 +51,23 @@ const Download = ({ uploadedImages, previewImage, settings }) => {
       link.remove();
     };
 
-    img.onerror = (error) => {
-      console.error("Error loading image for download", error);
-    };
+    img.onerror = (error) =>
+      console.error("Error loading image for download:", error);
   };
 
-  // Download only the preview image
+  // Downloads only the preview image
   const handleDownloadPreview = () => {
     if (!previewImage) return;
     downloadImageWithFilters(previewImage, "preview.png");
     setDropdownOpen(false);
   };
 
-  // Download all images (each processed with the augmentation settings)
+  // Downloads all uploaded images with applied settings
   const handleDownloadAll = () => {
-    if (!uploadedImages || uploadedImages.length === 0) return;
-    uploadedImages.forEach((image, index) => {
-      downloadImageWithFilters(image, `image_${index + 1}.png`);
-    });
+    if (!uploadedImages?.length) return;
+    uploadedImages.forEach((image, index) =>
+      downloadImageWithFilters(image, `image_${index + 1}.png`)
+    );
     setDropdownOpen(false);
   };
 
