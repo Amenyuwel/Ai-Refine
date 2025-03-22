@@ -80,7 +80,9 @@ const ControlsPage = () => {
     }
   };
 
-  useEffect(loadRedirectedImages, []);
+  useEffect(() => {
+    loadRedirectedImages();
+  }, []);
 
   const openModal = setModalType;
   const closeModal = () => setModalType(null);

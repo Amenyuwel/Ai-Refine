@@ -7,11 +7,13 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
   const [selectedImage, setSelectedImage] = useState(images[0] || null);
   const fileInputRef = useRef(null);
 
-  // When images update, set the default selected image if none is selected or if the current selection is missing
+  // 🔄 Fix: Prevent updating state during rendering phase
   useEffect(() => {
     if ((!selectedImage || !images.includes(selectedImage)) && images.length > 0) {
-      setSelectedImage(images[0]);
-      onImageClick(images[0]);
+      setTimeout(() => {
+        setSelectedImage(images[0]);
+        onImageClick(images[0]);
+      }, 0);
     }
   }, [images, selectedImage, onImageClick]);
 

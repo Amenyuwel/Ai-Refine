@@ -17,7 +17,7 @@ const Footer = () => {
 
       {/* LinkedIn Icon */}
       <a
-        href="https://www.linkedin.com/in/emmanuel-malagamba-01114228b/"
+        href="https://www.linkedin.com/in/amenyuwel/"
         target="_blank"
         rel="noopener noreferrer"
         className="text-3xl text-[#3D3D3D] hover:text-[#008CFF] transition-all duration-300 transform hover:-translate-y-2"
