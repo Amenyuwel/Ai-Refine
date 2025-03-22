@@ -47,7 +47,7 @@ const ShowCase = () => {
   const [selectedCategory, setSelectedCategory] = useState("People");
 
   return (
-    <section className="h-screen w-full bg-second flex flex-col items-center justify-center px-6 py-12">
+    <section className="h-screen w-full bg-third flex flex-col items-center justify-center px-6 py-12">
       {/* Title */}
       <h2 className="text-center text-5xl font-bold mb-8">SEE IT FOR YOURSELF!</h2>
 
@@ -58,7 +58,7 @@ const ShowCase = () => {
             key={category}
             onClick={() => setSelectedCategory(category)}
             className={`px-6 py-3 rounded-lg transition-all cursor-pointer ${
-              selectedCategory === category ? "bg-transparent text-white" : "bg-transparent text-main"
+              selectedCategory === category ? "bg-transparent text-[var(--secondary)]" : "bg-transparent text-main"
             }`}
           >
             {category.toUpperCase()}

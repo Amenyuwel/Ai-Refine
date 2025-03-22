@@ -3,6 +3,8 @@
 
 :root {
   /* Colors */
+  --primary: #79C99E;
+  --secondary: #5c946e;
   --text-main: #3d3d3d;
   --cta-main: #008cff;
   --cta-hover: #0070e0; /* Darker blue for hover */
@@ -15,27 +17,16 @@
 
   /* Backgrounds */
   --bg-main: #f8f8ff;
-  --bg-second: linear-gradient(
-    100deg,
-    var(--secondary-gradient-start) 0%,
-    var(--secondary-gradient-end) 100%
-  );
-  --foreground: #171717;
+  --bg-second: #F8F9FA;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
 /* Apply global styles */
 body {
   background: var(--bg-main);
   color: var(--text-main);
   font-family: var(--font-sans);
+  user-select: none;
 }
 
 /* Headings */

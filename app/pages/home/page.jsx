@@ -159,15 +159,33 @@ const HomePage = () => {
           isDragging || loading ? "opacity-50" : "opacity-100"
         }`}
       >
-        <div className="flex flex-col w-[80%] h-[60%] rounded-[50px] bg-white shadow-2xl elevation-3 items-center justify-center">
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="flex flex-col w-[80%] h-[60%] rounded-[50px] bg-white shadow-2xl elevation-3 items-center justify-center cursor-pointer"
+        >
+          <div className="border-8 border-dashed border-gray-400 h-[95%] w-[95%] flex flex-col items-center justify-center cursor-pointer rounded-[50px] border-spacing-4">
+          <p className="text-main font-bold text-3xl">
+            Drag and drop your images
+          </p>
+          <p className="text-main font-bold text-3xl mt-1 mb-8">
+            or{" "}
+            <span className="text-[#79C99E] underline cursor-pointer">
+              click to upload.
+            </span>
+          </p>
+
           <button
             type="button"
-            className="text-sans rounded-full h-[10%] w-[40%] bg-[#008CFF] text-white text-2xl shadow-md cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#006FCC] hover:shadow-lg hover:scale-105"
+            className="text-sans rounded-full h-[10%] w-[40%] bg-[var(--secondary)] text-white text-2xl shadow-md cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#006FCC] hover:shadow-lg hover:scale-105"
             onClick={() => fileInputRef.current?.click()}
           >
             UPLOAD IMAGE
           </button>
-          <p className="text-main py-4">OR DRAG YOUR IMAGE</p>
+
+          <span className="text-main text-sm mt-8">
+            File must be JPG or PNG, and up to 100 images.
+          </span>
+          </div>
         </div>
 
         <div className="flex justify-between h-[9%] w-[80%] flex-row mt-8">

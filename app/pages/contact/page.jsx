@@ -4,7 +4,7 @@ import { FaAngleDoubleUp } from "react-icons/fa";
 
 const ContactPage = ({ scrollToHome }) => {
   return (
-    <main className="min-h-screen w-full bg-third flex flex-col items-center justify-center relative font-sans">
+    <main className="min-h-screen w-full bg-main flex flex-col items-center justify-center relative font-sans">
       {/* Contact Form Section */}
       <section className="h-[80%] w-[40%] flex flex-col justify-center items-center text-center flex-grow space-y-6 p-8">
         {/* Intro Text */}
