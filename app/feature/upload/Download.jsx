@@ -67,7 +67,7 @@ const Download = ({ uploadedImages, previewImage, settings }) => {
     // Create a deduplicated array of images
     const uniqueImages = Array.from(new Set(uploadedImages));
     uniqueImages.forEach((image, index) =>
-      downloadImageWithFilters(image, `image_${index + 1}.png`)
+      downloadImageWithFilters(image, `image_${index + 1}.png`),
     );
     setDropdownOpen(false);
   };
@@ -75,22 +75,22 @@ const Download = ({ uploadedImages, previewImage, settings }) => {
   return (
     <main className="relative">
       <button
-        className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#008CFF] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
+        className="mt-4 cursor-pointer rounded-full bg-[#008CFF] px-6 py-2 text-white transition-all duration-300 hover:scale-105 hover:brightness-110"
         style={{ width: "200px", height: "50px" }}
         onClick={toggleDropdown}
       >
         DOWNLOAD
       </button>
       {isDropdownOpen && (
-        <div className="absolute left-0 mt-2 w-[200px] bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300 z-10">
+        <div className="absolute left-0 z-10 mt-2 w-[200px] overflow-hidden rounded-lg border border-gray-300 bg-white shadow-lg">
           <button
-            className="w-full text-left px-4 py-2 hover:bg-gray-200"
+            className="w-full px-4 py-2 text-left hover:bg-gray-200"
             onClick={handleDownloadPreview}
           >
             DOWNLOAD PREVIEW
           </button>
           <button
-            className="w-full text-left px-4 py-2 hover:bg-gray-200"
+            className="w-full px-4 py-2 text-left hover:bg-gray-200"
             onClick={handleDownloadAll}
           >
             DOWNLOAD ALL

@@ -11,12 +11,12 @@ import PocketBase from "pocketbase";
 
 // Helper: Convert dataURL to Blob
 const dataURLToBlob = (dataUrl) => {
-  const arr = dataUrl.split(',');
+  const arr = dataUrl.split(",");
   const mime = arr[0].match(/:(.*?);/)[1];
   const bstr = atob(arr[1]);
   let n = bstr.length;
   const u8arr = new Uint8Array(n);
-  while(n--) {
+  while (n--) {
     u8arr[n] = bstr.charCodeAt(n);
   }
   return new Blob([u8arr], { type: mime });
@@ -36,21 +36,21 @@ const getAugmentedDataUrl = (imageUrl, flip, rotation, grayscale, blur) => {
       const sin = Math.abs(Math.sin(radians));
       const newWidth = Math.floor(width * cos + height * sin);
       const newHeight = Math.floor(width * sin + height * cos);
-      
+
       const canvas = document.createElement("canvas");
       canvas.width = newWidth;
       canvas.height = newHeight;
       const ctx = canvas.getContext("2d");
-      
+
       // Set filters for grayscale and blur
       ctx.filter = `grayscale(${grayscale}%) blur(${blur}px)`;
-      
+
       // Translate, rotate and flip
       ctx.translate(newWidth / 2, newHeight / 2);
       ctx.rotate(radians);
       if (flip) ctx.scale(-1, 1);
       ctx.drawImage(img, -width / 2, -height / 2, width, height);
-      
+
       resolve(canvas.toDataURL("image/png"));
     };
     img.onerror = reject;
@@ -79,7 +79,7 @@ const ControlsPage = () => {
   // Build inline style for real-time preview (CSS only)
   const previewStyle = {
     filter: `grayscale(${grayscale}%) blur(${blur}px)`,
-    transform: `${flip ? "scaleX(-1)" : ""} rotate(${rotation}deg)`
+    transform: `${flip ? "scaleX(-1)" : ""} rotate(${rotation}deg)`,
   };
 
   // Handle file drop/upload
@@ -114,13 +114,19 @@ const ControlsPage = () => {
   const handleDownloadPreview = async () => {
     if (!previewImage) return;
     try {
-      const dataURL = await getAugmentedDataUrl(previewImage, flip, rotation, grayscale, blur);
+      const dataURL = await getAugmentedDataUrl(
+        previewImage,
+        flip,
+        rotation,
+        grayscale,
+        blur,
+      );
       // Trigger local download
       const link = document.createElement("a");
       link.href = dataURL;
       link.download = "augmented_preview.png";
       link.click();
-      
+
       // Convert to Blob and upload to Pocketbase
       const blob = dataURLToBlob(dataURL);
       const formData = new FormData();
@@ -137,7 +143,13 @@ const ControlsPage = () => {
   const handleBatchDownload = async () => {
     for (let i = 0; i < uploadedImages.length; i++) {
       try {
-        const dataURL = await getAugmentedDataUrl(uploadedImages[i], flip, rotation, grayscale, blur);
+        const dataURL = await getAugmentedDataUrl(
+          uploadedImages[i],
+          flip,
+          rotation,
+          grayscale,
+          blur,
+        );
         // Trigger local download for each image
         const link = document.createElement("a");
         link.href = dataURL;
@@ -186,13 +198,13 @@ const ControlsPage = () => {
   const closeModal = () => setModalType(null);
 
   return (
-    <main className="h-screen w-full bg-gray-200 flex flex-col">
+    <main className="flex h-screen w-full flex-col bg-gray-200">
       <Navbar />
 
       {/* Augmentation Controls */}
-      <div className="p-4 bg-white shadow-md flex flex-col gap-4">
+      <div className="flex flex-col gap-4 bg-white p-4 shadow-md">
         <button
-          className="px-4 py-2 bg-blue-500 text-white rounded"
+          className="rounded bg-blue-500 px-4 py-2 text-white"
           onClick={() => setFlip((prev) => !prev)}
         >
           Toggle Flip ({flip ? "On" : "Off"})
@@ -232,9 +244,9 @@ const ControlsPage = () => {
       {/* Dragging Dropzone */}
       <div
         {...getRootProps()}
-        className={`relative h-screen w-full flex items-center justify-center transition-all duration-300 ${
-          isDragActive ? "bg-[#B2D3A8] bg-opacity-80 z-50" : "bg-main"
-        } ${loading ? "backdrop-blur-md opacity-80" : ""}`}
+        className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${
+          isDragActive ? "bg-opacity-80 z-50 bg-[#B2D3A8]" : "bg-main"
+        } ${loading ? "opacity-80 backdrop-blur-md" : ""}`}
       >
         <label htmlFor="fileUpload" className="hidden">
           Upload an image
@@ -242,30 +254,30 @@ const ControlsPage = () => {
         <input id="fileUpload" {...getInputProps()} className="hidden" />
 
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center z-50 flex-col">
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center">
             <ClipLoader size={50} color={"#000000"} loading={loading} />
             <p className="text-main text-semibold">Uploading...</p>
           </div>
         )}
 
         {isDragActive && (
-          <p className="z-60 background-blur-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[9rem] font-bold whitespace-nowrap text-main">
+          <p className="background-blur-md text-main absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform text-[9rem] font-bold whitespace-nowrap">
             Drop your image here!
           </p>
         )}
 
         {isDragActive && (
           <>
-            <div className="absolute top-8 left-8 w-[80px] h-[80px] border-t-[8px] border-l-[8px] border-white rounded-tl-3xl"></div>
-            <div className="absolute top-8 right-8 w-[80px] h-[80px] border-t-[8px] border-r-[8px] border-white rounded-tr-3xl"></div>
-            <div className="absolute bottom-8 left-8 w-[80px] h-[80px] border-b-[8px] border-l-[8px] border-white rounded-bl-3xl"></div>
-            <div className="absolute bottom-8 right-8 w-[80px] h-[80px] border-b-[8px] border-r-[8px] border-white rounded-br-3xl"></div>
+            <div className="absolute top-8 left-8 h-[80px] w-[80px] rounded-tl-3xl border-t-[8px] border-l-[8px] border-white"></div>
+            <div className="absolute top-8 right-8 h-[80px] w-[80px] rounded-tr-3xl border-t-[8px] border-r-[8px] border-white"></div>
+            <div className="absolute bottom-8 left-8 h-[80px] w-[80px] rounded-bl-3xl border-b-[8px] border-l-[8px] border-white"></div>
+            <div className="absolute right-8 bottom-8 h-[80px] w-[80px] rounded-br-3xl border-r-[8px] border-b-[8px] border-white"></div>
           </>
         )}
 
         {previewImage && !loading && (
           <div
-            className={`flex flex-col items-center mr-[20%] ${
+            className={`mr-[20%] flex flex-col items-center ${
               isDragActive || loading ? "opacity-50" : "opacity-100"
             }`}
           >
@@ -280,14 +292,14 @@ const ControlsPage = () => {
             />
             <div className="flex flex-row gap-4 pt-8">
               <button
-                className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#008CFF] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
+                className="mt-4 cursor-pointer rounded-full bg-[#008CFF] px-6 py-2 text-white transition-all duration-300 hover:scale-105 hover:brightness-110"
                 style={{ width: "150px", height: "50px" }}
                 onClick={handleDownloadPreview}
               >
                 DOWNLOAD PREVIEW
               </button>
               <button
-                className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#B7B7B7] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
+                className="mt-4 cursor-pointer rounded-full bg-[#B7B7B7] px-6 py-2 text-white transition-all duration-300 hover:scale-105 hover:brightness-110"
                 style={{ width: "150px", height: "50px" }}
                 onClick={handleBatchDownload}
               >
@@ -299,7 +311,11 @@ const ControlsPage = () => {
       </div>
 
       {modalType && (
-        <ControlsModal isOpen={!!modalType} type={modalType} onClose={closeModal} />
+        <ControlsModal
+          isOpen={!!modalType}
+          type={modalType}
+          onClose={closeModal}
+        />
       )}
       <ImageFooter images={uploadedImages.slice(1)} imageStyle={{}} />
       <Toast />

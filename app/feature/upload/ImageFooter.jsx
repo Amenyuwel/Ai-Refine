@@ -9,7 +9,10 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
 
   // 🔄 Fix: Prevent updating state during rendering phase
   useEffect(() => {
-    if ((!selectedImage || !images.includes(selectedImage)) && images.length > 0) {
+    if (
+      (!selectedImage || !images.includes(selectedImage)) &&
+      images.length > 0
+    ) {
       setTimeout(() => {
         setSelectedImage(images[0]);
         onImageClick(images[0]);
@@ -37,13 +40,13 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
 
   return (
     <main className="bg-main p-4">
-      <section className="flex overflow-x-auto space-x-4">
+      <section className="flex space-x-4 overflow-x-auto">
         {/* ADD IMAGE BUTTON */}
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="h-24 w-24 rounded-lg bg-[#87CEFA] flex items-center justify-center cursor-pointer"
+          className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-lg bg-[#87CEFA]"
         >
-          <FaPlus className="text-[#008cff] text-3xl" />
+          <FaPlus className="text-3xl text-[#008cff]" />
         </button>
 
         {/* Hidden Input for File Upload */}
@@ -63,14 +66,14 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
               onImageClick(image);
               setSelectedImage(image);
             }}
-            className={`h-24 w-24 rounded-lg flex items-center justify-center cursor-pointer ${
+            className={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-lg ${
               selectedImage === image ? "border-2 border-[#009CFF]" : ""
             }`}
           >
             <img
               src={image}
               alt={`Uploaded Image ${index + 1}`}
-              className="h-full w-full object-cover rounded-lg"
+              className="h-full w-full rounded-lg object-cover"
             />
           </div>
         ))}

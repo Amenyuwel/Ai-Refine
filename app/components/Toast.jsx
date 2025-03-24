@@ -3,14 +3,21 @@ import toast, { Toaster } from "react-hot-toast";
 
 // Predefined Toast Messages
 const toastMessages = {
-  noImage: { message: "Invalid image uploaded, please upload an image in PNG or JPG format.", type: "error" },
+  noImage: {
+    message:
+      "Invalid image uploaded, please upload an image in PNG or JPG format.",
+    type: "error",
+  },
   invalidImage: { message: "Please upload a valid image file!", type: "error" },
   success: { message: "Image uploaded successfully!", type: "success" },
 };
 
 // Custom Toast Function
 export const showToast = (type) => {
-  const toastData = toastMessages[type] || { message: "Something went wrong!", type: "error" };
+  const toastData = toastMessages[type] || {
+    message: "Something went wrong!",
+    type: "error",
+  };
   const isError = toastData.type === "error";
 
   toast(toastData.message, {

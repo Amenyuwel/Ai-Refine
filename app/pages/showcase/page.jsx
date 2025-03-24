@@ -3,7 +3,13 @@
 import React, { useState } from "react";
 
 const categories = ["People", "Object", "Pests", "Animals", "Plant"];
-const augmentations = ["Original", "Flipped", "Blurred", "Grayscale", "Rotated"];
+const augmentations = [
+  "Original",
+  "Flipped",
+  "Blurred",
+  "Grayscale",
+  "Rotated",
+];
 
 const imagePaths = {
   People: {
@@ -47,18 +53,22 @@ const ShowCase = () => {
   const [selectedCategory, setSelectedCategory] = useState("People");
 
   return (
-    <section className="h-screen w-full bg-third flex flex-col items-center justify-center px-6 py-12">
+    <section className="bg-third flex h-screen w-full flex-col items-center justify-center px-6 py-12">
       {/* Title */}
-      <h2 className="text-center text-5xl font-bold mb-8">SEE IT FOR YOURSELF!</h2>
+      <h2 className="mb-8 text-center text-5xl font-bold">
+        SEE IT FOR YOURSELF!
+      </h2>
 
       {/* Categories */}
-      <nav className="flex justify-center space-x-6 text-lg font-semibold py-4">
+      <nav className="flex justify-center space-x-6 py-4 text-lg font-semibold">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-6 py-3 rounded-lg transition-all cursor-pointer ${
-              selectedCategory === category ? "bg-transparent text-[var(--secondary)]" : "bg-transparent text-main"
+            className={`cursor-pointer rounded-lg px-6 py-3 transition-all ${
+              selectedCategory === category
+                ? "bg-transparent text-[var(--secondary)]"
+                : "text-main bg-transparent"
             }`}
           >
             {category.toUpperCase()}
@@ -67,7 +77,7 @@ const ShowCase = () => {
       </nav>
 
       {/* Image Augmentation Showcase */}
-      <div className="flex flex-col items-center w-full mt-8">
+      <div className="mt-8 flex w-full flex-col items-center">
         <ImageShowcase category={selectedCategory} />
       </div>
     </section>
@@ -80,32 +90,36 @@ const ImageShowcase = ({ category }) => {
   };
 
   return (
-    <div className="flex flex-wrap justify-center items-center w-full gap-6">
+    <div className="flex w-full flex-wrap items-center justify-center gap-6">
       {/* Original Image */}
-      <figure className="bg-white rounded-lg shadow-lg p-4">
+      <figure className="rounded-lg bg-white p-4 shadow-lg">
         <img
           src={imagePaths[category].Original}
           alt="Original"
           draggable="false"
           onDragStart={preventImageActions}
           onContextMenu={preventImageActions}
-          className="w-52 h-64 object-contain"
+          className="h-64 w-52 object-contain"
         />
-        <figcaption className="text-center font-semibold text-lg mt-2">ORIGINAL</figcaption>
+        <figcaption className="mt-2 text-center text-lg font-semibold">
+          ORIGINAL
+        </figcaption>
       </figure>
 
       {/* Augmented Images */}
       {augmentations.slice(1).map((aug) => (
-        <figure key={aug} className="bg-white rounded-lg shadow-lg p-4">
+        <figure key={aug} className="rounded-lg bg-white p-4 shadow-lg">
           <img
             src={imagePaths[category][aug]}
             alt={aug}
             draggable="false"
             onDragStart={preventImageActions}
             onContextMenu={preventImageActions}
-            className="w-52 h-64 object-contain"
+            className="h-64 w-52 object-contain"
           />
-          <figcaption className="text-center font-semibold text-lg mt-2">{aug.toUpperCase()}</figcaption>
+          <figcaption className="mt-2 text-center text-lg font-semibold">
+            {aug.toUpperCase()}
+          </figcaption>
         </figure>
       ))}
     </div>

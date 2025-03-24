@@ -58,8 +58,8 @@ const ControlsModal = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-45 bg-transparent pointer-events-none">
-      <div className="bg-white p-6 rounded-lg shadow-2xl w-[30%] h-[55%] ml-[50%] relative pointer-events-auto">
+    <div className="pointer-events-none fixed inset-0 z-45 flex items-center justify-center bg-transparent">
+      <div className="pointer-events-auto relative ml-[50%] h-[55%] w-[30%] rounded-lg bg-white p-6 shadow-2xl">
         <button
           title="Close"
           className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
@@ -75,15 +75,15 @@ const ControlsModal = ({
         <div className="mt-4 space-y-6">
           {/* Flip Toggle */}
           <div className="flex items-center justify-between">
-            <label className="uppercase text-main text-bold">Flip</label>
+            <label className="text-main text-bold uppercase">Flip</label>
             <button
               onClick={toggleFlip}
-              className={`w-10 h-5 rounded-full ${
+              className={`h-5 w-10 rounded-full ${
                 localSettings.flip.enabled ? "bg-green-400" : "bg-gray-300"
               }`}
             >
               <div
-                className={`w-4 h-4 bg-white rounded-full transition-all ${
+                className={`h-4 w-4 rounded-full bg-white transition-all ${
                   localSettings.flip.enabled ? "translate-x-5" : "translate-x-0"
                 }`}
               ></div>
@@ -93,17 +93,17 @@ const ControlsModal = ({
           {/* Grayscale Toggle + Intensity */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="uppercase font-medium">Grayscale</label>
+              <label className="font-medium uppercase">Grayscale</label>
               <button
                 onClick={() => toggleSetting("grayscale")}
-                className={`w-10 h-5 rounded-full ${
+                className={`h-5 w-10 rounded-full ${
                   localSettings.grayscale.enabled
                     ? "bg-green-400"
                     : "bg-gray-300"
                 }`}
               >
                 <div
-                  className={`w-4 h-4 bg-white rounded-full transition-all ${
+                  className={`h-4 w-4 rounded-full bg-white transition-all ${
                     localSettings.grayscale.enabled
                       ? "translate-x-5"
                       : "translate-x-0"
@@ -126,15 +126,15 @@ const ControlsModal = ({
           {["blur", "brightness"].map((key) => (
             <div key={key} className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="uppercase font-medium">{key}</label>
+                <label className="font-medium uppercase">{key}</label>
                 <button
                   onClick={() => toggleSetting(key)}
-                  className={`w-10 h-5 rounded-full ${
+                  className={`h-5 w-10 rounded-full ${
                     localSettings[key].enabled ? "bg-green-400" : "bg-gray-300"
                   }`}
                 >
                   <div
-                    className={`w-4 h-4 bg-white rounded-full transition-all ${
+                    className={`h-4 w-4 rounded-full bg-white transition-all ${
                       localSettings[key].enabled
                         ? "translate-x-5"
                         : "translate-x-0"

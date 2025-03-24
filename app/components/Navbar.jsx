@@ -23,23 +23,23 @@ const Navbar = ({ scrollToSection, homeRef, aboutRef, contactRef }) => {
   };
 
   return (
-    <header className="z-[50] h-[8%] w-full justify-end flex items-center px-6 sticky top-0 shadow-md bg-main">
+    <header className="bg-main sticky top-0 z-[50] flex h-[8%] w-full items-center justify-end px-6 shadow-md">
       {/* NAVIGATION LINKS */}
       <nav className="flex gap-6">
         <button
-          className="font-sans px-4 py-2 rounded-lg transition text-xl cursor-pointer"
+          className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
           onClick={() => handleNavigation(homeRef, "/")}
         >
           HOME
         </button>
         <button
-          className="font-sans px-4 py-2 rounded-lg transition text-xl cursor-pointer"
+          className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
           onClick={() => handleNavigation(aboutRef, "/")}
         >
           ABOUT
         </button>
         <button
-          className="font-sans px-4 py-2 rounded-lg transition text-xl cursor-pointer"
+          className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
           onClick={() => handleNavigation(contactRef, "/")}
         >
           CONTACT

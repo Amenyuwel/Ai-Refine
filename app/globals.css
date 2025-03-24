@@ -3,7 +3,7 @@
 
 :root {
   /* Colors */
-  --primary: #79C99E;
+  --primary: #79c99e;
   --secondary: #5c946e;
   --text-main: #3d3d3d;
   --cta-main: #008cff;
@@ -17,9 +17,8 @@
 
   /* Backgrounds */
   --bg-main: #f8f8ff;
-  --bg-second: #F8F9FA;
+  --bg-second: #f8f9fa;
 }
-
 
 /* Apply global styles */
 body {
@@ -78,14 +77,15 @@ h6 {
 .rotate-light {
   transform: rotate(0deg); /* Initially tilted right */
   filter: grayscale(100%); /* Initially grayscale */
-  transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+  transition:
+    transform 0.3s ease-in-out,
+    filter 0.3s ease-in-out;
 }
 
 .rotate-light:hover {
   transform: rotate(0deg) scale(1.1); /* Stays tilted but scales up */
   filter: grayscale(0%); /* Restores color when hovered */
 }
-
 
 @keyframes updown {
   0% {

@@ -39,8 +39,8 @@ const HomePage = () => {
               reader.readAsDataURL(file);
               reader.onloadend = () => resolve(reader.result);
               reader.onerror = reject;
-            })
-        )
+            }),
+        ),
       );
 
       // Store all images in footerImages, including the first one
@@ -97,37 +97,36 @@ const HomePage = () => {
   return (
     <main
       {...getRootProps()}
-      className={`relative h-screen w-full flex items-center justify-center transition-all duration-300
-    ${loading ? "backdrop-blur-md" : ""}`}
+      className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${loading ? "backdrop-blur-md" : ""}`}
     >
       <Toast />
 
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center z-50 flex-col">
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center">
           <ClipLoader size={50} color={"#000000"} loading={loading} />
           <p className="text-main text-semibold">Uploading...</p>
         </div>
       )}
 
       {isDragging && (
-        <p className="z-60 background-blur-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[9rem] font-bold whitespace-nowrap text-main">
+        <p className="background-blur-md text-main absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform text-[9rem] font-bold whitespace-nowrap">
           Drop your image here!
         </p>
       )}
 
       {isDragging && (
         <>
-          <div className="absolute top-8 left-8 w-[80px] h-[80px] border-t-[8px] border-l-[8px] border-white rounded-tl-3xl"></div>
-          <div className="absolute top-8 right-8 w-[80px] h-[80px] border-t-[8px] border-r-[8px] border-white rounded-tr-3xl"></div>
-          <div className="absolute bottom-8 left-8 w-[80px] h-[80px] border-b-[8px] border-l-[8px] border-white rounded-bl-3xl"></div>
-          <div className="absolute bottom-8 right-8 w-[80px] h-[80px] border-b-[8px] border-r-[8px] border-white rounded-br-3xl"></div>
+          <div className="absolute top-8 left-8 h-[80px] w-[80px] rounded-tl-3xl border-t-[8px] border-l-[8px] border-white"></div>
+          <div className="absolute top-8 right-8 h-[80px] w-[80px] rounded-tr-3xl border-t-[8px] border-r-[8px] border-white"></div>
+          <div className="absolute bottom-8 left-8 h-[80px] w-[80px] rounded-bl-3xl border-b-[8px] border-l-[8px] border-white"></div>
+          <div className="absolute right-8 bottom-8 h-[80px] w-[80px] rounded-br-3xl border-r-[8px] border-b-[8px] border-white"></div>
         </>
       )}
 
       <input {...getInputProps()} ref={fileInputRef} className="hidden" />
 
       <section
-        className={`flex flex-col items-center relative transition-all duration-300 ${
+        className={`relative flex flex-col items-center transition-all duration-300 ${
           isDragging || loading ? "opacity-50" : "opacity-100"
         }`}
       >
@@ -136,12 +135,12 @@ const HomePage = () => {
           alt="Pixel"
           draggable="false"
           onContextMenu={preventImageActions}
-          className="cursor-pointer h-full w-full object-contain transition-all duration-300 ease-out hover:scale-105 hover:grayscale"
+          className="h-full w-full cursor-pointer object-contain transition-all duration-300 ease-out hover:scale-105 hover:grayscale"
         />
 
-        <h1 className="text-main text-left text-6xl font-bold text-gray-800 mt-4 leading-tight relative">
+        <h1 className="text-main relative mt-4 text-left text-6xl leading-tight font-bold text-gray-800">
           AUGMENT YOUR <br /> IMAGES
-          <span className="inline-block align-middle -mt-7 -ml-4">
+          <span className="-mt-7 -ml-4 inline-block align-middle">
             <Image
               src="/images/light.svg"
               className="rotate-light cursor-pointer"
@@ -155,40 +154,40 @@ const HomePage = () => {
       </section>
 
       <section
-        className={`h-full w-[40%] flex items-center flex-col justify-center transition-all duration-300 ${
+        className={`flex h-full w-[40%] flex-col items-center justify-center transition-all duration-300 ${
           isDragging || loading ? "opacity-50" : "opacity-100"
         }`}
       >
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="flex flex-col w-[80%] h-[60%] rounded-[50px] bg-white shadow-2xl elevation-3 items-center justify-center cursor-pointer"
+          className="elevation-3 flex h-[60%] w-[80%] cursor-pointer flex-col items-center justify-center rounded-[50px] bg-white shadow-2xl"
         >
-          <div className="border-8 border-dashed border-gray-400 h-[95%] w-[95%] flex flex-col items-center justify-center cursor-pointer rounded-[50px] border-spacing-4">
-          <p className="text-main font-bold text-3xl">
-            Drag and drop your images
-          </p>
-          <p className="text-main font-bold text-3xl mt-1 mb-8">
-            or{" "}
-            <span className="text-[#79C99E] underline cursor-pointer">
-              click to upload.
+          <div className="flex h-[95%] w-[95%] border-spacing-4 cursor-pointer flex-col items-center justify-center rounded-[50px] border-8 border-dashed border-gray-400">
+            <p className="text-main text-3xl font-bold">
+              Drag and drop your images
+            </p>
+            <p className="text-main mt-1 mb-8 text-3xl font-bold">
+              or{" "}
+              <span className="cursor-pointer text-[#79C99E] underline">
+                click to upload.
+              </span>
+            </p>
+
+            <button
+              type="button"
+              className="text-sans h-[10%] w-[40%] cursor-pointer rounded-full bg-[var(--secondary)] text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:bg-[#79C99E] hover:shadow-lg"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              UPLOAD IMAGE
+            </button>
+
+            <span className="text-main mt-8 text-sm">
+              File must be JPG or PNG, and up to 100 images.
             </span>
-          </p>
-
-          <button
-            type="button"
-            className="text-sans rounded-full h-[10%] w-[40%] bg-[var(--secondary)] text-white text-2xl shadow-md cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#79C99E] hover:shadow-lg hover:scale-105"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            UPLOAD IMAGE
-          </button>
-
-          <span className="text-main text-sm mt-8">
-            File must be JPG or PNG, and up to 100 images.
-          </span>
           </div>
         </div>
 
-        <div className="flex justify-between h-[9%] w-[80%] flex-row mt-8">
+        <div className="mt-8 flex h-[9%] w-[80%] flex-row justify-between">
           <p className="text-main mt-2 text-xl">
             No Image? <br /> Try one of these:
           </p>
@@ -196,7 +195,7 @@ const HomePage = () => {
             <div
               title="Drag and drop this image to upload"
               key={item}
-              className="h-full w-26 bg-white rounded-[12px] shadow-md cursor-pointer"
+              className="h-full w-26 cursor-pointer rounded-[12px] bg-white shadow-md"
             >
               <img
                 src={`/images/${item}.png`}

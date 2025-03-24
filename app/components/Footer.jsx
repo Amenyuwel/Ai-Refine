@@ -4,13 +4,13 @@ import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <div className="bg-[#DCEEDF] h-[120px] w-full flex items-center justify-center space-x-6 relative">
+    <div className="relative flex h-[120px] w-full items-center justify-center space-x-6 bg-[#DCEEDF]">
       {/* GitHub Icon */}
       <a
         href="https://github.com/Amenyuwel"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-3xl text-[#3D3D3D] hover:text-[#79C99E] transition-all duration-300 transform hover:-translate-y-2"
+        className="transform text-3xl text-[#3D3D3D] transition-all duration-300 hover:-translate-y-2 hover:text-[#79C99E]"
       >
         <FaGithub />
       </a>
@@ -20,7 +20,7 @@ const Footer = () => {
         href="https://www.linkedin.com/in/amenyuwel/"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-3xl text-[#3D3D3D] hover:text-[#79C99E] transition-all duration-300 transform hover:-translate-y-2"
+        className="transform text-3xl text-[#3D3D3D] transition-all duration-300 hover:-translate-y-2 hover:text-[#79C99E]"
       >
         <FaLinkedin />
       </a>

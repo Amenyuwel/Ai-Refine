@@ -1,5 +1,6 @@
 import React from "react";
 import description from "./descAbout";
+import { FaArrowCircleRight } from "react-icons/fa";
 
 const AboutPage = () => {
   const preventImageActions = (event) => {
@@ -7,18 +8,19 @@ const AboutPage = () => {
   };
 
   return (
-    <main className="h-screen w-full bg-main flex items-center justify-center px-6">
-      <section className="flex flex-row items-center justify-between w-[80%]">
+    <main className="bg-main flex h-screen w-full items-center justify-center px-6">
+      <section className="flex w-[80%] flex-row items-center justify-between">
         {/* Text Content and Button */}
-        <div className="flex flex-col w-[50%]">
+        <div className="flex w-[50%] flex-col">
           <h1 className="text-main text-6xl leading-tight font-bold">
             Quickly augment your images automatically
           </h1>
-          <p className="text-2xl text-main mt-4">{description}</p>
+          <p className="text-main mt-4 text-2xl">{description}</p>
 
           {/* Button */}
-          <button className="mt-6 px-6 py-3 bg-[var(--primary)] text-main text-lg w-[30%] font-semibold rounded-lg transition-transform hover:scale-105">
+          <button className="mt-6 flex w-[30%] items-center justify-center gap-2 rounded-lg bg-[#79C99E] px-6 py-3 text-lg font-semibold text-white transition-transform hover:scale-105">
             Get Started
+            <FaArrowCircleRight className="text-2xl" />
           </button>
         </div>
 
@@ -28,7 +30,7 @@ const AboutPage = () => {
           draggable="false"
           onDragStart={preventImageActions}
           onContextMenu={preventImageActions}
-          className="cursor-pointer transition-transform duration-300 ease-out hover:scale-105 h-[40%] w-[40%] object-contain"
+          className="h-[40%] w-[40%] cursor-pointer object-contain transition-transform duration-300 ease-out hover:scale-105"
           alt="Mutant"
         />
       </section>

@@ -88,15 +88,15 @@ const ControlsPage = () => {
   const closeModal = () => setModalType(null);
 
   return (
-    <main className="h-screen w-full bg-gray-200 flex flex-col">
+    <main className="flex h-screen w-full flex-col bg-gray-200">
       <Navbar />
 
       {/* Dragging Dropzone */}
       <div
         {...getRootProps()}
-        className={`relative h-screen w-full flex items-center justify-center transition-all duration-300 ${
-          isDragActive ? "bg-[#B2D3A8] bg-opacity-80 z-50" : "bg-main"
-        } ${loading ? "backdrop-blur-md opacity-80" : ""}`}
+        className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${
+          isDragActive ? "bg-opacity-80 z-50 bg-[#B2D3A8]" : "bg-main"
+        } ${loading ? "opacity-80 backdrop-blur-md" : ""}`}
       >
         <label htmlFor="fileUpload" className="hidden">
           Upload an image
@@ -105,7 +105,7 @@ const ControlsPage = () => {
 
         {/* Loading Spinner */}
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center z-50 flex-col">
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center">
             <ClipLoader size={50} color={"#000000"} loading={loading} />
             <p className="text-main text-semibold">Uploading...</p>
           </div>
@@ -113,7 +113,7 @@ const ControlsPage = () => {
 
         {/* Dragging Text */}
         {isDragActive && (
-          <p className="z-60 background-blur-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[9rem] font-bold whitespace-nowrap text-main">
+          <p className="background-blur-md text-main absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform text-[9rem] font-bold whitespace-nowrap">
             Drop your image here!
           </p>
         )}
@@ -121,26 +121,26 @@ const ControlsPage = () => {
         {/* Dragging Corners */}
         {isDragActive && (
           <>
-            <div className="absolute top-8 left-8 w-[80px] h-[80px] border-t-[8px] border-l-[8px] border-white rounded-tl-3xl"></div>
-            <div className="absolute top-8 right-8 w-[80px] h-[80px] border-t-[8px] border-r-[8px] border-white rounded-tr-3xl"></div>
-            <div className="absolute bottom-8 left-8 w-[80px] h-[80px] border-b-[8px] border-l-[8px] border-white rounded-bl-3xl"></div>
-            <div className="absolute bottom-8 right-8 w-[80px] h-[80px] border-b-[8px] border-r-[8px] border-white rounded-br-3xl"></div>
+            <div className="absolute top-8 left-8 h-[80px] w-[80px] rounded-tl-3xl border-t-[8px] border-l-[8px] border-white"></div>
+            <div className="absolute top-8 right-8 h-[80px] w-[80px] rounded-tr-3xl border-t-[8px] border-r-[8px] border-white"></div>
+            <div className="absolute bottom-8 left-8 h-[80px] w-[80px] rounded-bl-3xl border-b-[8px] border-l-[8px] border-white"></div>
+            <div className="absolute right-8 bottom-8 h-[80px] w-[80px] rounded-br-3xl border-r-[8px] border-b-[8px] border-white"></div>
           </>
         )}
 
         {/* Uploaded Image Display */}
         {previewImage && !loading && (
           <div
-            className={`flex flex-col items-center mr-[20%] ${
+            className={`mr-[20%] flex flex-col items-center ${
               isDragActive || loading ? "opacity-50" : "opacity-100"
             }`}
           >
-            <div className="max-w-[650px] max-h-[650px] w-auto h-auto rounded-lg shadow-lg">
+            <div className="h-auto max-h-[650px] w-auto max-w-[650px] rounded-lg shadow-lg">
               <img
                 ref={imageRef}
                 src={previewImage}
                 alt="Uploaded Preview"
-                className="max-w-[650px] max-h-[650px] w-auto h-auto rounded-lg shadow-lg object-contain"
+                className="h-auto max-h-[650px] w-auto max-w-[650px] rounded-lg object-contain shadow-lg"
                 style={{
                   filter: `
                     grayscale(${settings.grayscale.value}%)
@@ -168,11 +168,11 @@ const ControlsPage = () => {
               />
               {/* Controls Button */}
               <button
-                className="cursor-pointer mt-4 px-6 py-2 rounded-full bg-[#B7B7B7] hover:brightness-110 text-white transition-all hover:scale-105 duration-300"
+                className="mt-4 cursor-pointer rounded-full bg-[#B7B7B7] px-6 py-2 text-white transition-all duration-300 hover:scale-105 hover:brightness-110"
                 style={{ width: "200px", height: "50px" }}
                 onClick={() =>
                   setModalType((prev) =>
-                    prev === "controls" ? null : "controls"
+                    prev === "controls" ? null : "controls",
                   )
                 }
               >
