@@ -176,7 +176,7 @@ const HomePage = () => {
 
           <button
             type="button"
-            className="text-sans rounded-full h-[10%] w-[40%] bg-[var(--secondary)] text-white text-2xl shadow-md cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#006FCC] hover:shadow-lg hover:scale-105"
+            className="text-sans rounded-full h-[10%] w-[40%] bg-[var(--secondary)] text-white text-2xl shadow-md cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#79C99E] hover:shadow-lg hover:scale-105"
             onClick={() => fileInputRef.current?.click()}
           >
             UPLOAD IMAGE

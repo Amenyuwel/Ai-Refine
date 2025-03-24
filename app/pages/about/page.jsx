@@ -9,13 +9,20 @@ const AboutPage = () => {
   return (
     <main className="h-screen w-full bg-main flex items-center justify-center px-6">
       <section className="flex flex-row items-center justify-between w-[80%]">
-        <article className="flex flex-col w-[50%]">
+        {/* Text Content and Button */}
+        <div className="flex flex-col w-[50%]">
           <h1 className="text-main text-6xl leading-tight font-bold">
             Quickly augment your images automatically
           </h1>
           <p className="text-2xl text-main mt-4">{description}</p>
-        </article>
-        
+
+          {/* Button */}
+          <button className="mt-6 px-6 py-3 bg-[var(--primary)] text-main text-lg w-[30%] font-semibold rounded-lg transition-transform hover:scale-105">
+            Get Started
+          </button>
+        </div>
+
+        {/* Image */}
         <img
           src="/images/Mutant.png"
           draggable="false"

@@ -10,7 +10,7 @@ const Footer = () => {
         href="https://github.com/Amenyuwel"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-3xl text-[#3D3D3D] hover:text-[#008CFF] transition-all duration-300 transform hover:-translate-y-2"
+        className="text-3xl text-[#3D3D3D] hover:text-[#79C99E] transition-all duration-300 transform hover:-translate-y-2"
       >
         <FaGithub />
       </a>
@@ -20,7 +20,7 @@ const Footer = () => {
         href="https://www.linkedin.com/in/amenyuwel/"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-3xl text-[#3D3D3D] hover:text-[#008CFF] transition-all duration-300 transform hover:-translate-y-2"
+        className="text-3xl text-[#3D3D3D] hover:text-[#79C99E] transition-all duration-300 transform hover:-translate-y-2"
       >
         <FaLinkedin />
       </a>

@@ -47,9 +47,9 @@ const ContactPage = ({ scrollToHome }) => {
 
         {/* Submit Button (Aligned Right) */}
         <div className="w-[60%] flex justify-end">
-          <button className="text-lg px-6 py-2 bg-transparent text-[#3D3D3D] rounded-md cursor-pointer relative overflow-hidden font-sans group font-semibold">
-            <span className="absolute inset-0 bg-main transform scale-y-0 origin-bottom transition-transform duration-150 ease-out group-hover:scale-y-100"></span>
-            <span className="relative z-10 transition-colors duration-50 group-hover:text-[#008CFF]">
+          <button className="text-lg px-6 py-2 bg-transparent text-main rounded-md cursor-pointer relative overflow-hidden font-sans group font-semibold">
+            <span className="absolute inset-0 bg-[#79C99E] transform scale-y-0 origin-bottom transition-transform duration-150 ease-out group-hover:scale-y-100"></span>
+            <span className="relative z-10 transition-colors duration-50 group-hover:text-white">
               SUBMIT
             </span>
           </button>
@@ -58,7 +58,7 @@ const ContactPage = ({ scrollToHome }) => {
 
       {/* Scroll to Top Button */}
       <button
-        className="group-hover:scale-y-100 hover:bg-[#008CFF] origin-bottom transition-colors duration-300 z-50 w-12 h-12 bg-[#3D3D3D] flex items-center justify-center rounded-full text-white text-2xl shadow-lg cursor-pointer hover-animate-updown absolute ease-out bottom-[6rem] left-1/2 transform -translate-x-1/2"
+        className="group-hover:scale-y-100 hover:bg-[#79C99E] origin-bottom transition-colors duration-300 z-50 w-12 h-12 bg-[#3D3D3D] flex items-center justify-center rounded-full text-white text-2xl shadow-lg cursor-pointer hover-animate-updown absolute ease-out bottom-[6rem] left-1/2 transform -translate-x-1/2"
         onClick={scrollToHome}
       >
         <FaAngleDoubleUp />
