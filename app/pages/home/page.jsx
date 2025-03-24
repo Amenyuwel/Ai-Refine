@@ -97,7 +97,9 @@ const HomePage = () => {
   return (
     <main
       {...getRootProps()}
-      className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${loading ? "backdrop-blur-md" : ""}`}
+      className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${
+        loading ? "backdrop-blur-md" : ""
+      } ${isDragging ? "bg-[var(--primary)]" : ""}`}
     >
       <Toast />
 
@@ -109,7 +111,7 @@ const HomePage = () => {
       )}
 
       {isDragging && (
-        <p className="background-blur-md text-main absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform text-[9rem] font-bold whitespace-nowrap">
+        <p className="background-blur-md absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-transparent p-4 text-[9rem] font-bold whitespace-nowrap text-white">
           Drop your image here!
         </p>
       )}
@@ -175,7 +177,7 @@ const HomePage = () => {
 
             <button
               type="button"
-              className="text-sans h-[10%] w-[40%] cursor-pointer rounded-full bg-[var(--secondary)] text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:bg-[#79C99E] hover:shadow-lg"
+              className="h-[10%] w-[40%] cursor-pointer rounded-full bg-[var(--secondary)] text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:bg-[#79C99E] hover:shadow-lg"
               onClick={() => fileInputRef.current?.click()}
             >
               UPLOAD IMAGE

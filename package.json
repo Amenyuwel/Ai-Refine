@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --port 6969 --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 6969",
     "lint": "next lint"
   },
   "dependencies": {
     "@svgr/webpack": "^8.1.0",
     "@tensorflow/tfjs": "^4.22.0",
+    "framer-motion": "^12.5.0",
+    "gsap": "^3.12.7",
     "ldrs": "^1.1.2",
     "next": "15.2.1",
     "pocketbase": "^0.25.2",

@@ -1,10 +1,9 @@
 import React from "react";
-import Footer from "@/components/Footer";
 import { FaAngleDoubleUp } from "react-icons/fa";
 
 const ContactPage = ({ scrollToHome }) => {
   return (
-    <main className="bg-main relative flex min-h-screen w-full flex-col items-center justify-center font-sans">
+    <main className="bg-main relative flex h-[80vh] w-full flex-col items-center justify-center font-sans">
       {/* Contact Form Section */}
       <section className="flex h-[80%] w-[40%] flex-grow flex-col items-center justify-center space-y-6 p-8 text-center">
         {/* Intro Text */}
@@ -24,7 +23,7 @@ const ContactPage = ({ scrollToHome }) => {
           <input
             type="text"
             placeholder="e.g. Amenyuwel"
-            className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[#008CFF] focus:outline-none"
+            className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:outline-none focus:ring-2 focus:ring-[#008CFF]"
           />
         </div>
 
@@ -36,7 +35,7 @@ const ContactPage = ({ scrollToHome }) => {
           <input
             type="email"
             placeholder="e.g. Amenyuwel@gmail.com"
-            className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[#008CFF] focus:outline-none"
+            className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:outline-none focus:ring-2 focus:ring-[#008CFF]"
           />
         </div>
 
@@ -48,13 +47,13 @@ const ContactPage = ({ scrollToHome }) => {
           <textarea
             placeholder="e.g. Hey! I'd like to know more about your services."
             rows="4"
-            className="bg-main w-full resize-none rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[#008CFF] focus:outline-none"
+            className="bg-main w-full resize-none rounded-md px-4 py-3 shadow-md focus:outline-none focus:ring-2 focus:ring-[#008CFF]"
           ></textarea>
         </div>
 
         {/* Submit Button (Aligned Right) */}
         <div className="flex w-[60%] justify-end">
-          <button className="text-main group relative cursor-pointer overflow-hidden rounded-md bg-transparent px-6 py-2 font-sans text-lg font-semibold">
+          <button className="text-main group relative cursor-pointer overflow-hidden rounded-md bg-transparent px-6 py-2 text-lg font-semibold">
             <span className="absolute inset-0 origin-bottom scale-y-0 transform bg-[#79C99E] transition-transform duration-150 ease-out group-hover:scale-y-100"></span>
             <span className="relative z-10 transition-colors duration-50 group-hover:text-white">
               SUBMIT
@@ -65,13 +64,11 @@ const ContactPage = ({ scrollToHome }) => {
 
       {/* Scroll to Top Button */}
       <button
-        className="hover-animate-updown absolute bottom-[6rem] left-1/2 z-50 flex h-12 w-12 origin-bottom -translate-x-1/2 transform cursor-pointer items-center justify-center rounded-full bg-[#3D3D3D] text-2xl text-white shadow-lg transition-colors duration-300 ease-out group-hover:scale-y-100 hover:bg-[#79C99E]"
+        className="hover-animate-updown absolute bottom-0 left-1/2 z-50 flex h-12 w-12 -translate-x-1/2 transform cursor-pointer items-center justify-center rounded-full bg-[#3D3D3D] text-2xl text-white shadow-lg transition-colors duration-300 ease-out hover:bg-[#79C99E]"
         onClick={scrollToHome}
       >
         <FaAngleDoubleUp />
       </button>
-
-      <Footer />
     </main>
   );
 };

@@ -122,7 +122,7 @@ const ImageShowcase = ({ category }) => {
           </figcaption>
         </figure>
       ))}
-    </div>
+    </div> 
   );
 };
 
