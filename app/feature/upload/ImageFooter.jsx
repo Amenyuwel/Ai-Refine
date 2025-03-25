@@ -1,35 +1,41 @@
 "use client";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { FaPlus, FaTrash } from "react-icons/fa";
-import React, { useRef, useState, useEffect } from "react";
 
 const ImageFooter = ({ images = [], setImages, onImageClick }) => {
-  const [selectedImage, setSelectedImage] = useState(images[0] || null);
+  const [selectedImage, setSelectedImage] = useState(() => images[0] || null);
   const fileInputRef = useRef(null);
 
+  // When images change, if the current selected image is removed,
+  // update the selected image to the last image in the array.
   useEffect(() => {
-    if (!selectedImage && images.length > 0) {
-      requestAnimationFrame(() => {
-        const lastImage = images[images.length - 1]; // Select the last added image
+    if (images.length > 0 && !images.includes(selectedImage)) {
+      // Defer state update until after render.
+      setTimeout(() => {
+        const lastImage = images[images.length - 1];
         setSelectedImage(lastImage);
         onImageClick(lastImage);
-      });
+      }, 0);
     }
   }, [images, selectedImage, onImageClick]);
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const newImage = URL.createObjectURL(file);
-      setImages((prevImages) => {
-        const updatedImages = [...prevImages, newImage];
-        setSelectedImage(newImage);
-        onImageClick(newImage);
-        return updatedImages;
-      });
-    }
-  };
+  const handleImageUpload = useCallback(
+    (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const newImage = URL.createObjectURL(file);
+        setImages((prevImages) => {
+          const updatedImages = [...prevImages, newImage];
+          setSelectedImage(newImage);
+          onImageClick(newImage);
+          return updatedImages;
+        });
+      }
+    },
+    [onImageClick, setImages],
+  );
 
-  const handleDeleteImage = () => {
+  const handleDeleteImage = useCallback(() => {
     if (!selectedImage) return;
 
     setImages((prevImages) => {
@@ -37,21 +43,16 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
       if (index === -1) return prevImages;
 
       const updatedImages = prevImages.filter((img) => img !== selectedImage);
-
-      // Select the previous image, or next image if first is deleted
-      let newSelectedImage =
-        updatedImages.length > 0
-          ? index > 0
-            ? updatedImages[index - 1]
-            : updatedImages[0]
-          : null;
-
+      let newSelectedImage = null;
+      if (updatedImages.length > 0) {
+        newSelectedImage =
+          index > 0 ? updatedImages[index - 1] : updatedImages[0];
+      }
       setSelectedImage(newSelectedImage);
       onImageClick(newSelectedImage);
-
       return updatedImages;
     });
-  };
+  }, [selectedImage, onImageClick, setImages]);
 
   return (
     <main className="bg-main flex w-full items-center gap-4 p-2">
@@ -63,7 +64,7 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
         <FaPlus className="text-3xl text-[#008cff]" />
       </button>
 
-      {/* Image List with Custom Scrollbar */}
+      {/* Image List */}
       <section className="relative w-full overflow-hidden">
         <div className="scrollbar scrollbar-thumb-[#008cff] scrollbar-track-gray-200 flex space-x-4 overflow-x-auto pb-4">
           {/* Hidden Input for File Upload */}
@@ -74,7 +75,6 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
             accept="image/*"
             onChange={handleImageUpload}
           />
-
           {/* Render Footer Images */}
           {images.map((image, index) => (
             <div
@@ -99,7 +99,7 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
 
       {/* DELETE BUTTON */}
       <div
-        className="bg-main left-2 mb-6 flex h-24 w-28 cursor-pointer items-center justify-center border-l-4 border-[#808080] transition hover:bg-gray-200"
+        className="bg-main left-2 mb-6 flex h-24 w-28 cursor-pointer items-center justify-center border-l-4 border-[#d3d3d3] transition hover:bg-gray-200"
         onClick={handleDeleteImage}
       >
         <FaTrash className="h-16 w-8 text-red-500" />
