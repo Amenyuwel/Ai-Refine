@@ -73,8 +73,16 @@ const HomePage = () => {
   };
 
   const handleFileUpload = (event) => {
+    event.preventDefault(); // Prevent default form behavior
+    event.stopPropagation(); // Prevent event bubbling
+
     const files = Array.from(event.target.files);
-    uploadAndRedirect(files);
+    if (files.length > 0) {
+      uploadAndRedirect(files);
+    }
+
+    // Reset file input to prevent re-triggering
+    event.target.value = "";
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -111,7 +119,7 @@ const HomePage = () => {
       )}
 
       {isDragging && (
-        <p className="background-blur-md absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-transparent p-4 text-[9rem] font-bold whitespace-nowrap text-main">
+        <p className="background-blur-md text-main absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-transparent p-4 text-[9rem] font-bold whitespace-nowrap">
           Drop your image here!
         </p>
       )}
@@ -125,7 +133,12 @@ const HomePage = () => {
         </>
       )}
 
-      <input {...getInputProps()} ref={fileInputRef} className="hidden" />
+      <input
+        {...getInputProps()}
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileUpload}
+      />
 
       <section
         className={`relative flex flex-col items-center transition-all duration-300 ${
@@ -178,7 +191,10 @@ const HomePage = () => {
             <button
               type="button"
               className="h-[10%] w-[40%] cursor-pointer rounded-full bg-[var(--secondary)] text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:bg-[#79C99E] hover:shadow-lg"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent bubbling up to the dropzone
+                fileInputRef.current?.click();
+              }}
             >
               UPLOAD IMAGE
             </button>
