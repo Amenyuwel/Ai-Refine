@@ -1,5 +1,7 @@
 "use client";
 import React, { useState } from "react";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 const Download = ({ uploadedImages, previewImage, settings }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -11,64 +13,77 @@ const Download = ({ uploadedImages, previewImage, settings }) => {
    * Downloads a single image with applied filters.
    * @param {string} imageUrl - The URL of the image to process.
    * @param {string} fileName - The name for the downloaded file.
+   * @returns {Promise<Blob>} - A promise resolving to the processed image blob.
    */
-  const downloadImageWithFilters = (imageUrl, fileName) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous"; // Prevents CORS issues
-    img.src = imageUrl;
+  const processImageWithFilters = (imageUrl) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous"; // Prevents CORS issues
+      img.src = imageUrl;
 
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
 
-      // Construct the filter string based on user settings
-      ctx.filter = `
-        grayscale(${settings.grayscale.value}%)
-        blur(${settings.blur.enabled ? `${settings.blur.value}px` : "0px"})
-        brightness(${settings.brightness.enabled ? `${settings.brightness.value}%` : "100%"})
-      `;
+        // Construct the filter string based on user settings
+        ctx.filter = `
+          grayscale(${settings.grayscale.value}%)
+          blur(${settings.blur.enabled ? `${settings.blur.value}px` : "0px"})
+          brightness(${settings.brightness.enabled ? `${settings.brightness.value}%` : "100%"})
+        `;
 
-      // Apply horizontal flip if enabled
-      if (settings.flip.enabled && settings.flip.value === -1) {
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-      }
+        // Apply horizontal flip if enabled
+        if (settings.flip.enabled && settings.flip.value === -1) {
+          ctx.translate(canvas.width, 0);
+          ctx.scale(-1, 1);
+        }
 
-      // Draw the processed image onto the canvas
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        // Draw the processed image onto the canvas
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      // Convert canvas to a downloadable image
-      const dataURL = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = dataURL;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    };
+        // Convert canvas to a Blob and resolve
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("Failed to convert image to blob"));
+        }, "image/png");
+      };
 
-    img.onerror = (error) =>
-      console.error("Error loading image for download:", error);
+      img.onerror = (error) => reject(error);
+    });
   };
 
   // Downloads only the preview image
   const handleDownloadPreview = () => {
     if (!previewImage) return;
-    downloadImageWithFilters(previewImage, "preview.png");
+    processImageWithFilters(previewImage)
+      .then((blob) => saveAs(blob, "preview.png"))
+      .catch((error) => console.error("Error processing preview image:", error));
     setDropdownOpen(false);
   };
 
-  // Downloads all images, deduplicating the list to avoid duplicate downloads
-  const handleDownloadAll = () => {
+  // Downloads all images as a ZIP file
+  const handleDownloadAsZip = async () => {
     if (!uploadedImages?.length) return;
 
-    // Create a deduplicated array of images
+    const zip = new JSZip();
     const uniqueImages = Array.from(new Set(uploadedImages));
-    uniqueImages.forEach((image, index) =>
-      downloadImageWithFilters(image, `image_${index + 1}.png`),
+
+    const promises = uniqueImages.map((image, index) =>
+      processImageWithFilters(image).then((blob) => {
+        zip.file(`image_${index + 1}.png`, blob);
+      })
     );
+
+    try {
+      await Promise.all(promises);
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      saveAs(zipBlob, "images.zip");
+    } catch (error) {
+      console.error("Error creating ZIP file:", error);
+    }
+
     setDropdownOpen(false);
   };
 
@@ -91,9 +106,9 @@ const Download = ({ uploadedImages, previewImage, settings }) => {
           </button>
           <button
             className="w-full px-4 py-2 text-left hover:bg-gray-200"
-            onClick={handleDownloadAll}
+            onClick={handleDownloadAsZip}
           >
-            DOWNLOAD ALL
+            DOWNLOAD AS ZIP
           </button>
         </div>
       )}

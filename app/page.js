@@ -66,7 +66,7 @@ const Page = () => {
           <ShowCase />
         </section>
 
-        <section ref={contactRef} className="flex  items-center pb-16">
+        <section ref={contactRef} className="flex items-center pb-16">
           <ContactPage scrollToHome={() => scrollToSection(homeRef)} />
         </section>
         <Footer />

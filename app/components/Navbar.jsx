@@ -23,7 +23,7 @@ const Navbar = ({ scrollToSection, homeRef, aboutRef, contactRef }) => {
   };
 
   return (
-    <header className="bg-main sticky top-0 z-[50] flex h-[8%] w-full items-center justify-end px-6 shadow-md">
+    <header className="bg-main sticky top-0 z-[50] flex h-16 w-full items-center justify-end px-6 shadow-md">
       {/* NAVIGATION LINKS */}
       <nav className="flex gap-6">
         <button

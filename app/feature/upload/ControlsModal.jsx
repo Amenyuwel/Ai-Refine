@@ -24,45 +24,43 @@ const ControlsModal = ({
     setLocalSettings(settings);
   }, [settings]);
 
-  // Toggle Flip (Left ↔ Right)
+  useEffect(() => {
+    onSettingsChange(localSettings);
+  }, [localSettings, onSettingsChange]); // Update parent only when localSettings changes
+
+  // Toggle Flip
   const toggleFlip = () => {
-    const updatedSettings = {
-      ...localSettings,
+    setLocalSettings((prevSettings) => ({
+      ...prevSettings,
       flip: {
-        enabled: !localSettings.flip.enabled,
-        value: localSettings.flip.value === 1 ? -1 : 1,
+        enabled: !prevSettings.flip.enabled,
+        value: prevSettings.flip.value === 1 ? -1 : 1,
       },
-    };
-    setLocalSettings(updatedSettings);
-    onSettingsChange(updatedSettings);
+    }));
   };
 
   // Toggle settings (Grayscale, Blur, Brightness)
   const toggleSetting = (key) => {
-    const updatedSettings = {
-      ...localSettings,
-      [key]: { ...localSettings[key], enabled: !localSettings[key].enabled },
-    };
-    setLocalSettings(updatedSettings);
-    onSettingsChange(updatedSettings);
+    setLocalSettings((prevSettings) => ({
+      ...prevSettings,
+      [key]: { ...prevSettings[key], enabled: !prevSettings[key].enabled },
+    }));
   };
 
   // Update slider value (Grayscale, Blur, Brightness)
   const updateSlider = (key, value) => {
-    const updatedSettings = {
-      ...localSettings,
-      [key]: { ...localSettings[key], value },
-    };
-    setLocalSettings(updatedSettings);
-    onSettingsChange(updatedSettings);
+    setLocalSettings((prevSettings) => ({
+      ...prevSettings,
+      [key]: { ...prevSettings[key], value },
+    }));
   };
 
   return (
     <div className="pointer-events-none fixed inset-0 z-45 flex items-center justify-center bg-transparent">
-      <div className="pointer-events-auto relative ml-[50%] h-[55%] w-[30%] rounded-lg bg-white p-6 shadow-2xl">
+      <div className="pointer-events-auto relative ml-[50%] h-auto w-[30%] rounded-3xl bg-white p-6 shadow-2xl">
         <button
           title="Close"
-          className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
+          className="absolute top-3 right-3 px-3 py-3 text-gray-600 hover:text-gray-800"
           onClick={onClose}
         >
           <FaTimes size={20} />

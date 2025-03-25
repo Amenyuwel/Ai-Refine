@@ -23,7 +23,7 @@ const ContactPage = ({ scrollToHome }) => {
           <input
             type="text"
             placeholder="e.g. Amenyuwel"
-            className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:outline-none focus:ring-2 focus:ring-[#008CFF]"
+            className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[#008CFF] focus:outline-none"
           />
         </div>
 
@@ -35,7 +35,7 @@ const ContactPage = ({ scrollToHome }) => {
           <input
             type="email"
             placeholder="e.g. Amenyuwel@gmail.com"
-            className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:outline-none focus:ring-2 focus:ring-[#008CFF]"
+            className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[#008CFF] focus:outline-none"
           />
         </div>
 
@@ -47,7 +47,7 @@ const ContactPage = ({ scrollToHome }) => {
           <textarea
             placeholder="e.g. Hey! I'd like to know more about your services."
             rows="4"
-            className="bg-main w-full resize-none rounded-md px-4 py-3 shadow-md focus:outline-none focus:ring-2 focus:ring-[#008CFF]"
+            className="bg-main w-full resize-none rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[#008CFF] focus:outline-none"
           ></textarea>
         </div>
 
@@ -64,7 +64,8 @@ const ContactPage = ({ scrollToHome }) => {
 
       {/* Scroll to Top Button */}
       <button
-        className="hover-animate-updown absolute bottom-0 left-1/2 z-50 flex h-12 w-12 -translate-x-1/2 transform cursor-pointer items-center justify-center rounded-full bg-[#3D3D3D] text-2xl text-white shadow-lg transition-colors duration-300 ease-out hover:bg-[#79C99E]"
+        title="Scroll to Top"
+        className="hover-animate-updown absolute bottom-0 left-1/2 z-50 flex h-12 w-12 -translate-x-1/2 translate-y-1/2 transform cursor-pointer items-center justify-center rounded-full bg-[#3D3D3D] text-2xl text-white shadow-lg transition-colors duration-300 ease-out hover:bg-[#79C99E]"
         onClick={scrollToHome}
       >
         <FaAngleDoubleUp />

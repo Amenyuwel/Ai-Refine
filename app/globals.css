@@ -87,6 +87,25 @@ h6 {
   filter: grayscale(0%); /* Restores color when hovered */
 }
 
+/* Custom Scrollbar */
+.scrollbar::-webkit-scrollbar {
+  height: 8px; /* Set scrollbar height */
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: #d3d3d3; /* Background color */
+  border-radius: 10px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #a9a9a9; /* Scroll thumb color */
+  border-radius: 10px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #808080; /* Darker color on hover */
+}
+
 @keyframes updown {
   0% {
     transform: translateY(0);

@@ -99,7 +99,7 @@ const HomePage = () => {
       {...getRootProps()}
       className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${
         loading ? "backdrop-blur-md" : ""
-      } ${isDragging ? "bg-[var(--primary)]" : ""}`}
+      } ${isDragging ? "bg-[#b8d5b8]" : ""}`}
     >
       <Toast />
 
@@ -111,7 +111,7 @@ const HomePage = () => {
       )}
 
       {isDragging && (
-        <p className="background-blur-md absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-transparent p-4 text-[9rem] font-bold whitespace-nowrap text-white">
+        <p className="background-blur-md absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-transparent p-4 text-[9rem] font-bold whitespace-nowrap text-main">
           Drop your image here!
         </p>
       )}

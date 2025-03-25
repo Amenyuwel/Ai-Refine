@@ -1,83 +1,109 @@
 "use client";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaTrash } from "react-icons/fa";
 import React, { useRef, useState, useEffect } from "react";
 
 const ImageFooter = ({ images = [], setImages, onImageClick }) => {
-  // Initialize selectedImage with the first image if available
   const [selectedImage, setSelectedImage] = useState(images[0] || null);
   const fileInputRef = useRef(null);
 
-  // 🔄 Fix: Prevent updating state during rendering phase
   useEffect(() => {
-    if (
-      (!selectedImage || !images.includes(selectedImage)) &&
-      images.length > 0
-    ) {
-      setTimeout(() => {
-        setSelectedImage(images[0]);
-        onImageClick(images[0]);
-      }, 0);
+    if (!selectedImage && images.length > 0) {
+      requestAnimationFrame(() => {
+        const lastImage = images[images.length - 1]; // Select the last added image
+        setSelectedImage(lastImage);
+        onImageClick(lastImage);
+      });
     }
   }, [images, selectedImage, onImageClick]);
 
-  // Handle Image Upload
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
       const newImage = URL.createObjectURL(file);
-
       setImages((prevImages) => {
         const updatedImages = [...prevImages, newImage];
-
-        // Set the newly uploaded image as both preview and selected image immediately
-        onImageClick(newImage);
         setSelectedImage(newImage);
-
+        onImageClick(newImage);
         return updatedImages;
       });
     }
   };
 
+  const handleDeleteImage = () => {
+    if (!selectedImage) return;
+
+    setImages((prevImages) => {
+      const index = prevImages.indexOf(selectedImage);
+      if (index === -1) return prevImages;
+
+      const updatedImages = prevImages.filter((img) => img !== selectedImage);
+
+      // Select the previous image, or next image if first is deleted
+      let newSelectedImage =
+        updatedImages.length > 0
+          ? index > 0
+            ? updatedImages[index - 1]
+            : updatedImages[0]
+          : null;
+
+      setSelectedImage(newSelectedImage);
+      onImageClick(newSelectedImage);
+
+      return updatedImages;
+    });
+  };
+
   return (
-    <main className="bg-main p-4">
-      <section className="flex space-x-4 overflow-x-auto">
-        {/* ADD IMAGE BUTTON */}
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-lg bg-[#87CEFA]"
-        >
-          <FaPlus className="text-3xl text-[#008cff]" />
-        </button>
+    <main className="bg-main flex w-full items-center gap-4 p-2">
+      {/* ADD IMAGE BUTTON */}
+      <button
+        onClick={() => fileInputRef.current?.click()}
+        className="mb-7 ml-4 flex h-24 w-24 min-w-[6rem] cursor-pointer items-center justify-center rounded-lg bg-[#87CEFA] transition hover:bg-[#6cb4eb]"
+      >
+        <FaPlus className="text-3xl text-[#008cff]" />
+      </button>
 
-        {/* Hidden Input for File Upload */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          accept="image/*"
-          onChange={handleImageUpload}
-        />
+      {/* Image List with Custom Scrollbar */}
+      <section className="relative w-full overflow-hidden">
+        <div className="scrollbar scrollbar-thumb-[#008cff] scrollbar-track-gray-200 flex space-x-4 overflow-x-auto pb-4">
+          {/* Hidden Input for File Upload */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleImageUpload}
+          />
 
-        {/* Render Footer Images */}
-        {images.map((image, index) => (
-          <div
-            key={index}
-            onClick={() => {
-              onImageClick(image);
-              setSelectedImage(image);
-            }}
-            className={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-lg ${
-              selectedImage === image ? "border-2 border-[#009CFF]" : ""
-            }`}
-          >
-            <img
-              src={image}
-              alt={`Uploaded Image ${index + 1}`}
-              className="h-full w-full rounded-lg object-cover"
-            />
-          </div>
-        ))}
+          {/* Render Footer Images */}
+          {images.map((image, index) => (
+            <div
+              key={index}
+              onClick={() => {
+                setSelectedImage(image);
+                onImageClick(image);
+              }}
+              className={`flex h-24 w-24 min-w-[6rem] cursor-pointer items-center justify-center rounded-lg transition ${
+                selectedImage === image ? "border-2 border-[#009CFF]" : ""
+              }`}
+            >
+              <img
+                src={image}
+                alt={`Uploaded Image ${index + 1}`}
+                className="h-full w-full rounded-lg object-cover"
+              />
+            </div>
+          ))}
+        </div>
       </section>
+
+      {/* DELETE BUTTON */}
+      <div
+        className="bg-main left-2 mb-6 flex h-24 w-28 cursor-pointer items-center justify-center border-l-4 border-[#808080] transition hover:bg-gray-200"
+        onClick={handleDeleteImage}
+      >
+        <FaTrash className="h-16 w-8 text-red-500" />
+      </div>
     </main>
   );
 };
