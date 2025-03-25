@@ -1,58 +1,55 @@
 "use client";
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useCallback } from "react";
 import { FaPlus, FaTrash } from "react-icons/fa";
+import { useImageContext } from "../../context/ImageContext";
 
-const ImageFooter = ({ images = [], setImages, onImageClick }) => {
-  const [selectedImage, setSelectedImage] = useState(() => images[0] || null);
+const ImageFooter = ({ onImageClick, onImageDelete }) => {
+  const {
+    uploadedImages: images,
+    selectedImage,
+    addImage,
+    removeImage,
+    setSelected,
+  } = useImageContext();
+
   const fileInputRef = useRef(null);
 
-  // When images change, if the current selected image is removed,
-  // update the selected image to the last image in the array.
-  useEffect(() => {
-    if (images.length > 0 && !images.includes(selectedImage)) {
-      // Defer state update until after render.
-      setTimeout(() => {
-        const lastImage = images[images.length - 1];
-        setSelectedImage(lastImage);
-        onImageClick(lastImage);
-      }, 0);
-    }
-  }, [images, selectedImage, onImageClick]);
+  const handleImageClick = useCallback(
+    (image) => {
+      setSelected(image);
+      if (onImageClick) {
+        onImageClick(image);
+      }
+    },
+    [onImageClick, setSelected],
+  );
 
   const handleImageUpload = useCallback(
     (event) => {
       const file = event.target.files[0];
       if (file) {
         const newImage = URL.createObjectURL(file);
-        setImages((prevImages) => {
-          const updatedImages = [...prevImages, newImage];
-          setSelectedImage(newImage);
+        addImage(newImage);
+        setSelected(newImage);
+        if (onImageClick) {
           onImageClick(newImage);
-          return updatedImages;
-        });
+        }
+
+        // Cleanup the object URL to prevent memory leaks
+        setTimeout(() => URL.revokeObjectURL(newImage), 5000);
       }
     },
-    [onImageClick, setImages],
+    [addImage, onImageClick, setSelected],
   );
 
   const handleDeleteImage = useCallback(() => {
     if (!selectedImage) return;
 
-    setImages((prevImages) => {
-      const index = prevImages.indexOf(selectedImage);
-      if (index === -1) return prevImages;
-
-      const updatedImages = prevImages.filter((img) => img !== selectedImage);
-      let newSelectedImage = null;
-      if (updatedImages.length > 0) {
-        newSelectedImage =
-          index > 0 ? updatedImages[index - 1] : updatedImages[0];
-      }
-      setSelectedImage(newSelectedImage);
-      onImageClick(newSelectedImage);
-      return updatedImages;
-    });
-  }, [selectedImage, onImageClick, setImages]);
+    removeImage(selectedImage);
+    if (onImageDelete) {
+      onImageDelete(selectedImage);
+    }
+  }, [selectedImage, removeImage, onImageDelete]);
 
   return (
     <main className="bg-main flex w-full items-center gap-4 p-2">
@@ -79,10 +76,7 @@ const ImageFooter = ({ images = [], setImages, onImageClick }) => {
           {images.map((image, index) => (
             <div
               key={index}
-              onClick={() => {
-                setSelectedImage(image);
-                onImageClick(image);
-              }}
+              onClick={() => handleImageClick(image)}
               className={`flex h-24 w-24 min-w-[6rem] cursor-pointer items-center justify-center rounded-lg transition ${
                 selectedImage === image ? "border-2 border-[#009CFF]" : ""
               }`}

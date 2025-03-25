@@ -1,67 +1,87 @@
 "use client";
-import Toast, { showToast } from "../../components/Toast";
-import Navbar from "../../components/Navbar";
-import Download from "./Download";
-import Share from "../../components/Share";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import Toast, { showToast } from "@/components/Toast";
+import Navbar from "@/components/Navbar";
+import Download from "@/feature/upload/Download";
+import Share from "@/components/Share";
+import React, { useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
+import DragOverlay from "@/components/DragOverlay";
+import ImageFooter from "@/feature/upload/ImageFooter";
+import ControlsModal from "@/feature/upload/ControlsModal";
 import { useRouter } from "next/navigation";
-import ImageFooter from "./ImageFooter";
-import ControlsModal from "./ControlsModal";
-import ClipLoader from "react-spinners/ClipLoader";
+import { useImageContext } from "../../context/ImageContext";
 
 const ControlsPage = () => {
   const router = useRouter();
+  const {
+    uploadedImages,
+    selectedImage: previewImage,
+    addImage,
+    removeImage,
+    setSelected,
+  } = useImageContext();
   const imageRef = useRef(null);
-  const [modalType, setModalType] = useState(null);
-  const [uploadedImages, setUploadedImages] = useState([]);
-  const [previewImage, setPreviewImage] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
-  const [settings, setSettings] = useState({
+  const [modalType, setModalType] = React.useState(null);
+  const [isInitialized, setIsInitialized] = React.useState(false);
+  const [settings, setSettings] = React.useState({
     grayscale: { value: 0 },
     blur: { enabled: false, value: 0 },
     brightness: { enabled: false, value: 100 },
     flip: { enabled: false, value: 1 },
   });
 
-  // Load images from session storage on mount
-  useEffect(() => {
-    const preview = sessionStorage.getItem("previewImage");
+  // Load images from session storage and mark as initialized.
+  const loadRedirectedImages = () => {
     const footer = sessionStorage.getItem("footerImages");
-    if (preview) {
-      setPreviewImage(preview);
-      setUploadedImages([preview, ...(footer ? JSON.parse(footer) : [])]);
-    } else {
-      const storedImages = sessionStorage.getItem("uploadedImages");
-      if (storedImages) {
-        const images = JSON.parse(storedImages);
-        setUploadedImages(images);
-        setPreviewImage(images[0] || null);
-      }
-    }
-    setInitialized(true);
-  }, []);
 
-  // Always call hooks unconditionally.
-  const onDrop = useCallback(
-    (acceptedFiles, rejectedFiles) => {
-      if (rejectedFiles.length > 0) return showToast("invalidImage");
+    if (footer) {
+      const images = JSON.parse(footer);
+      images.forEach((image) => addImage(image));
+      setSelected(images[0]);
+
+      // Optional: Clear sessionStorage to prevent duplicates
+      sessionStorage.removeItem("footerImages");
+    }
+  };
+
+  useEffect(() => {
+    if (!isInitialized) {
+      loadRedirectedImages();
+      setIsInitialized(true);
+    }
+  }, [isInitialized, addImage, setSelected]);
+
+  // Redirect to "/" if there are no images after initialization.
+  useEffect(() => {
+    if (isInitialized && uploadedImages.length === 0) {
+      router.push("/");
+    }
+  }, [uploadedImages, isInitialized, router]);
+
+  // Function to handle image drop
+  const onDrop = async (acceptedFiles, rejectedFiles) => {
+    if (rejectedFiles.length > 0) return showToast("invalidImage");
+
+    try {
       const files = acceptedFiles.slice(0, 100);
       const newUploadedImages = files.map((file) => URL.createObjectURL(file));
 
-      setUploadedImages((prev) => {
-        const updatedImages = [...prev, ...newUploadedImages];
-        if (!previewImage || updatedImages.length === 1) {
-          setPreviewImage(newUploadedImages[0]);
-        }
-        sessionStorage.setItem("uploadedImages", JSON.stringify(updatedImages));
-        return updatedImages;
+      newUploadedImages.forEach((image) => {
+        addImage(image); // Add images to context
       });
-      sessionStorage.setItem("previewImage", newUploadedImages[0]);
-    },
-    [previewImage],
-  );
+
+      if (!previewImage && newUploadedImages.length > 0) {
+        setSelected(newUploadedImages[0]); // Set the first image as the preview
+      }
+
+      // Cleanup the object URLs to prevent memory leaks
+      setTimeout(() => {
+        newUploadedImages.forEach((image) => URL.revokeObjectURL(image));
+      }, 5000);
+    } catch (error) {
+      console.error("Error during upload:", error);
+    }
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -72,59 +92,34 @@ const ControlsPage = () => {
     noClick: true,
   });
 
-  // Redirect only if initialized and no images exist.
-  const shouldRedirect = initialized && uploadedImages.length === 0;
-  useEffect(() => {
-    if (shouldRedirect) router.push("/");
-  }, [shouldRedirect, router]);
-  if (shouldRedirect) return null;
-
-  const handleImageClick = (image) => setPreviewImage(image);
-  const handleSettingsChange = (updatedSettings) =>
+  const handleSettingsChange = (updatedSettings) => {
     setSettings(updatedSettings);
+  };
 
   return (
-    <main className="bg-main flex h-screen w-full flex-col">
+    <main className="flex h-screen w-full flex-col bg-gray-200">
       <Navbar />
 
       {/* Dragging Dropzone */}
       <div
         {...getRootProps()}
         className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${
-          isDragActive ? "bg-opacity-80 z-50 bg-[#b8d5b8]" : "bg-main"
-        } ${loading ? "opacity-80 backdrop-blur-md" : ""}`}
+          isDragActive ? "bg-opacity-80 z-50 bg-[#B2D3A8]" : "bg-main"
+        }`}
       >
         <label htmlFor="fileUpload" className="hidden">
           Upload an image
         </label>
         <input id="fileUpload" {...getInputProps()} className="hidden" />
 
-        {loading && (
-          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center">
-            <ClipLoader size={50} color={"#000000"} loading={loading} />
-            <p className="text-main font-semibold">Uploading...</p>
-          </div>
-        )}
+        {/* DragOverlay Component */}
+        <DragOverlay isDragActive={isDragActive} />
 
-        {isDragActive && (
-          <p className="background-blur-md text-main absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform text-[9rem] font-bold whitespace-nowrap">
-            Drop your image here!
-          </p>
-        )}
-
-        {isDragActive && (
-          <>
-            <div className="absolute top-8 left-8 h-[80px] w-[80px] rounded-tl-3xl border-t-[8px] border-l-[8px] border-white"></div>
-            <div className="absolute top-8 right-8 h-[80px] w-[80px] rounded-tr-3xl border-t-[8px] border-r-[8px] border-white"></div>
-            <div className="absolute bottom-8 left-8 h-[80px] w-[80px] rounded-bl-3xl border-b-[8px] border-l-[8px] border-white"></div>
-            <div className="absolute right-8 bottom-8 h-[80px] w-[80px] rounded-br-3xl border-r-[8px] border-b-[8px] border-white"></div>
-          </>
-        )}
-
-        {previewImage && !loading && (
+        {/* Uploaded Image Display */}
+        {previewImage && (
           <div
             className={`mr-[20%] flex flex-col items-center ${
-              isDragActive || loading ? "opacity-50" : "opacity-100"
+              isDragActive ? "opacity-50" : "opacity-100"
             }`}
           >
             <div className="h-auto max-h-[650px] w-auto max-w-[650px] rounded-lg shadow-lg">
@@ -136,20 +131,29 @@ const ControlsPage = () => {
                 style={{
                   filter: `
                     grayscale(${settings.grayscale.value}%)
-                    blur(${settings.blur.enabled ? settings.blur.value + "px" : "0px"})
-                    brightness(${settings.brightness.enabled ? settings.brightness.value + "%" : "100%"})
+                    blur(${
+                      settings.blur.enabled ? settings.blur.value + "px" : "0px"
+                    })
+                    brightness(${
+                      settings.brightness.enabled
+                        ? settings.brightness.value + "%"
+                        : "100%"
+                    })
                   `,
-                  transform: `scaleX(${settings.flip.enabled ? settings.flip.value : "1"})`,
+                  transform: `scaleX(${
+                    settings.flip.enabled ? settings.flip.value : "1"
+                  })`,
                 }}
               />
             </div>
             <div className="flex flex-row gap-4 pt-8">
-              <Share />
+              <Share footerImages={uploadedImages} />
               <Download
                 uploadedImages={uploadedImages}
                 previewImage={previewImage}
                 settings={settings}
               />
+              {/* Controls Button */}
               <button
                 className="mt-4 cursor-pointer rounded-full bg-[#B7B7B7] px-6 py-2 text-white transition-all duration-300 hover:scale-105 hover:brightness-110"
                 style={{ width: "200px", height: "50px" }}
@@ -166,6 +170,7 @@ const ControlsPage = () => {
         )}
       </div>
 
+      {/* Modal & Footer */}
       {modalType && (
         <ControlsModal
           isOpen={modalType}
@@ -177,10 +182,8 @@ const ControlsPage = () => {
       )}
 
       <ImageFooter
-        setImages={setUploadedImages}
-        onImageClick={handleImageClick}
-        images={uploadedImages.slice(1)}
-        previewImage={previewImage}
+        onImageClick={setSelected} // Use context's setSelected for image click
+        onImageDelete={removeImage} // Use context's removeImage for image delete
       />
       <Toast />
     </main>

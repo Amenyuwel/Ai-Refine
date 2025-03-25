@@ -4,21 +4,19 @@ import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import Toast, { showToast } from "@/components/Toast";
 import Image from "next/image";
-import { ClipLoader } from "react-spinners";
+import DragOverlay from "@/components/DragOverlay";
+import LoadingOverlay from "@/components/LoadingOverlay"; // Import LoadingOverlay
 
 const HomePage = () => {
   const router = useRouter();
   const [images, setImages] = useState([]);
   const fileInputRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Monitor loading changes for debugging
   useEffect(() => {
     console.log("Loading state:", loading);
   }, [loading]);
 
-  // Converts images to Base64 and handles redirection
   const uploadAndRedirect = async (files) => {
     const imageFiles = files.filter((file) => file.type.startsWith("image"));
     if (imageFiles.length + images.length > 100) {
@@ -28,7 +26,6 @@ const HomePage = () => {
 
     const newImages = [...images, ...imageFiles].slice(0, 100);
     setImages(newImages);
-    setLoading(true);
 
     try {
       const base64Images = await Promise.all(
@@ -43,23 +40,15 @@ const HomePage = () => {
         ),
       );
 
-      // Store all images in footerImages, including the first one
-      sessionStorage.setItem("previewImage", base64Images[0]);
-      sessionStorage.setItem("footerImages", JSON.stringify(base64Images));
-
-      // ⏳ Add 2-second delay before stopping loading & navigating
-      setTimeout(() => {
-        setLoading(false);
-        router.push("feature/upload");
-      }, 2000);
+      const uniqueImages = Array.from(new Set(base64Images));
+      sessionStorage.setItem("footerImages", JSON.stringify(uniqueImages));
+      router.push("feature/upload");
     } catch (error) {
       console.error("Error converting images:", error);
       alert("Failed to process images. Please try again.");
-      setLoading(false);
     }
   };
 
-  // Handles dropped files
   const onDrop = (acceptedFiles, fileRejections) => {
     if (fileRejections.length > 0) {
       showToast("invalidImage");
@@ -68,34 +57,27 @@ const HomePage = () => {
     if (acceptedFiles.length > 0) {
       uploadAndRedirect(acceptedFiles);
     }
-
-    setIsDragging(false); // Ensure dragging state resets
   };
 
   const handleFileUpload = (event) => {
-    event.preventDefault(); // Prevent default form behavior
-    event.stopPropagation(); // Prevent event bubbling
+    event.preventDefault();
+    event.stopPropagation();
 
     const files = Array.from(event.target.files);
     if (files.length > 0) {
       uploadAndRedirect(files);
     }
 
-    // Reset file input to prevent re-triggering
     event.target.value = "";
   };
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       "image/jpeg": [".jpg", ".jpeg"],
       "image/png": [".png"],
     },
     noClick: true,
     onDrop,
-    onDragEnter: () => setIsDragging(true),
-    onDragLeave: () => {
-      setTimeout(() => setIsDragging(false), 100);
-    },
   });
 
   const preventImageActions = (event) => {
@@ -107,31 +89,14 @@ const HomePage = () => {
       {...getRootProps()}
       className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${
         loading ? "backdrop-blur-md" : ""
-      } ${isDragging ? "bg-[#b8d5b8]" : ""}`}
+      } ${isDragActive ? "bg-[#b8d5b8]" : ""}`}
     >
       <Toast />
 
-      {loading && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center">
-          <ClipLoader size={50} color={"#000000"} loading={loading} />
-          <p className="text-main text-semibold">Uploading...</p>
-        </div>
-      )}
+      {/* LoadingOverlay Component */}
+      <LoadingOverlay loading={loading} />
 
-      {isDragging && (
-        <p className="background-blur-md text-main absolute top-1/2 left-1/2 z-60 -translate-x-1/2 -translate-y-1/2 transform rounded-xl bg-transparent p-4 text-[9rem] font-bold whitespace-nowrap">
-          Drop your image here!
-        </p>
-      )}
-
-      {isDragging && (
-        <>
-          <div className="absolute top-8 left-8 h-[80px] w-[80px] rounded-tl-3xl border-t-[8px] border-l-[8px] border-white"></div>
-          <div className="absolute top-8 right-8 h-[80px] w-[80px] rounded-tr-3xl border-t-[8px] border-r-[8px] border-white"></div>
-          <div className="absolute bottom-8 left-8 h-[80px] w-[80px] rounded-bl-3xl border-b-[8px] border-l-[8px] border-white"></div>
-          <div className="absolute right-8 bottom-8 h-[80px] w-[80px] rounded-br-3xl border-r-[8px] border-b-[8px] border-white"></div>
-        </>
-      )}
+      <DragOverlay isDragActive={isDragActive} />
 
       <input
         {...getInputProps()}
@@ -142,7 +107,7 @@ const HomePage = () => {
 
       <section
         className={`relative flex flex-col items-center transition-all duration-300 ${
-          isDragging || loading ? "opacity-50" : "opacity-100"
+          isDragActive || loading ? "opacity-50" : "opacity-100"
         }`}
       >
         <img
@@ -170,7 +135,7 @@ const HomePage = () => {
 
       <section
         className={`flex h-full w-[40%] flex-col items-center justify-center transition-all duration-300 ${
-          isDragging || loading ? "opacity-50" : "opacity-100"
+          isDragActive || loading ? "opacity-50" : "opacity-100"
         }`}
       >
         <div
@@ -192,7 +157,7 @@ const HomePage = () => {
               type="button"
               className="h-[10%] w-[40%] cursor-pointer rounded-full bg-[var(--secondary)] text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:bg-[#79C99E] hover:shadow-lg"
               onClick={(e) => {
-                e.stopPropagation(); // Prevent bubbling up to the dropzone
+                e.stopPropagation();
                 fileInputRef.current?.click();
               }}
             >
