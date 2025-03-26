@@ -1,55 +1,39 @@
 import React from "react";
-import pb from "@/utils/pocketbase";
-import PocketBase from "pocketbase";
+import { toast } from "react-toastify";
+import useImageUpload from "@/hooks/useImageUpload";
+import "react-toastify/dist/ReactToastify.css";
 
-const Share = ({ previewImage, footerImages }) => {
-  const pb = new PocketBase(process.env.NEXT_PUBLIC_PB_URL);
+const Share = ({ footerImages }) => {
+  const { uploadImages, isUploading } = useImageUpload();
 
-  const uploadImages = async () => {
-    if (footerImages.length === 0) {
-      alert("No images to upload!");
-      return;
-    }
-
+  const handleUpload = async () => {
     try {
-      const formData = new FormData();
-
-      // Convert footer image URLs to files
-      const imageFiles = await Promise.all(
-        footerImages.map(async (imageUrl, index) => {
-          const response = await fetch(imageUrl);
-          if (!response.ok) {
-            throw new Error(`Failed to fetch image at ${imageUrl}`);
-          }
-          const blob = await response.blob();
-          return new File([blob], `image_${index}.jpg`, { type: blob.type });
-        }),
-      );
-
-      // Append files to the "images" field in formData
-      imageFiles.forEach((file) => formData.append("images", file));
-
-      // Upload to PocketBase
-      const record = await pb.collection("uploaded_images").create(formData);
-
-      alert("Images uploaded successfully!");
-      console.log("Upload response:", record);
+      const result = await uploadImages(footerImages);
+      if (result.success) {
+        toast.success("Upload successful!");
+      } else {
+        toast.error("Upload failed. Please try again.");
+      }
     } catch (error) {
-      console.error("Upload failed:", error);
-      alert("Failed to upload images. Please check the console for details.");
+      console.error("Error during upload:", error);
+      toast.error("An error occurred during upload.");
     }
   };
 
   return (
-    <main className="flex">
+    <div className="flex flex-col items-center">
       <button
-        className="mt-4 cursor-pointer rounded-full px-6 py-2 text-black transition-all duration-300 hover:scale-105"
+        className={`mt-4 cursor-pointer rounded-full px-6 py-2 text-black transition-all duration-300 hover:scale-105 ${
+          isUploading ? "cursor-not-allowed bg-gray-300" : "bg-[#79C99E]"
+        }`}
         style={{ width: "200px", height: "50px" }}
-        onClick={uploadImages}
+        onClick={handleUpload}
+        disabled={isUploading}
+        aria-label="Share Dataset"
       >
-        SHARE DATASET
+        {isUploading ? "UPLOADING..." : "SHARE DATASET"}
       </button>
-    </main>
+    </div>
   );
 };
 

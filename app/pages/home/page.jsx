@@ -1,11 +1,12 @@
 "use client";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
-import Toast, { showToast } from "@/components/Toast";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import DragOverlay from "@/components/DragOverlay";
-import LoadingOverlay from "@/components/LoadingOverlay"; // Import LoadingOverlay
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 const HomePage = () => {
   const router = useRouter();
@@ -17,59 +18,99 @@ const HomePage = () => {
     console.log("Loading state:", loading);
   }, [loading]);
 
-  const uploadAndRedirect = async (files) => {
-    const imageFiles = files.filter((file) => file.type.startsWith("image"));
-    if (imageFiles.length + images.length > 100) {
-      alert("You can only upload up to 100 images.");
-      return;
-    }
+  const processImages = useCallback(
+    async (files) => {
+      const imageFiles = files.filter((file) => file.type.startsWith("image"));
+      if (imageFiles.length + images.length > 100) {
+        toast.error("You can only upload up to 100 images.");
+        return;
+      }
 
-    const newImages = [...images, ...imageFiles].slice(0, 100);
-    setImages(newImages);
+      const newImages = [...images, ...imageFiles].slice(0, 100);
+      setImages(newImages);
 
-    try {
-      const base64Images = await Promise.all(
-        newImages.map(
-          (file) =>
-            new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.readAsDataURL(file);
-              reader.onloadend = () => resolve(reader.result);
-              reader.onerror = reject;
-            }),
-        ),
-      );
+      try {
+        const base64Images = await Promise.all(
+          newImages.map(
+            (file) =>
+              new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+              }),
+          ),
+        );
 
-      const uniqueImages = Array.from(new Set(base64Images));
-      sessionStorage.setItem("footerImages", JSON.stringify(uniqueImages));
-      router.push("feature/upload");
-    } catch (error) {
-      console.error("Error converting images:", error);
-      alert("Failed to process images. Please try again.");
-    }
-  };
+        const uniqueImages = Array.from(new Set(base64Images));
+        sessionStorage.setItem("footerImages", JSON.stringify(uniqueImages));
+        router.push("feature/upload");
+      } catch (error) {
+        console.error("Error converting images:", error);
+        toast.error("Failed to process images. Please try again.");
+      } finally {
+        setLoading(false); // Stop loading after processing
+      }
+    },
+    [images, router],
+  );
 
-  const onDrop = (acceptedFiles, fileRejections) => {
-    if (fileRejections.length > 0) {
-      showToast("invalidImage");
-    }
+  const onDrop = useCallback(
+    (acceptedFiles, fileRejections) => {
+      if (fileRejections.length > 0) {
+        toast.error("Invalid image format.");
+      }
 
-    if (acceptedFiles.length > 0) {
-      uploadAndRedirect(acceptedFiles);
-    }
-  };
+      if (acceptedFiles.length > 0) {
+        setLoading(true); // Start loading
+        setTimeout(() => {
+          processImages(acceptedFiles); // Process images after 2 seconds
+        }, 2000);
+      }
+    },
+    [processImages],
+  );
 
-  const handleFileUpload = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+  const handleFileUpload = useCallback(
+    (event) => {
+      event.preventDefault();
+      event.stopPropagation();
 
-    const files = Array.from(event.target.files);
-    if (files.length > 0) {
-      uploadAndRedirect(files);
-    }
+      const files = Array.from(event.target.files);
+      if (files.length > 0) {
+        setLoading(true); // Start loading
+        setTimeout(() => {
+          processImages(files); // Process images after 2 seconds
+        }, 2000);
+      }
 
-    event.target.value = "";
-  };
+      event.target.value = "";
+    },
+    [processImages],
+  );
+
+  const handleExampleImageClick = useCallback(
+    async (imagePath) => {
+      setLoading(true); // Start loading
+      try {
+        const response = await fetch(imagePath);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch example image: ${imagePath}`);
+        }
+        const blob = await response.blob();
+        const file = new File([blob], imagePath.split("/").pop(), {
+          type: blob.type,
+        });
+        processImages([file]);
+      } catch (error) {
+        console.error("Error processing example image:", error);
+        toast.error("Failed to process example image. Please try again.");
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    },
+    [processImages],
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -91,11 +132,8 @@ const HomePage = () => {
         loading ? "backdrop-blur-md" : ""
       } ${isDragActive ? "bg-[#b8d5b8]" : ""}`}
     >
-      <Toast />
-
-      {/* LoadingOverlay Component */}
+      <ToastContainer />
       <LoadingOverlay loading={loading} />
-
       <DragOverlay isDragActive={isDragActive} />
 
       <input
@@ -103,6 +141,7 @@ const HomePage = () => {
         ref={fileInputRef}
         className="hidden"
         onChange={handleFileUpload}
+        aria-label="File Upload"
       />
 
       <section
@@ -176,9 +215,10 @@ const HomePage = () => {
           </p>
           {["Animal", "Object", "Pest"].map((item) => (
             <div
-              title="Drag and drop this image to upload"
+              title="Click to upload this image"
               key={item}
-              className="h-full w-26 cursor-pointer rounded-[12px] bg-white shadow-md"
+              className="h-full w-26 cursor-pointer rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105"
+              onClick={() => handleExampleImageClick(`/images/${item}.png`)}
             >
               <img
                 src={`/images/${item}.png`}

@@ -65,11 +65,12 @@ const ShowCase = () => {
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`cursor-pointer rounded-lg px-6 py-3 transition-all ${
+            className={`cursor-pointer rounded-full px-6 py-3 transition-all ${
               selectedCategory === category
-                ? "bg-transparent text-[var(--secondary)]"
-                : "text-main bg-transparent"
+                ? "bg-[var(--secondary)] text-white"
+                : "text-main bg-transparent hover:bg-gray-200"
             }`}
+            aria-label={`Select ${category} category`}
           >
             {category.toUpperCase()}
           </button>
@@ -84,46 +85,37 @@ const ShowCase = () => {
   );
 };
 
-const ImageShowcase = ({ category }) => {
-  const preventImageActions = (event) => {
-    event.preventDefault();
-  };
+const ImageShowcase = React.memo(({ category }) => {
+  const preventImageActions = (event) => event.preventDefault();
+
+  if (!imagePaths[category]) {
+    return (
+      <div className="text-center text-red-500">
+        <p>Invalid category: {category}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full flex-wrap items-center justify-center gap-6">
-      {/* Original Image */}
-      <figure className="rounded-lg bg-white p-4 shadow-lg">
-        <img
-          src={imagePaths[category].Original}
-          alt="Original"
-          draggable="false"
-          onDragStart={preventImageActions}
-          onContextMenu={preventImageActions}
-          className="h-64 w-52 object-contain"
-        />
-        <figcaption className="mt-2 text-center text-lg font-semibold">
-          ORIGINAL
-        </figcaption>
-      </figure>
-
-      {/* Augmented Images */}
-      {augmentations.slice(1).map((aug) => (
+      {augmentations.map((aug) => (
         <figure key={aug} className="rounded-lg bg-white p-4 shadow-lg">
           <img
             src={imagePaths[category][aug]}
-            alt={aug}
+            alt={`${category} - ${aug}`}
             draggable="false"
             onDragStart={preventImageActions}
             onContextMenu={preventImageActions}
-            className="h-64 w-52 object-contain"
+            className="h-64 w-52 cursor-pointer object-contain transition-transform duration-300 ease-in-out hover:scale-105"
+            aria-label={`${category} - ${aug}`}
           />
           <figcaption className="mt-2 text-center text-lg font-semibold">
             {aug.toUpperCase()}
           </figcaption>
         </figure>
       ))}
-    </div> 
+    </div>
   );
-};
+});
 
 export default ShowCase;

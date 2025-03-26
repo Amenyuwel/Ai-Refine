@@ -27,10 +27,10 @@ const useParallax = (elements) => {
               scrollTrigger: {
                 trigger: ref.current,
                 start: options.start || "top 80%", // begin
-                end: options.end || "top 50%",     // finish
-                scrub: options.scrub || 2,        // Ties to scroll movement
+                end: options.end || "top 50%", // finish
+                scrub: options.scrub || 2, // Ties to scroll movement
               },
-            }
+            },
           );
         }
       });
