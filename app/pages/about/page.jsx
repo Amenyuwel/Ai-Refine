@@ -1,6 +1,7 @@
 import React from "react";
 import description from "./descAbout";
 import { FaArrowCircleRight } from "react-icons/fa";
+import HeroPattern from "@/components/HeroPattern";
 
 const AboutPage = () => {
   const preventImageActions = (event) => {

@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import DragOverlay from "@/components/DragOverlay";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import HeroPattern from "@/components/HeroPattern";
 
 const HomePage = () => {
   const router = useRouter();
@@ -132,6 +133,7 @@ const HomePage = () => {
         loading ? "backdrop-blur-md" : ""
       } ${isDragActive ? "bg-[#b8d5b8]" : ""}`}
     >
+      <HeroPattern />
       <ToastContainer />
       <LoadingOverlay loading={loading} />
       <DragOverlay isDragActive={isDragActive} />
