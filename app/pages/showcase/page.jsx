@@ -68,7 +68,7 @@ const ShowCase = () => {
             className={`cursor-pointer rounded-full px-6 py-3 transition-all ${
               selectedCategory === category
                 ? "bg-[var(--secondary)] text-white"
-                : "text-main bg-transparent hover:bg-gray-200"
+                : "text-main bg-transparent"
             }`}
             aria-label={`Select ${category} category`}
           >

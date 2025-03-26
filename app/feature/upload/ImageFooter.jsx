@@ -14,16 +14,16 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
 
   const fileInputRef = useRef(null);
 
+  // Handle image selection
   const handleImageClick = useCallback(
     (image) => {
       setSelected(image);
-      if (onImageClick) {
-        onImageClick(image);
-      }
+      onImageClick?.(image);
     },
     [onImageClick, setSelected],
   );
 
+  // Handle image upload
   const handleImageUpload = useCallback(
     (event) => {
       const file = event.target.files[0];
@@ -31,9 +31,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
         const newImage = URL.createObjectURL(file);
         addImage(newImage);
         setSelected(newImage);
-        if (onImageClick) {
-          onImageClick(newImage);
-        }
+        onImageClick?.(newImage);
 
         // Cleanup the object URL to prevent memory leaks
         setTimeout(() => URL.revokeObjectURL(newImage), 5000);
@@ -42,18 +40,28 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
     [addImage, onImageClick, setSelected],
   );
 
+  // Handle image deletion
   const handleDeleteImage = useCallback(() => {
     if (!selectedImage) return;
 
+    const currentIndex = images.indexOf(selectedImage);
+
+    // Remove the selected image
     removeImage(selectedImage);
-    if (onImageDelete) {
-      onImageDelete(selectedImage);
-    }
-  }, [selectedImage, removeImage, onImageDelete]);
+
+    // Determine the next selected image
+    const nextSelectedImage =
+      currentIndex > 0
+        ? images[currentIndex - 1] // Prioritize the previous image
+        : images[currentIndex + 1] || null; // Fallback to the next image or null
+
+    setSelected(nextSelectedImage);
+    onImageDelete?.(selectedImage);
+  }, [selectedImage, images, removeImage, setSelected, onImageDelete]);
 
   return (
     <main className="bg-main flex w-full items-center gap-4 p-2">
-      {/* ADD IMAGE BUTTON */}
+      {/* Add Image Button */}
       <button
         onClick={() => fileInputRef.current?.click()}
         className="mb-7 ml-4 flex h-24 w-24 min-w-[6rem] cursor-pointer items-center justify-center rounded-lg bg-[#87CEFA] transition hover:bg-[#6cb4eb]"
@@ -72,7 +80,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
             accept="image/*"
             onChange={handleImageUpload}
           />
-          {/* Render Footer Images */}
+          {/* Render Uploaded Images */}
           {images.map((image, index) => (
             <div
               key={index}
@@ -91,7 +99,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
         </div>
       </section>
 
-      {/* DELETE BUTTON */}
+      {/* Delete Button */}
       <div
         className="bg-main left-2 mb-6 flex h-24 w-28 cursor-pointer items-center justify-center border-l-4 border-[#d3d3d3] transition hover:bg-gray-200"
         onClick={handleDeleteImage}
