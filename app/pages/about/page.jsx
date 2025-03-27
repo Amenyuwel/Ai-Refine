@@ -2,6 +2,7 @@ import React from "react";
 import description from "./descAbout";
 import { FaArrowCircleRight } from "react-icons/fa";
 import HeroPattern from "@/components/HeroPattern";
+import Link from "next/link";
 
 const AboutPage = () => {
   const preventImageActions = (event) => {
@@ -19,10 +20,12 @@ const AboutPage = () => {
           <p className="text-main mt-4 text-2xl opacity-90">{description}</p>
 
           {/* Button */}
-          <button className="mt-6 flex w-[30%] items-center justify-center gap-2 place-self-start rounded-lg bg-[#79C99E] px-6 py-3 text-lg font-semibold text-white transition-transform hover:scale-105">
-            Learn More
-            <FaArrowCircleRight className="text-2xl" />
-          </button>
+          <Link href="/learn-more">
+            <button className="mt-6 flex items-center justify-center gap-2 place-self-start rounded-lg bg-[#79C99E] px-6 py-3 text-lg font-semibold text-white transition-transform hover:scale-105">
+              Learn More
+              <FaArrowCircleRight className="text-2xl" />
+            </button>
+          </Link>
         </div>
 
         {/* Image */}
