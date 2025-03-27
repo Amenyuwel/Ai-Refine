@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import { useImageContext } from "../../context/ImageContext";
 
@@ -13,6 +13,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
   } = useImageContext();
 
   const fileInputRef = useRef(null);
+  const objectUrlRef = useRef(null); // Track the object URL
 
   // Handle image selection
   const handleImageClick = useCallback(
@@ -29,12 +30,10 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
       const file = event.target.files[0];
       if (file) {
         const newImage = URL.createObjectURL(file);
+        objectUrlRef.current = newImage; // Store the object URL for cleanup later
         addImage(newImage);
         setSelected(newImage);
         onImageClick?.(newImage);
-
-        // Cleanup the object URL to prevent memory leaks
-        setTimeout(() => URL.revokeObjectURL(newImage), 5000);
       }
     },
     [addImage, onImageClick, setSelected],
@@ -58,6 +57,15 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
     setSelected(nextSelectedImage);
     onImageDelete?.(selectedImage);
   }, [selectedImage, images, removeImage, setSelected, onImageDelete]);
+
+  // Cleanup the object URL when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current); // Clean up the object URL on unmount
+      }
+    };
+  }, []);
 
   return (
     <main className="bg-main flex w-full items-center gap-4 p-2">
