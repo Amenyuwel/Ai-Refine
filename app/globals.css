@@ -103,7 +103,20 @@ h6 {
 }
 
 .scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #808080; /* Darker color on hover */
+  background: #a9a9a9; /* Darker color on hover */
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #a9a9a9;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background-color: #d3d3d3;
 }
 
 .Toastify__toast-container {

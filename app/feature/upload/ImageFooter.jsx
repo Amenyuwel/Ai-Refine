@@ -71,7 +71,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
 
       {/* Image List */}
       <section className="relative w-full overflow-hidden">
-        <div className="scrollbar scrollbar-thumb-[#008cff] scrollbar-track-gray-200 flex space-x-4 overflow-x-auto pb-4">
+        <div className="scrollbar flex space-x-4 overflow-x-auto pb-4">
           {/* Hidden Input for File Upload */}
           <input
             type="file"
