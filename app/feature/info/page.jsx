@@ -40,8 +40,8 @@ const Info = () => {
 
       {/* Content Section with Grid Layout and Gridlines */}
       <div className="mt-16 flex h-[100px] w-full max-w-[45%] items-center gap-x-4 bg-transparent p-2">
-        <h1 className="flex-1 text-lg font-bold text-[#2F2F2F] md:text-4xl">
-          ENHANCE YOUR UNDERSTANDING OF IMAGE AUGMENTATION
+        <h1 className="flex-1 text-2xl font-bold text-[#2F2F2F] md:text-4xl">
+          UNDERSTANDING THE IMAGE AUGMENTATION
         </h1>
       </div>
 

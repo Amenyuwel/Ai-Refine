@@ -1,3 +1,5 @@
+const fluidType = require('tailwindcss-fluid-type');
+
 export default {
   darkMode: "class", // Enables dark mode manually using class
   theme: {
@@ -16,6 +18,7 @@ export default {
       fontFamily: {
         sans: ["Poppins", "sans-serif"],
         heading: ["Oswald", "sans-serif"],
+        headingSecondary: ["Poppins", "serif"],
       },
       backgroundImage: {
         main: "var(--bg-main)",
