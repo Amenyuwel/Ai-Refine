@@ -151,7 +151,7 @@ const HomePage = () => {
 
       <section
         className={`flex h-full w-[40%] flex-col items-center justify-center transition-all duration-300 ${
-          isDragActive || loading ? "opacity-50" : "opacity-100"
+          isDragActive || loading ? "opacity-55" : "opacity-100"
         }`}
       >
         <div
