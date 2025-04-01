@@ -20,7 +20,7 @@ const AboutPage = () => {
 
           {/* Button wrapped with Link */}
           <Link href="/feature/info">
-            <button className="mt-6 flex cursor-pointer gap-2 place-self-start rounded-lg bg-[#79C99E] px-6 py-3 transition-transform hover:scale-105">
+            <button className="mt-6 flex cursor-pointer gap-2 place-self-start rounded-full bg-[#79C99E] px-6 py-3 transition-transform hover:scale-105">
               <span className="flex flex-row items-center text-2xl text-white">
                 Learn More
                 <FaArrowCircleRight className="ml-2 text-2xl" />
