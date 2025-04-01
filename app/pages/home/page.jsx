@@ -179,8 +179,8 @@ const HomePage = () => {
               UPLOAD IMAGE
             </button>
             <span className="text-main mt-8 text-sm">
-              File must be <strong>JPG</strong> or <strong>PNG</strong>, and up
-              to <strong> 100 images.</strong>
+              File must be <strong>JPG</strong> or <strong>PNG</strong>, and a maximum of
+              <strong> 100 images.</strong>
             </span>
           </div>
         </div>
