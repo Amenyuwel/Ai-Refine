@@ -27,10 +27,7 @@ const ContactPage = ({ scrollToHome }) => {
       <ToastContainer />
       <section className="flex h-[80%] w-[40%] flex-col items-center justify-center space-y-6 p-8 text-center">
         <div className="flex w-full flex-col items-center">
-          <h1 className="text-main mb-6 text-6xl font-bold">
-            Write me something!
-          </h1>
-          <p className="text-main text-lg font-semibold">
+          <p className="text-main text-2xl font-semibold">
             Have a question? Leave your details and <br /> I’ll get back to you
             as soon as possible.
           </p>
@@ -53,7 +50,7 @@ const ContactPage = ({ scrollToHome }) => {
               placeholder="e.g. Amenyuwel"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[#008CFF] focus:outline-none"
+              className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[var(--primary)] focus:outline-none"
               aria-label="Name"
               aria-describedby="nameHelp"
             />
@@ -72,7 +69,7 @@ const ContactPage = ({ scrollToHome }) => {
               placeholder="e.g. Amenyuwel@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[#008CFF] focus:outline-none"
+              className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[var(--primary)] focus:outline-none"
               aria-label="Email"
               aria-describedby="emailHelp"
             />
@@ -91,7 +88,7 @@ const ContactPage = ({ scrollToHome }) => {
               rows="4"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="bg-main w-full resize-none rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[#008CFF] focus:outline-none"
+              className="bg-main w-full resize-none rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[var(--primary)] focus:outline-none"
               aria-label="Message"
               aria-describedby="messageHelp"
             ></textarea>

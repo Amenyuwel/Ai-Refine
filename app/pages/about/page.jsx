@@ -10,19 +10,19 @@ const AboutPage = () => {
 
   return (
     <main className="bg-main flex h-[100vh] w-full items-center justify-center px-6">
-      <section className="flex w-[80%] flex-row items-center justify-between">
+      <section className="flex w-[80%] flex-row items-center justify-center gap-x-8">
         {/* Text Content and Button */}
         <div className="flex w-[50%] flex-col items-start justify-center">
-          <h1 className="text-main text-[60px] leading-tight font-bold">
+          <h1 className="text-main text-5xl leading-tight font-bold break-words">
             Quickly augment your images automatically
           </h1>
-          <p className="text-main mt-4 text-2xl opacity-90">{description}</p>
+          <p className="text-main mt-4 text-xl opacity-90">{description}</p>
 
           {/* Button wrapped with Link */}
           <Link href="/feature/info">
-            <button className="mt-6 flex cursor-pointer gap-2 place-self-start rounded-full bg-[#79C99E] px-8 py-3 transition-transform hover:scale-105">
+            <button className="mt-6 mt-8 flex cursor-pointer gap-2 place-self-start rounded-xl bg-[#79C99E] px-8 py-3 transition-transform hover:scale-105">
               <span className="flex flex-row items-center text-2xl text-white">
-                Learn More
+                Learn Augmentation!
                 <FaArrowCircleRight className="ml-2 text-2xl" />
               </span>
             </button>
@@ -35,7 +35,7 @@ const AboutPage = () => {
           draggable="false"
           onDragStart={preventImageActions}
           onContextMenu={preventImageActions}
-          className="h-[40%] w-[40%] cursor-pointer object-contain transition-transform duration-300 ease-out hover:scale-105"
+          className="mt-8 h-[40%] w-[40%] cursor-pointer object-contain transition-transform duration-300 ease-out hover:scale-105"
           alt="Mutant"
         />
       </section>
