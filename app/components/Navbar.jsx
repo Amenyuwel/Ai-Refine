@@ -43,7 +43,7 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
   );
 
   return (
-    <header className="bg-main sticky top-0 z-[50] flex w-full items-center justify-between px-6 py-3 shadow-md">
+    <header className="bg-main sticky top-0 z-[50] flex w-full items-center justify-between p-4 shadow-md">
       {/* NAVIGATION LINKS */}
       <h1
         className="cursor-pointer px-8 text-4xl font-bold"

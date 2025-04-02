@@ -24,7 +24,11 @@ const ContactPage = ({ scrollToHome }) => {
   return (
     <main className="relative flex h-screen w-full flex-col items-center justify-center font-sans">
       <HeroPattern />
-      <ToastContainer />
+      <ToastContainer
+        pauseOnHover={false}
+        draggable={false}
+        position="bottom-center"
+      />
       <section className="flex h-[80%] w-[40%] flex-col items-center justify-center space-y-6 p-8 text-center">
         <div className="flex w-full flex-col items-center">
           <p className="text-main text-2xl font-semibold">
@@ -111,7 +115,7 @@ const ContactPage = ({ scrollToHome }) => {
       <button
         type="button"
         title="Scroll to Top"
-        className="hover-animate-updown absolute bottom-0 left-1/2 z-50 flex h-12 w-12 -translate-x-1/2 translate-y-1/2 transform cursor-pointer items-center justify-center rounded-full bg-[#3D3D3D] text-2xl text-white shadow-lg transition-colors duration-300 ease-out hover:bg-[#79C99E]"
+        className="hover-animate-updown absolute bottom-0 left-1/2 z-50 flex h-12 w-12 -translate-x-1/2 translate-y-1/2 transform cursor-pointer items-center justify-center rounded-lg bg-[#3D3D3D] text-2xl text-white shadow-lg transition-colors duration-300 ease-out hover:bg-[var(--primary)]"
         onClick={scrollToHome}
         aria-label="Scroll to Top"
       >

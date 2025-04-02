@@ -115,7 +115,7 @@ const HomePage = () => {
       <HeroPattern />
 
       {/* FOR ERRORS */}
-      <ToastContainer />
+      <ToastContainer pauseOnHover={false} draggable={false} />
 
       {/* LOADING SCREEN */}
       <LoadingOverlay loading={loading} />
@@ -169,7 +169,7 @@ const HomePage = () => {
           onClick={() => fileInputRef.current?.click()}
           className="elevation-3 flex h-[60%] w-[80%] cursor-pointer flex-col items-center justify-center rounded-[50px] bg-white shadow-2xl"
         >
-          <div className="flex h-[95%] w-[95%] flex-col items-center p-8 justify-center rounded-[50px] border-8 border-dashed border-gray-400">
+          <div className="flex h-[95%] w-[95%] flex-col items-center justify-center rounded-[50px] border-8 border-dashed border-gray-400 p-8">
             <p className="text-main text-3xl font-bold">
               Drag and drop your images
             </p>
@@ -181,7 +181,7 @@ const HomePage = () => {
             </p>
             <button
               type="button"
-              className="cursor-pointer rounded-full bg-[var(--primary)] px-8 py-4 text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:brightness-105 hover:shadow-lg"
+              className="cursor-pointer rounded-full bg-[var(--primary)] px-8 py-4 text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:brightness-105"
               onClick={(e) => {
                 e.stopPropagation();
                 fileInputRef.current?.click();

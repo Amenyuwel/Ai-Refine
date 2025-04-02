@@ -29,11 +29,9 @@ const Info = () => {
   };
 
   return (
-    <main className="scrollbar-thin scrollbar-thumb-[#008cff] scrollbar-track-gray-200 flex min-h-screen w-full flex-col items-center overflow-y-auto">
+    <main className="scrollbar-thin scrollbar-thumb-[#008cff] scrollbar-track-gray-200 flex h-screen w-full flex-col items-center overflow-y-auto">
       {/* Sticky Navbar */}
-      <header className="sticky top-0 z-10 w-full">
-        <Navbar />
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <HeroPattern />
@@ -53,7 +51,7 @@ const Info = () => {
         {questions.map((question, index) => (
           <article
             key={index}
-            className="bg-main flex h-[80%] cursor-pointer flex-col items-center justify-start rounded-lg shadow-lg transition-transform hover:-translate-y-2 hover:shadow-xl"
+            className="bg-main flex flex-col items-center justify-between rounded-lg shadow-lg transition-transform hover:-translate-y-2 hover:shadow-xl"
             onClick={() => handleCardClick(question)}
           >
             {/* Render Image */}
@@ -65,9 +63,10 @@ const Info = () => {
             <h2 className="text-main mb-2 px-4 text-left text-xl font-bold">
               {question.heading}
             </h2>
-            <p className="text-main px-4 text-sm text-gray-700">
+            {/* Description */}
+            <p className="text-main min-h-[80px] flex-grow px-4 text-sm text-gray-700">
               {question.description.length > 100
-                ? question.description.slice(0, 30) + "..."
+                ? question.description.slice(0, 100) + "..."
                 : question.description}
             </p>
           </article>
