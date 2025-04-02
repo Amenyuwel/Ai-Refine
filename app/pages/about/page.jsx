@@ -9,7 +9,7 @@ const AboutPage = () => {
   };
 
   return (
-    <main className="bg-main flex h-[80vh] w-full items-center justify-center px-6">
+    <main className="bg-main flex h-[100vh] w-full items-center justify-center px-6">
       <section className="flex w-[80%] flex-row items-center justify-between">
         {/* Text Content and Button */}
         <div className="flex w-[50%] flex-col items-start justify-center">

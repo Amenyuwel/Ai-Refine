@@ -27,7 +27,9 @@ const ContactPage = ({ scrollToHome }) => {
       <ToastContainer />
       <section className="flex h-[80%] w-[40%] flex-col items-center justify-center space-y-6 p-8 text-center">
         <div className="flex w-full flex-col items-center">
-          <h1 className="text-main mb-6 text-6xl font-bold">Contact</h1>
+          <h1 className="text-main mb-6 text-6xl font-bold">
+            Write me something!
+          </h1>
           <p className="text-main text-lg font-semibold">
             Have a question? Leave your details and <br /> I’ll get back to you
             as soon as possible.

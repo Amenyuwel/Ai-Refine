@@ -120,7 +120,7 @@ const ControlsPage = () => {
   );
 
   return (
-    <main className="flex h-screen w-full flex-col bg-gray-200">
+    <main className="flex h-screen w-full flex-col">
       <Navbar />
 
       {/* Dragging Dropzone */}

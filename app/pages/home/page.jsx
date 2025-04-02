@@ -134,7 +134,7 @@ const HomePage = () => {
           draggable="false"
           className="h-full w-full cursor-pointer object-contain transition-all duration-300 ease-out hover:scale-105 hover:grayscale"
         />
-        <h1 className="text-main relative mt-4 text-left text-6xl leading-tight font-bold text-gray-800">
+        <h1 className="text-main relative mt-4 text-left text-[clamp(2rem,5vw+2rem,4rem)] font-bold text-gray-800">
           AUGMENT YOUR <br /> IMAGES
           <span className="-mt-7 -ml-4 inline-block align-middle">
             <Image
@@ -170,7 +170,7 @@ const HomePage = () => {
             </p>
             <button
               type="button"
-              className="h-[10%] w-[40%] cursor-pointer rounded-full bg-[var(--secondary)] text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:bg-[#79C99E] hover:shadow-lg"
+              className="cursor-pointer rounded-full bg-[var(--secondary)] px-8 py-4 text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:bg-[#79C99E] hover:shadow-lg"
               onClick={(e) => {
                 e.stopPropagation();
                 fileInputRef.current?.click();
@@ -179,7 +179,8 @@ const HomePage = () => {
               UPLOAD IMAGE
             </button>
             <span className="text-main mt-8 text-sm">
-              File must be <strong>JPG</strong> or <strong>PNG</strong>, and a maximum of
+              File must be <strong>JPG</strong> or <strong>PNG</strong>, and a
+              maximum of
               <strong> 100 images.</strong>
             </span>
           </div>

@@ -39,9 +39,13 @@ const Info = () => {
       <HeroPattern />
 
       {/* Content Section with Grid Layout and Gridlines */}
-      <div className="mt-16 flex h-[100px] w-full max-w-[45%] items-center gap-x-4 bg-transparent p-2">
+      <div className="mt-16 flex h-[130px] w-full max-w-[45%] items-center gap-x-4 bg-transparent p-2">
         <h1 className="flex-1 text-2xl font-bold text-[#2F2F2F] md:text-4xl">
-          UNDERSTANDING THE IMAGE AUGMENTATION
+          UNDERSTANDING THE <br />
+          <span className="text-[var(--secondary)]">
+            ART OF IMAGE AUGMENTATION
+          </span>{" "}
+          {/* Change color here */}
         </h1>
       </div>
 
@@ -58,12 +62,12 @@ const Info = () => {
               alt={question.heading}
               className="mb-4 h-32 w-full object-cover"
             />
-            <h2 className="mb-2 px-4 text-left text-xl font-bold">
+            <h2 className="text-main mb-2 px-4 text-left text-xl font-bold">
               {question.heading}
             </h2>
-            <p className="px-4 text-sm text-gray-700">
+            <p className="text-main px-4 text-sm text-gray-700">
               {question.description.length > 100
-                ? question.description.slice(0, 80) + "..."
+                ? question.description.slice(0, 30) + "..."
                 : question.description}
             </p>
           </article>
@@ -86,10 +90,10 @@ const Info = () => {
               alt={selectedQuestion.heading}
               className="w-full object-cover"
             />
-            <h2 className="px-4 py-2 text-left text-2xl font-bold">
+            <h2 className="text-main px-4 py-2 text-left text-2xl font-bold">
               {selectedQuestion.heading}
             </h2>
-            <p className="scrollbar-thin scrollbar-thumb-[#008cff] scrollbar-track-gray-200 mr-2 mb-4 max-h-40 overflow-y-auto px-4 py-4 text-left leading-relaxed text-gray-700">
+            <p className="scrollbar-thin scrollbar-thumb-[#008cff] scrollbar-track-gray-200 text-main mr-2 mb-4 max-h-80 overflow-y-auto px-4 py-2 text-left leading-relaxed">
               {selectedQuestion.description}
             </p>
           </div>
