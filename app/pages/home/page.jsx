@@ -97,6 +97,7 @@ const HomePage = () => {
     [processImages],
   );
 
+  // Formats that are acceptable inside the DropZone
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"] },
     noClick: true,
@@ -110,11 +111,19 @@ const HomePage = () => {
         loading ? "backdrop-blur-md" : ""
       } ${isDragActive ? "bg-[#b8d5b8]" : ""}`}
     >
+      {/* BACKGROUND */}
       <HeroPattern />
+
+      {/* FOR ERRORS */}
       <ToastContainer />
+
+      {/* LOADING SCREEN */}
       <LoadingOverlay loading={loading} />
+
+      {/* DRAGGING SCREEN */}
       <DragOverlay isDragActive={isDragActive} />
 
+      {/* INPUT THAT ACCEPTS THE IMAGES FROM USER VIA DRAGGING */}
       <input
         {...getInputProps()}
         ref={fileInputRef}
@@ -128,6 +137,7 @@ const HomePage = () => {
           isDragActive || loading ? "opacity-50" : "opacity-100"
         }`}
       >
+        {/* ICON IMAGE */}
         <img
           src="/images/pixel.png"
           alt="Pixel"
@@ -149,6 +159,7 @@ const HomePage = () => {
         </h1>
       </section>
 
+      {/* UPLOAD BUTTON SECTION */}
       <section
         className={`flex h-full w-[40%] flex-col items-center justify-center transition-all duration-300 ${
           isDragActive || loading ? "opacity-55" : "opacity-100"
@@ -186,6 +197,7 @@ const HomePage = () => {
           </div>
         </div>
 
+        {/* EXAMPLES */}
         <div className="mt-8 flex h-[9%] w-[80%] flex-row justify-between">
           <p className="text-main mt-2 text-xl">
             No Image? <br /> Try one of these:

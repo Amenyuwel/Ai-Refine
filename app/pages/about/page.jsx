@@ -20,9 +20,9 @@ const AboutPage = () => {
 
           {/* Button wrapped with Link */}
           <Link href="/feature/info">
-            <button className="mt-6 mt-8 flex cursor-pointer gap-2 place-self-start rounded-xl bg-[#79C99E] px-8 py-3 transition-transform hover:scale-105">
-              <span className="flex flex-row items-center text-2xl text-white">
-                Learn Augmentation!
+            <button className="mt-6 flex cursor-pointer gap-2 place-self-start rounded-full bg-[var(--primary)] px-8 py-3 transition-transform hover:scale-105 hover:brightness-105">
+              <span className="flex flex-row items-center text-lg text-white">
+                Learn augmentation
                 <FaArrowCircleRight className="ml-2 text-2xl" />
               </span>
             </button>
