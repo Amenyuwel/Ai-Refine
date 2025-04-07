@@ -72,7 +72,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
       {/* Add Image Button */}
       <button
         onClick={() => fileInputRef.current?.click()}
-        className="mb-7 ml-4 flex h-24 w-24 min-w-[6rem] cursor-pointer items-center justify-center rounded-lg bg-[#87CEFA] transition hover:bg-[#6cb4eb]"
+        className="m-2 mb-7 ml-4 flex h-24 w-24 min-w-[6rem] cursor-pointer items-center justify-center rounded-lg bg-[#87CEFA] transition hover:bg-[#6cb4eb]"
       >
         <FaPlus className="text-3xl text-[#008cff]" />
       </button>

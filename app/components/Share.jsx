@@ -23,10 +23,9 @@ const Share = ({ footerImages }) => {
   return (
     <div className="flex flex-col items-center">
       <button
-        className={`mt-4 cursor-pointer rounded-full px-6 py-2 text-black transition-all duration-300 hover:scale-105 ${
-          isUploading ? "cursor-not-allowed bg-gray-300" : "bg-[#79C99E]"
+        className={`text-main mt-4 cursor-pointer rounded-3xl border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105 ${
+          isUploading ? "bg-main cursor-not-allowed" : ""
         }`}
-        style={{ width: "200px", height: "50px" }}
         onClick={handleUpload}
         disabled={isUploading}
         aria-label="Share Dataset"

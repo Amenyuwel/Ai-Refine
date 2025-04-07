@@ -141,16 +141,16 @@ const ControlsPage = () => {
         {/* Uploaded Image Display */}
         {previewImage && (
           <div
-            className={`mr-[20%] flex flex-col items-center ${
+            className={`mr-[20%] mt-8 flex flex-col items-center ${
               isDragActive ? "opacity-50" : "opacity-100"
             }`}
           >
-            <div className="h-auto max-h-[650px] w-auto max-w-[650px] rounded-lg shadow-lg">
+            <div className="h-auto max-h-[650px] w-auto max-w-[650px] rounded-3xl shadow-lg">
               <img
                 ref={imageRef}
                 src={previewImage}
                 alt="Uploaded Preview"
-                className="h-auto max-h-[650px] w-auto max-w-[650px] rounded-lg object-contain shadow-lg"
+                className="h-auto max-h-[650px] w-auto max-w-[650px] rounded-3xl object-contain shadow-lg"
                 style={imageStyles}
               />
             </div>
@@ -162,8 +162,7 @@ const ControlsPage = () => {
                 settings={settings}
               />
               <button
-                className="mt-4 cursor-pointer rounded-full bg-[#B7B7B7] px-6 py-2 text-white transition-all duration-300 hover:scale-105 hover:brightness-110"
-                style={{ width: "200px", height: "50px" }}
+                className="bg-main text-main mt-4 h-full cursor-pointer rounded-full border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105 hover:bg-[var(--primary)]"
                 onClick={() =>
                   setModalType((prev) =>
                     prev === "controls" ? null : "controls",
