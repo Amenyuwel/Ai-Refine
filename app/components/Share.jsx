@@ -2,6 +2,7 @@ import React from "react";
 import { toast } from "react-toastify";
 import useImageUpload from "@/hooks/useImageUpload";
 import "react-toastify/dist/ReactToastify.css";
+import RecommendOutlinedIcon from "@mui/icons-material/RecommendOutlined";
 
 const Share = ({ footerImages }) => {
   const { uploadImages, isUploading } = useImageUpload();
@@ -30,7 +31,8 @@ const Share = ({ footerImages }) => {
         disabled={isUploading}
         aria-label="Share Dataset"
       >
-        {isUploading ? "UPLOADING..." : "SHARE DATASET"}
+        {isUploading ? "UPLOADING..." : "SHARE"}
+        <RecommendOutlinedIcon className="ml-2 h-auto w-auto" />
       </button>
     </div>
   );

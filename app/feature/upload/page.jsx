@@ -18,6 +18,7 @@ import Share from "@/components/Share";
 import useImageUpload from "@/hooks/useImageUpload";
 import { useImageContext } from "../../context/ImageContext";
 import "react-toastify/dist/ReactToastify.css";
+import BuildCircleIcon from "@mui/icons-material/BuildCircleOutlined";
 
 const ControlsPage = () => {
   const router = useRouter();
@@ -141,7 +142,7 @@ const ControlsPage = () => {
         {/* Uploaded Image Display */}
         {previewImage && (
           <div
-            className={`mr-[20%] mt-8 flex flex-col items-center ${
+            className={`mr-[20%] flex flex-col items-center ${
               isDragActive ? "opacity-50" : "opacity-100"
             }`}
           >
@@ -150,11 +151,11 @@ const ControlsPage = () => {
                 ref={imageRef}
                 src={previewImage}
                 alt="Uploaded Preview"
-                className="h-auto max-h-[650px] w-auto max-w-[650px] rounded-3xl object-contain shadow-lg"
+                className="h-auto max-h-[600px] w-auto max-w-[650px] rounded-3xl object-contain shadow-lg"
                 style={imageStyles}
               />
             </div>
-            <div className="flex flex-row gap-4 pt-8">
+            <div className="flex flex-row gap-4 pt-4">
               <Share footerImages={uploadedImages} />
               <Download
                 uploadedImages={uploadedImages}
@@ -162,7 +163,7 @@ const ControlsPage = () => {
                 settings={settings}
               />
               <button
-                className="bg-main text-main mt-4 h-full cursor-pointer rounded-full border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105 hover:bg-[var(--primary)]"
+                className="bg-main text-main mt-4 flex h-full cursor-pointer items-center justify-center gap-2 rounded-full border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105 hover:bg-[var(--primary)]"
                 onClick={() =>
                   setModalType((prev) =>
                     prev === "controls" ? null : "controls",
@@ -170,6 +171,7 @@ const ControlsPage = () => {
                 }
               >
                 CONTROLS
+                <BuildCircleIcon className="h-full w-full" />
               </button>
             </div>
           </div>

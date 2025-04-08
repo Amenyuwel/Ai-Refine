@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDownOutlined";
 
 const Download = ({ uploadedImages = [], previewImage, settings = {} }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -81,13 +82,14 @@ const Download = ({ uploadedImages = [], previewImage, settings = {} }) => {
   return (
     <main className="relative">
       <button
-        className="bg-main text-main mt-4 cursor-pointer rounded-3xl border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105"
+        className="bg-main text-main mt-4 flex cursor-pointer items-center gap-2 rounded-3xl border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105"
         onClick={toggleDropdown}
       >
         DOWNLOAD
+        <ExpandCircleDownIcon />
       </button>
       {isDropdownOpen && (
-        <div className="absolute left-1/2 z-10 mt-2 flex w-[220px] -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-lg items-center">
+        <div className="absolute left-1/2 z-10 mt-2 flex w-[220px] -translate-x-1/2 flex-col items-center overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-lg">
           <button
             className="px-4 py-2 text-left hover:bg-gray-200"
             onClick={handleDownloadPreview}

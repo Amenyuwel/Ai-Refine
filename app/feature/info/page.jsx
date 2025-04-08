@@ -47,7 +47,7 @@ const Info = () => {
         </h1>
       </div>
 
-      <section className="grid h-screen w-[45%] grid-cols-1 gap-6 bg-transparent py-8 md:grid-cols-2 lg:grid-cols-3">
+      <section className="grid h-screen w-[45%] grid-cols-1 gap-6 bg-transparent py-8 md:grid-cols-2 lg:grid-cols-3 cursor-pointer">
         {questions.map((question, index) => (
           <article
             key={index}
