@@ -15,7 +15,6 @@ import ImageFooter from "@/feature/upload/ImageFooter";
 import ControlsModal from "@/feature/upload/ControlsModal";
 import Download from "@/feature/upload/Download";
 import Share from "@/components/Share";
-import useImageUpload from "@/hooks/useImageUpload";
 import { useImageContext } from "../../context/ImageContext";
 import "react-toastify/dist/ReactToastify.css";
 import BuildCircleIcon from "@mui/icons-material/BuildCircleOutlined";

@@ -13,8 +13,8 @@ const ControlsModal = ({
 
   const modalContent = {
     controls: {
-      title: "Controls Settings",
-      content: "Adjust the control settings here.",
+      title: "CONTROLS",
+      content: "Drag the sliders to modify the images.",
     },
   };
 
@@ -24,35 +24,37 @@ const ControlsModal = ({
     setLocalSettings(settings);
   }, [settings]);
 
-  useEffect(() => {
-    onSettingsChange(localSettings);
-  }, [localSettings, onSettingsChange]); // Update parent only when localSettings changes
-
   // Toggle Flip
   const toggleFlip = () => {
-    setLocalSettings((prevSettings) => ({
-      ...prevSettings,
+    const newSettings = {
+      ...localSettings,
       flip: {
-        enabled: !prevSettings.flip.enabled,
-        value: prevSettings.flip.value === 1 ? -1 : 1,
+        enabled: !localSettings.flip.enabled,
+        value: localSettings.flip.value === 1 ? -1 : 1,
       },
-    }));
+    };
+    setLocalSettings(newSettings);
+    onSettingsChange(newSettings);
   };
 
   // Toggle settings (Grayscale, Blur, Brightness)
   const toggleSetting = (key) => {
-    setLocalSettings((prevSettings) => ({
-      ...prevSettings,
-      [key]: { ...prevSettings[key], enabled: !prevSettings[key].enabled },
-    }));
+    const newSettings = {
+      ...localSettings,
+      [key]: { ...localSettings[key], enabled: !localSettings[key].enabled },
+    };
+    setLocalSettings(newSettings);
+    onSettingsChange(newSettings); // Update parent here
   };
 
   // Update slider value (Grayscale, Blur, Brightness)
   const updateSlider = (key, value) => {
-    setLocalSettings((prevSettings) => ({
-      ...prevSettings,
-      [key]: { ...prevSettings[key], value },
-    }));
+    const newSettings = {
+      ...localSettings,
+      [key]: { ...localSettings[key], value },
+    };
+    setLocalSettings(newSettings);
+    onSettingsChange(newSettings);
   };
 
   return (
@@ -77,7 +79,7 @@ const ControlsModal = ({
             <button
               onClick={toggleFlip}
               className={`h-5 w-10 rounded-full ${
-                localSettings.flip.enabled ? "bg-green-400" : "bg-gray-300"
+                localSettings.flip.enabled ? "bg-[#79c99e]" : "bg-gray-300"
               }`}
             >
               <div
@@ -96,7 +98,7 @@ const ControlsModal = ({
                 onClick={() => toggleSetting("grayscale")}
                 className={`h-5 w-10 rounded-full ${
                   localSettings.grayscale.enabled
-                    ? "bg-green-400"
+                    ? "bg-[#79c99e]"
                     : "bg-gray-300"
                 }`}
               >
@@ -128,7 +130,7 @@ const ControlsModal = ({
                 <button
                   onClick={() => toggleSetting(key)}
                   className={`h-5 w-10 rounded-full ${
-                    localSettings[key].enabled ? "bg-green-400" : "bg-gray-300"
+                    localSettings[key].enabled ? "bg-[#79c99e]" : "bg-gray-300"
                   }`}
                 >
                   <div
