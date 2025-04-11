@@ -75,7 +75,7 @@ const ControlsModal = ({
         <div className="mt-4 space-y-6">
           {/* Flip Toggle */}
           <div className="flex items-center justify-between">
-            <label className="text-main text-bold uppercase">Flip</label>
+            <p className="text-main font-sans font-semibold uppercase">Flip</p>
             <button
               onClick={toggleFlip}
               className={`h-5 w-10 rounded-full ${
@@ -93,7 +93,9 @@ const ControlsModal = ({
           {/* Grayscale Toggle + Intensity */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="font-medium uppercase">Grayscale</label>
+              <label className="text-main font-sans font-semibold uppercase">
+                Grayscale
+              </label>
               <button
                 onClick={() => toggleSetting("grayscale")}
                 className={`h-5 w-10 rounded-full ${
@@ -120,13 +122,18 @@ const ControlsModal = ({
               className="w-full cursor-pointer"
               disabled={!localSettings.grayscale.enabled}
             />
+            <span className="w-12 text-right font-medium">
+              {localSettings.grayscale.value}%
+            </span>
           </div>
 
           {/* Blur & Brightness Toggles */}
           {["blur", "brightness"].map((key) => (
             <div key={key} className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="font-medium uppercase">{key}</label>
+                <label className="text-main font-sans font-semibold uppercase">
+                  {key}
+                </label>
                 <button
                   onClick={() => toggleSetting(key)}
                   className={`h-5 w-10 rounded-full ${
@@ -151,6 +158,14 @@ const ControlsModal = ({
                 className="w-full cursor-pointer"
                 disabled={!localSettings[key].enabled}
               />
+              <span className="w-12 text-right font-medium">
+                {
+                  key === "blur"
+                    ? Math.round(localSettings[key].value * 10) // Convert blur to percentage
+                    : Math.min(100, Math.round(localSettings[key].value / 2)) // Cap brightness at 100%
+                }
+                %
+              </span>
             </div>
           ))}
         </div>
