@@ -18,6 +18,7 @@ import Share from "@/components/Share";
 import { useImageContext } from "../../context/ImageContext";
 import "react-toastify/dist/ReactToastify.css";
 import BuildCircleIcon from "@mui/icons-material/BuildCircleOutlined";
+import HeroPattern from "@/components/HeroPattern";
 
 const ControlsPage = () => {
   const router = useRouter();
@@ -120,14 +121,14 @@ const ControlsPage = () => {
   );
 
   return (
-    <main className="flex h-screen w-full flex-col">
+    <main className="flex h-screen w-full flex-col overflow-hidden">
+        <HeroPattern className="absolute inset-0 z-[-50]" />
       <Navbar />
-
       {/* Dragging Dropzone */}
       <div
         {...getRootProps()}
-        className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${
-          isDragActive ? "bg-opacity-80 z-50 bg-[#B2D3A8]" : "bg-main"
+        className={`relative flex h-screen w-full items-center justify-center transition-all duration-300${
+          isDragActive ? "bg-opacity-80 z-50 bg-[#B2D3A8]" : ""
         }`}
       >
         <label htmlFor="fileUpload" className="hidden">
@@ -141,20 +142,20 @@ const ControlsPage = () => {
         {/* Uploaded Image Display */}
         {previewImage && (
           <div
-            className={`mr-[20%] flex flex-col items-center ${
+            className={`mr-[20%] flex flex-col items-center${
               isDragActive ? "opacity-50" : "opacity-100"
             }`}
           >
-            <div className="h-auto max-h-[650px] w-auto max-w-[650px] rounded-3xl shadow-lg">
+            <div className="h-[500px] w-[650px] overflow-hidden rounded-3xl bg-main shadow-lg z-[100]">
               <img
                 ref={imageRef}
                 src={previewImage}
                 alt="Uploaded Preview"
-                className="h-auto max-h-[600px] w-auto max-w-[650px] rounded-3xl object-contain shadow-lg"
+                className="h-full w-full object-contain z-[50]"
                 style={imageStyles}
               />
             </div>
-            <div className="flex flex-row gap-4 pt-4">
+            <div className="flex flex-row gap-4 pt-4 justify-center">
               <Share footerImages={uploadedImages} />
               <Download
                 uploadedImages={uploadedImages}

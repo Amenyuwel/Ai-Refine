@@ -1,4 +1,5 @@
 "use client";
+import HeroPattern from "@/components/HeroPattern";
 import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 
@@ -10,13 +11,6 @@ const ControlsModal = ({
   settings,
 }) => {
   if (!isOpen) return null;
-
-  const modalContent = {
-    controls: {
-      title: "CONTROLS",
-      content: "Drag the sliders to modify the images.",
-    },
-  };
 
   const [localSettings, setLocalSettings] = useState(settings);
 
@@ -59,7 +53,7 @@ const ControlsModal = ({
 
   return (
     <div className="pointer-events-none fixed inset-0 z-45 flex items-center justify-center bg-transparent">
-      <div className="pointer-events-auto relative ml-[50%] h-auto w-[30%] rounded-3xl bg-white p-6 shadow-2xl">
+      <div className="pointer-events-auto relative mb-[130px] ml-[40%] h-[500px] w-[20%] rounded-3xl bg-white p-6 shadow-lg">
         <button
           title="Close"
           className="absolute top-3 right-3 px-3 py-3 text-gray-600 hover:text-gray-800"
@@ -67,10 +61,11 @@ const ControlsModal = ({
         >
           <FaTimes size={20} />
         </button>
-        <h2 className="text-xl font-bold text-gray-800">
-          {modalContent[type]?.title}
-        </h2>
-        <p className="mt-2 text-gray-600">{modalContent[type]?.content}</p>
+        <h2 className="text-3xl font-bold text-gray-800">CONTROLS</h2>
+        <p className="mt-2 text-left text-sm text-gray-500">
+          Click the toggle buttons to enable modifications, then use the sliders{" "}
+          <br /> to adjust their intensity.
+        </p>
 
         <div className="mt-4 space-y-6">
           {/* Flip Toggle */}
