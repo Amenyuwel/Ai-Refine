@@ -64,7 +64,7 @@ const Info = () => {
               {question.heading}
             </h2>
             {/* Description */}
-            <p className="text-main min-h-[80px] flex-grow px-4 text-sm text-gray-700">
+            <p className="text-main min-h-[80px] flex-grow px-4 pb-4 text-sm">
               {question.description.length > 100
                 ? question.description.slice(0, 100) + "..."
                 : question.description}
@@ -92,7 +92,7 @@ const Info = () => {
             <h2 className="text-main px-4 py-2 text-left text-2xl font-bold">
               {selectedQuestion.heading}
             </h2>
-            <p className="scrollbar-thin scrollbar-thumb-[#008cff] scrollbar-track-gray-200 text-main mr-2 mb-4 max-h-80 overflow-y-auto px-4 py-2 text-left leading-relaxed">
+            <p className="scrollbar-thin scrollbar-thumb-[#008cff] scrollbar-track-gray-200 text-[#A8A8A8] text-[#af3131]-h-80 overflow-y-auto px-4 py-2 text-left leading-relaxed">
               {selectedQuestion.description}
             </p>
           </div>
