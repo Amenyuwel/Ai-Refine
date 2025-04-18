@@ -32,8 +32,7 @@ const ContactPage = ({ scrollToHome }) => {
       <section className="flex h-[80%] w-[40%] flex-col items-center justify-center space-y-6 p-8 text-center">
         <div className="flex w-full flex-col items-center">
           <p className="text-main text-2xl font-semibold">
-            Have a question? Leave your details and <br /> I’ll get back to you
-            as soon as possible.
+          Drop me a message with your details, and I’ll get back to you as soon as I can!
           </p>
         </div>
 
