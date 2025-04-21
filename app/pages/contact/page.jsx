@@ -104,7 +104,7 @@ const ContactPage = ({ scrollToHome }) => {
             >
               <span className="absolute inset-0 origin-bottom scale-y-0 transform bg-[#79C99E] transition-transform duration-150 ease-out group-hover:scale-y-100"></span>
               <span className="relative z-10 transition-colors duration-50 group-hover:text-white">
-                SUBMIT
+                SEND
               </span>
             </button>
           </div>
