@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 // The scrollToSection function (to be used with the Navbar)
@@ -19,9 +19,11 @@ const scrollToSection = (sectionRef, offset = 0) => {
 const Navbar = ({ homeRef, aboutRef, contactRef }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleNavigation = useCallback(
     (sectionRef, route) => {
+      setMenuOpen(false); // Close menu on navigation
       const navbarHeight = 80; // Set your navbar height here (in px)
 
       if (pathname === "/") {
@@ -46,13 +48,33 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
     <header className="bg-main sticky top-0 z-[50] flex w-full items-center justify-between p-4 shadow-md">
       {/* NAVIGATION LINKS */}
       <h1
-        className="cursor-pointer px-8 text-4xl font-bold"
+        className="cursor-pointer px-4 text-2xl font-bold sm:px-8 sm:text-4xl"
         onClick={() => handleNavigation(homeRef, "/")}
       >
         ai-refine
       </h1>
 
-      <nav className="flex gap-6">
+      {/* Hamburger Icon */}
+      <button
+        className="flex h-10 w-10 flex-col items-center justify-center sm:hidden"
+        onClick={() => setMenuOpen((prev) => !prev)}
+        aria-label="Toggle navigation"
+      >
+        <span
+          className={`mb-1 block h-1 w-6 bg-[var(--text-main)] transition-all ${menuOpen ? "translate-y-2 rotate-45" : ""}`}
+        ></span>
+        <span
+          className={`mb-1 block h-1 w-6 bg-[var(--text-main)] transition-all ${menuOpen ? "opacity-0" : ""}`}
+        ></span>
+        <span
+          className={`block h-1 w-6 bg-[var(--text-main)] transition-all ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`}
+        ></span>
+      </button>
+
+      {/* Navigation Links */}
+      <nav
+        className={` ${menuOpen ? "flex" : "hidden"} bg-main absolute top-full left-0 w-full flex-col items-center gap-4 p-4 sm:static sm:flex sm:w-auto sm:flex-row sm:items-center sm:gap-6 sm:p-0`}
+      >
         <button
           className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
           onClick={() => handleNavigation(homeRef, "/")}

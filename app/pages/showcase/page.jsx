@@ -60,12 +60,12 @@ const ShowCase = () => {
       </h2>
 
       {/* Categories */}
-      <nav className="flex justify-center space-x-6 py-4 text-lg font-semibold">
+      <nav className="flex w-full overflow-x-auto sm:overflow-visible flex-nowrap sm:flex-wrap justify-start sm:justify-center space-x-4 sm:space-x-6 py-4 text-lg font-semibold px-4 sm:px-0">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`cursor-pointer rounded-full px-6 py-3 transition-all ${
+            className={`flex-shrink-0 cursor-pointer rounded-full px-6 py-3 transition-all ${
               selectedCategory === category
                 ? "bg-[var(--secondary)] text-white"
                 : "text-main bg-transparent"
@@ -97,19 +97,24 @@ const ImageShowcase = React.memo(({ category }) => {
   }
 
   return (
-    <div className="flex w-full flex-wrap items-center justify-center gap-6">
+    <div
+      className="flex w-full overflow-x-auto sm:overflow-visible flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-4 sm:gap-6 px-4 sm:px-0"
+    >
       {augmentations.map((aug) => (
-        <figure key={aug} className="rounded-lg bg-white p-4 shadow-lg">
+        <figure
+          key={aug}
+          className="flex-shrink-0 w-[80%] sm:w-auto rounded-lg bg-white p-4 shadow-lg"
+        >
           <img
             src={imagePaths[category][aug]}
             alt={`${category} - ${aug}`}
             draggable="false"
             onDragStart={preventImageActions}
             onContextMenu={preventImageActions}
-            className="h-64 w-52 cursor-pointer object-contain transition-transform duration-300 ease-in-out hover:scale-105"
+            className="h-48 w-full sm:h-64 sm:w-52 cursor-pointer object-contain transition-transform duration-300 ease-in-out hover:scale-105"
             aria-label={`${category} - ${aug}`}
           />
-          <figcaption className="mt-2 text-center text-lg font-semibold">
+          <figcaption className="mt-2 text-center text-sm sm:text-lg font-semibold">
             {aug.toUpperCase()}
           </figcaption>
         </figure>

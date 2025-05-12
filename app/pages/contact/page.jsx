@@ -29,21 +29,22 @@ const ContactPage = ({ scrollToHome }) => {
         draggable={false}
         position="bottom-center"
       />
-      <section className="flex h-[80%] w-[40%] flex-col items-center justify-center space-y-6 p-8 text-center">
+      <section className="flex h-auto w-full flex-col items-center justify-center space-y-6 p-6 text-center sm:h-[80%] sm:w-[40%] sm:p-8">
         <div className="flex w-full flex-col items-center">
-          <p className="text-main text-2xl font-semibold">
-          Drop me a message with your details, and I’ll get back to you as soon as I can!
+          <p className="text-main text-xl font-semibold sm:text-2xl">
+            Drop me a message with your details, and I’ll get back to you as
+            soon as I can!
           </p>
         </div>
 
         <form
           onSubmit={validateAndSubmit}
-          className="flex w-[60%] flex-col space-y-4 text-left"
+          className="flex w-full flex-col space-y-4 text-left sm:w-[60%]"
         >
           <div>
             <label
               htmlFor="name"
-              className="text-main mb-2 block text-lg font-semibold"
+              className="text-main mb-2 block text-base font-semibold sm:text-lg"
             >
               Name
             </label>
@@ -62,7 +63,7 @@ const ContactPage = ({ scrollToHome }) => {
           <div>
             <label
               htmlFor="email"
-              className="text-main mb-2 block text-lg font-semibold"
+              className="text-main mb-2 block text-base font-semibold sm:text-lg"
             >
               Email
             </label>
@@ -81,7 +82,7 @@ const ContactPage = ({ scrollToHome }) => {
           <div>
             <label
               htmlFor="message"
-              className="text-main mb-2 block text-lg font-semibold"
+              className="text-main mb-2 block text-base font-semibold sm:text-lg"
             >
               Message
             </label>
@@ -97,10 +98,10 @@ const ContactPage = ({ scrollToHome }) => {
             ></textarea>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-center sm:justify-end">
             <button
               type="submit"
-              className="text-main group relative cursor-pointer overflow-hidden rounded-md bg-transparent px-6 py-2 text-lg font-semibold"
+              className="text-main group relative cursor-pointer overflow-hidden rounded-md bg-transparent px-6 py-2 text-base font-semibold sm:text-lg"
             >
               <span className="absolute inset-0 origin-bottom scale-y-0 transform bg-[#79C99E] transition-transform duration-150 ease-out group-hover:scale-y-100"></span>
               <span className="relative z-10 transition-colors duration-50 group-hover:text-white">

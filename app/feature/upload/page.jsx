@@ -142,7 +142,7 @@ const ControlsPage = () => {
         {/* Uploaded Image Display */}
         {previewImage && (
           <div
-            className={`mr-[20%] flex flex-col items-center${
+            className={`relative mr-[20%] flex flex-col items-center ${
               isDragActive ? "opacity-50" : "opacity-100"
             }`}
           >

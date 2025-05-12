@@ -22,9 +22,9 @@ const Share = ({ footerImages }) => {
   };
 
   return (
-    <div className="flex flex-col items-center bg-main">
+    <div className="flex flex-col items-center bg-main rounded-3xl mt-4">
       <button
-        className={`text-main mt-4 cursor-pointer rounded-3xl border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105 ${
+        className={`text-main cursor-pointer rounded-3xl border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105 ${
           isUploading ? "bg-main cursor-not-allowed" : ""
         }`}
         onClick={handleUpload}

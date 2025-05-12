@@ -107,7 +107,7 @@ const HomePage = () => {
   return (
     <main
       {...getRootProps()}
-      className={`relative flex h-screen w-full items-center justify-center transition-all duration-300 ${
+      className={`relative flex flex-col h-screen w-full sm:flex sm:flex-row items-center justify-center transition-all duration-300 ${
         loading ? "backdrop-blur-md" : ""
       } ${isDragActive ? "bg-[#b8d5b8]" : ""}`}
     >
@@ -161,19 +161,19 @@ const HomePage = () => {
 
       {/* UPLOAD BUTTON SECTION */}
       <section
-        className={`flex h-full w-[40%] flex-col items-center justify-center transition-all duration-300 ${
+        className={`flex h-full w-full sm:w-[40%] flex-col items-center justify-center transition-all duration-300 ${
           isDragActive || loading ? "opacity-55" : "opacity-100"
         }`}
       >
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="elevation-3 flex h-[60%] w-[80%] cursor-pointer flex-col items-center justify-center rounded-[50px] bg-white shadow-2xl"
+          className="elevation-3 flex h-[60%] w-[90%] sm:w-[80%] cursor-pointer flex-col items-center justify-center rounded-[20px] sm:rounded-[50px] bg-white shadow-2xl"
         >
-          <div className="flex h-[95%] w-[95%] flex-col items-center justify-center rounded-[50px] border-8 border-dashed border-gray-400 p-8">
-            <p className="text-main text-3xl font-bold">
+          <div className="flex h-[95%] w-[95%] flex-col items-center justify-center rounded-[20px] sm:rounded-[50px] border-4 sm:border-8 border-dashed border-gray-400 p-4 sm:p-8">
+            <p className="text-main text-xl sm:text-3xl font-bold text-center">
               Drag and drop your images
             </p>
-            <p className="text-main mt-1 mb-8 text-3xl font-bold">
+            <p className="text-main mt-1 mb-4 sm:mb-8 text-xl sm:text-3xl font-bold text-center">
               or{" "}
               <span className="cursor-pointer text-[var(--secondary)] underline">
                 click to upload.
@@ -181,7 +181,7 @@ const HomePage = () => {
             </p>
             <button
               type="button"
-              className="cursor-pointer rounded-full bg-[var(--primary)] px-8 py-4 text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:brightness-105"
+              className="cursor-pointer rounded-full bg-[var(--primary)] px-6 sm:px-8 py-3 sm:py-4 text-lg sm:text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:brightness-105"
               onClick={(e) => {
                 e.stopPropagation();
                 fileInputRef.current?.click();
@@ -189,32 +189,33 @@ const HomePage = () => {
             >
               UPLOAD IMAGE
             </button>
-            <span className="text-main mt-8 text-sm">
+            <span className="text-main mt-4 sm:mt-8 text-xs sm:text-sm text-center">
               File must be <strong>JPG</strong> or <strong>PNG</strong>, and a
-              maximum of
-              <strong> 100 images.</strong>
+              maximum of <strong>100 images.</strong>
             </span>
           </div>
         </div>
 
         {/* EXAMPLES */}
-        <div className="mt-8 flex h-[9%] w-[80%] flex-row justify-between">
-          <p className="text-main mt-2 text-xl">
-            No Image? <br /> Try one of these:
+        <div className="mt-4 sm:mt-8 flex h-[9%] w-[90%] sm:w-[80%] flex-col sm:flex-row sm:justify-between items-center">
+          <p className="text-main mt-2 text-center sm:text-left text-lg sm:text-xl">
+            No Image? <br className="hidden sm:block" /> Try one of these:
           </p>
-          {["Animal", "Object", "Pest"].map((item) => (
-            <div
-              key={item}
-              className="h-full w-26 cursor-pointer rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105"
-              onClick={() => handleExampleImageClick(`/images/${item}.png`)}
-            >
-              <img
-                src={`/images/${item}.png`}
-                alt={item}
-                className="h-full w-full object-contain"
-              />
-            </div>
-          ))}
+          <div className="flex flex-row sm:flex-row gap-4 sm:gap-0">
+            {["Animal", "Object", "Pest"].map((item) => (
+              <div
+                key={item}
+                className="h-20 w-20 sm:h-full sm:w-26 cursor-pointer rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105"
+                onClick={() => handleExampleImageClick(`/images/${item}.png`)}
+              >
+                <img
+                  src={`/images/${item}.png`}
+                  alt={item}
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </main>
