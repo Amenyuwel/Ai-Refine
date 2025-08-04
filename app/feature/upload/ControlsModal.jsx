@@ -1,5 +1,5 @@
 "use client";
-import HeroPattern from "@/components/HeroPattern";
+import HeroPattern from "components/HeroPattern";
 import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 

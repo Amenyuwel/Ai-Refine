@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import HeroPattern from "@/components/HeroPattern";
-import Navbar from "@/components/Navbar";
+import HeroPattern from "components/HeroPattern";
+import Navbar from "components/Navbar";
 import infoContent from "./infoContent";
 import { FaArrowAltCircleRight, FaTimesCircle } from "react-icons/fa";
 

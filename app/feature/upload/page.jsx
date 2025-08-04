@@ -9,16 +9,16 @@ import React, {
 import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
-import Navbar from "@/components/Navbar";
-import DragOverlay from "@/components/DragOverlay";
+import Navbar from "components/Navbar";
+import DragOverlay from "components/DragOverlay";
 import ImageFooter from "@/feature/upload/ImageFooter";
 import ControlsModal from "@/feature/upload/ControlsModal";
 import Download from "@/feature/upload/Download";
-import Share from "@/components/Share";
+import Share from "components/Share";
 import { useImageContext } from "../../context/ImageContext";
 import "react-toastify/dist/ReactToastify.css";
 import BuildCircleIcon from "@mui/icons-material/BuildCircleOutlined";
-import HeroPattern from "@/components/HeroPattern";
+import HeroPattern from "components/HeroPattern";
 
 const ControlsPage = () => {
   const router = useRouter();

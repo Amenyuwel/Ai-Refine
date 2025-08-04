@@ -4,7 +4,7 @@ import { FaAngleDoubleUp } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useContactForm from "@/hooks/useContactForm";
-import HeroPattern from "@/components/HeroPattern";
+import HeroPattern from "components/HeroPattern";
 
 const ContactPage = ({ scrollToHome }) => {
   const { name, email, message, setName, setEmail, setMessage, handleSubmit } =

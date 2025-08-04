@@ -5,9 +5,9 @@ import { useDropzone } from "react-dropzone";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
-import DragOverlay from "@/components/DragOverlay";
-import LoadingOverlay from "@/components/LoadingOverlay";
-import HeroPattern from "@/components/HeroPattern";
+import DragOverlay from "components/DragOverlay";
+import LoadingOverlay from "components/LoadingOverlay";
+import HeroPattern from "components/HeroPattern";
 
 const HomePage = () => {
   const router = useRouter();
@@ -142,9 +142,9 @@ const HomePage = () => {
           src="/images/pixel.png"
           alt="Pixel"
           draggable="false"
-          className="h-full w-full cursor-pointer object-contain transition-all duration-300 ease-out hover:scale-105 hover:grayscale"
+          className="h-full w-full pt-4 cursor-pointer object-contain transition-all duration-300 ease-out hover:scale-105 hover:grayscale"
         />
-        <h1 className="text-main relative mt-4 text-left text-[clamp(2rem,5vw+2rem,4rem)] font-bold text-gray-800">
+        <h1 className="text-main relative mt-4 text-left ml-10  text-[clamp(2rem,5vw+2rem,4rem)] font-bold text-gray-800">
           AUGMENT YOUR <br /> IMAGES
           <span className="-mt-7 -ml-4 inline-block align-middle">
             <Image
@@ -197,21 +197,21 @@ const HomePage = () => {
         </div>
 
         {/* EXAMPLES */}
-        <div className="mt-4 sm:mt-8 flex h-[9%] w-[90%] sm:w-[80%] flex-col sm:flex-row sm:justify-between items-center">
+        <div className="mt-4 sm:mt-8 flex h-auto w-[90%] sm:w-[80%] flex-col sm:flex-row sm:justify-between items-center">
           <p className="text-main mt-2 text-center sm:text-left text-lg sm:text-xl">
             No Image? <br className="hidden sm:block" /> Try one of these:
           </p>
-          <div className="flex flex-row sm:flex-row gap-4 sm:gap-0">
+          <div className="flex flex-row gap-4 sm:gap-4 mt-4 sm:mt-0">
             {["Animal", "Object", "Pest"].map((item) => (
               <div
                 key={item}
-                className="h-20 w-20 sm:h-full sm:w-26 cursor-pointer rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105"
+                className="flex items-center justify-center h-24 w-24 sm:h-28 sm:w-28 cursor-pointer rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105"
                 onClick={() => handleExampleImageClick(`/images/${item}.png`)}
               >
                 <img
                   src={`/images/${item}.png`}
                   alt={item}
-                  className="h-full w-full object-contain"
+                  className="h-full w-full object-contain rounded-[8px]"
                 />
               </div>
             ))}

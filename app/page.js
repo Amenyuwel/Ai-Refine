@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "components/Navbar";
+import Footer from "components/Footer";
 import HomePage from "@/pages/home/page";
 import AboutPage from "@/pages/about/page";
 import ShowCase from "@/pages/showcase/page";
