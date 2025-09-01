@@ -82,22 +82,22 @@ const Download = ({ uploadedImages = [], previewImage, settings = {} }) => {
   return (
     <main className="relative">
       <button
-        className="bg-main text-main mt-4 flex cursor-pointer items-center gap-2 rounded-3xl border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105"
+        className="bg-main w-full justify-center text-main flex cursor-pointer items-center gap-1 sm:gap-2 rounded-3xl border border-gray-500 px-4 sm:px-6 py-2 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
         onClick={toggleDropdown}
       >
         DOWNLOAD
-        <ExpandCircleDownIcon />
+        <ExpandCircleDownIcon className="h-4 w-4 sm:h-5 sm:w-5" />
       </button>
       {isDropdownOpen && (
-        <div className="absolute left-1/2 z-10 mt-2 flex w-[220px] -translate-x-1/2 flex-col items-center overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-lg">
+        <div className="absolute left-1/2 z-10 mt-2 flex w-[180px] sm:w-[220px] -translate-x-1/2 flex-col items-center overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-lg">
           <button
-            className="px-4 py-2 text-left hover:bg-gray-200"
+            className="w-full px-3 sm:px-4 py-2 text-left hover:bg-gray-200 text-xs sm:text-sm"
             onClick={handleDownloadPreview}
           >
             DOWNLOAD <strong>PREVIEW</strong>
           </button>
           <button
-            className="px-4 py-2 text-left hover:bg-gray-200"
+            className="w-full px-3 sm:px-4 py-2 text-left hover:bg-gray-200 text-xs sm:text-sm"
             onClick={handleDownloadAsZip}
           >
             DOWNLOAD AS <strong>ZIP FILE</strong>

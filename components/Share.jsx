@@ -22,9 +22,9 @@ const Share = ({ footerImages }) => {
   };
 
   return (
-    <div className="flex flex-col items-center bg-main rounded-3xl mt-4">
+    <div className="flex flex-col items-center bg-main rounded-3xl">
       <button
-        className={`text-main cursor-pointer rounded-3xl border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105 ${
+        className={`text-main cursor-pointer rounded-3xl border w-full justify-center border-gray-500 px-4 sm:px-6 py-2 transition-all duration-300 hover:scale-105 text-sm sm:text-base flex items-center ${
           isUploading ? "bg-main cursor-not-allowed" : ""
         }`}
         onClick={handleUpload}
@@ -32,7 +32,7 @@ const Share = ({ footerImages }) => {
         aria-label="Share Dataset"
       >
         {isUploading ? "UPLOADING..." : "SHARE"}
-        <RecommendOutlinedIcon className="ml-2 h-auto w-auto" />
+        <RecommendOutlinedIcon className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5" />
       </button>
     </div>
   );

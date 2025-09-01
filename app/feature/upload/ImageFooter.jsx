@@ -68,18 +68,18 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
   }, []);
 
   return (
-    <main className="bg-main flex w-full items-center gap-4 p-2">
+    <main className="bg-main flex w-full items-center gap-2 sm:gap-4 p-2">
       {/* Add Image Button */}
       <button
         onClick={() => fileInputRef.current?.click()}
-        className="m-2 mb-2 ml-4 flex h-24 w-24 min-w-[6rem] cursor-pointer items-center justify-center rounded-lg bg-[#87CEFA] transition hover:bg-[#6cb4eb]"
+        className="m-1 sm:m-2 mb-2 ml-2 sm:ml-4 flex h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 min-w-[4rem] sm:min-w-[5rem] md:min-w-[6rem] cursor-pointer items-center justify-center rounded-lg bg-[#87CEFA] transition hover:bg-[#6cb4eb]"
       >
-        <FaPlus className="text-3xl text-[#008cff]" />
+        <FaPlus className="text-xl sm:text-2xl md:text-3xl text-[#008cff]" />
       </button>
 
       {/* Image List */}
       <section className="relative w-full overflow-hidden">
-        <div className="scrollbar flex space-x-4 overflow-x-auto">
+        <div className="scrollbar flex space-x-2 sm:space-x-4 overflow-x-auto">
           {/* Hidden Input for File Upload */}
           <input
             type="file"
@@ -93,7 +93,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
             <div
               key={index}
               onClick={() => handleImageClick(image)}
-              className={`flex h-24 w-24 min-w-[6rem] cursor-pointer items-center justify-center rounded-lg transition ${
+              className={`flex h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 min-w-[4rem] sm:min-w-[5rem] md:min-w-[6rem] cursor-pointer items-center justify-center rounded-lg transition ${
                 selectedImage === image ? "border-2 border-[#009CFF]" : ""
               }`}
             >
@@ -109,10 +109,10 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
 
       {/* Delete Button */}
       <div
-        className="bg-main left-2 mb-6 flex h-24 w-28 cursor-pointer items-center justify-center border-l-4 border-[#d3d3d3] transition hover:bg-gray-200"
+        className="bg-main left-2 mb-6 flex h-16 w-20 sm:h-20 sm:w-24 md:h-24 md:w-28 cursor-pointer items-center justify-center border-l-2 sm:border-l-4 border-[#d3d3d3] transition hover:bg-gray-200"
         onClick={handleDeleteImage}
       >
-        <FaTrash className="h-16 w-8 text-red-500" />
+        <FaTrash className="h-8 w-6 sm:h-12 sm:w-6 md:h-16 md:w-8 text-red-500" />
       </div>
     </main>
   );

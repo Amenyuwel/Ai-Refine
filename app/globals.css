@@ -90,7 +90,13 @@ h6 {
 
 /* Custom Scrollbar */
 .scrollbar::-webkit-scrollbar {
-  height: 8px; /* Set scrollbar height */
+  height: 6px; /* Smaller height for mobile */
+}
+
+@media (min-width: 640px) {
+  .scrollbar::-webkit-scrollbar {
+    height: 8px; /* Original height for larger screens */
+  }
 }
 
 .scrollbar::-webkit-scrollbar-track {
@@ -122,6 +128,25 @@ h6 {
 
 .Toastify__toast-container {
   z-index: 9999 !important;
+  width: 90% !important;
+  max-width: 400px !important;
+  margin: 0 auto !important;
+  left: 89% !important;
+  transform: translateX(-50%) !important;
+}
+
+@media (max-width: 768px) {
+  .Toastify__toast-container {
+    width: 90% !important;
+    left:50% !important;
+    top: 3% !important;
+    max-width: 350px !important;
+  }
+  
+  .Toastify__toast {
+    font-size: 14px !important;
+    padding: 12px !important;
+  }
 }
 
 @keyframes updown {
@@ -158,4 +183,106 @@ h6 {
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  /* Improve touch targets for mobile */
+  button, input[type="range"] {
+    min-height: 44px;
+  }
+  
+  /* Better spacing for mobile */
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+}
+
+/* Custom slider styling for better mobile experience */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #79c99e;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border: 2px solid #ffffff;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: #5c946e;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.slider::-webkit-slider-track {
+  appearance: none;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  outline: none;
+}
+
+.slider:focus {
+  outline: none;
+}
+
+.slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slider:disabled::-webkit-slider-thumb {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Firefox slider styling */
+.slider {
+  appearance: none;
+  -moz-appearance: none;
+}
+
+.slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #79c99e;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.slider::-moz-range-track {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+@media (max-width: 640px) {
+  .slider::-webkit-slider-thumb {
+    height: 22px;
+    width: 22px;
+  }
+  
+  .slider::-webkit-slider-track {
+    height: 10px;
+  }
+  
+  .slider::-moz-range-thumb {
+    height: 22px;
+    width: 22px;
+  }
+  
+  .slider::-moz-range-track {
+    height: 10px;
+  }
+}
+
+/* Prevent horizontal scroll on smaller screens */
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
 }

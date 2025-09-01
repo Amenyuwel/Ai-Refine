@@ -122,12 +122,12 @@ const ControlsPage = () => {
 
   return (
     <main className="flex h-screen w-full flex-col overflow-hidden">
-        <HeroPattern className="absolute inset-0 z-[-50]" />
+      <HeroPattern className="absolute inset-0 z-[-50]" />
       <Navbar />
       {/* Dragging Dropzone */}
       <div
         {...getRootProps()}
-        className={`relative flex h-screen w-full items-center justify-center transition-all duration-300${
+        className={`relative flex w-full flex-1 items-center justify-center p-2 transition-all duration-300 sm:p-4 md:p-6${
           isDragActive ? "bg-opacity-80 z-50 bg-[#B2D3A8]" : ""
         }`}
       >
@@ -142,20 +142,20 @@ const ControlsPage = () => {
         {/* Uploaded Image Display */}
         {previewImage && (
           <div
-            className={`relative mr-[20%] flex flex-col items-center ${
+            className={`relative flex flex-col items-center px-4 ${
               isDragActive ? "opacity-50" : "opacity-100"
             }`}
           >
-            <div className="h-[500px] w-[650px] overflow-hidden rounded-3xl bg-main shadow-lg z-[100]">
+            <div className="bg-main h-64 w-full max-w-xs overflow-hidden rounded-3xl shadow-lg sm:h-80 sm:max-w-md md:h-96 md:max-w-lg lg:h-[400px] lg:max-w-xl xl:h-[500px] xl:max-w-2xl">
               <img
                 ref={imageRef}
                 src={previewImage}
                 alt="Uploaded Preview"
-                className="h-full w-full object-contain z-[50]"
+                className="z-[50] h-full w-full object-contain"
                 style={imageStyles}
               />
             </div>
-            <div className="flex flex-row gap-4 pt-4 justify-center">
+            <div className="flex w-full max-w-xs flex-col justify-center gap-2 pt-4 sm:max-w-md sm:flex-row sm:gap-4">
               <Share footerImages={uploadedImages} />
               <Download
                 uploadedImages={uploadedImages}
@@ -163,7 +163,7 @@ const ControlsPage = () => {
                 settings={settings}
               />
               <button
-                className="bg-main text-main mt-4 flex h-full cursor-pointer items-center justify-center gap-2 rounded-full border border-gray-500 px-6 py-2 transition-all duration-300 hover:scale-105 hover:bg-[var(--primary)]"
+                className="bg-main text-main flex cursor-pointer items-center justify-center gap-2 rounded-full border border-gray-500 px-4 py-2 text-sm transition-all duration-300 hover:scale-105 hover:bg-[var(--primary)] sm:px-6 sm:text-base"
                 onClick={() =>
                   setModalType((prev) =>
                     prev === "controls" ? null : "controls",
@@ -171,7 +171,7 @@ const ControlsPage = () => {
                 }
               >
                 CONTROLS
-                <BuildCircleIcon className="h-full w-full" />
+                <BuildCircleIcon className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
             </div>
           </div>
