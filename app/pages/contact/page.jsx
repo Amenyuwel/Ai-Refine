@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { FaAngleDoubleUp } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useContactForm from "@/hooks/useContactForm";
 import HeroPattern from "components/HeroPattern";
@@ -24,11 +24,6 @@ const ContactPage = ({ scrollToHome }) => {
   return (
     <main className="relative flex h-screen w-full flex-col items-center justify-center font-sans">
       <HeroPattern />
-      <ToastContainer
-        pauseOnHover={false}
-        draggable={false}
-        position="bottom-center"
-      />
       <section className="flex h-auto w-full flex-col items-center justify-center space-y-6 p-6 text-center sm:h-[80%] sm:w-[40%] sm:p-8">
         <div className="flex w-full flex-col items-center">
           <p className="text-main text-xl font-semibold sm:text-2xl">

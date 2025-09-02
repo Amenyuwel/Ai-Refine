@@ -2,12 +2,14 @@
 import React, { useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import DragOverlay from "components/DragOverlay";
 import LoadingOverlay from "components/LoadingOverlay";
 import HeroPattern from "components/HeroPattern";
+import StorageQuotaTestComponent from "../../../components/StorageQuotaTestComponent";
+import { safeSessionStorageSetItem, compressBase64Image, getStorageSize } from "../../utils/storageUtils";
 
 const HomePage = () => {
   const router = useRouter();
@@ -31,7 +33,24 @@ const HomePage = () => {
             (file) =>
               new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
+                reader.onloadend = async () => {
+                  try {
+                    let base64Image = reader.result;
+                    
+                    // Check if image is too large (> 500KB) and compress it
+                    const imageSize = getStorageSize(base64Image);
+                    if (imageSize > 500 * 1024) { // 500KB threshold
+                      console.log(`Compressing image of size ${Math.round(imageSize / 1024)}KB`);
+                      base64Image = await compressBase64Image(base64Image, 0.7, 1600, 1200);
+                      console.log(`Compressed to ${Math.round(getStorageSize(base64Image) / 1024)}KB`);
+                    }
+                    
+                    resolve(base64Image);
+                  } catch (compressionError) {
+                    console.warn("Failed to compress image, using original:", compressionError);
+                    resolve(reader.result);
+                  }
+                };
                 reader.onerror = reject;
                 reader.readAsDataURL(file);
               }),
@@ -39,10 +58,35 @@ const HomePage = () => {
         );
 
         const uniqueImages = Array.from(new Set([...images, ...base64Images]));
-        sessionStorage.setItem(
-          "footerImages",
-          JSON.stringify(uniqueImages.slice(0, 100)),
-        );
+        
+        // Use the safe storage utility with additional error handling
+        let success = false;
+        try {
+          success = safeSessionStorageSetItem(
+            "footerImages",
+            uniqueImages.slice(0, 100),
+            (error) => {
+              // Custom handling for quota exceeded
+              toast.error("Storage quota exceeded. Try uploading fewer or smaller images.");
+              console.error("Storage quota exceeded:", error);
+            }
+          );
+        } catch (error) {
+          // Final safety net in case any QuotaExceededError escapes the utility function
+          if (error.name === 'QuotaExceededError') {
+            console.error("QuotaExceededError caught at component level:", error);
+            toast.error("Storage quota exceeded. Please try with fewer or smaller images.");
+            success = false;
+          } else {
+            // Re-throw non-quota errors
+            throw error;
+          }
+        }
+        
+        if (!success) {
+          return; // Stop processing if storage failed
+        }
+        
         setImages(uniqueImages.slice(0, 100));
         router.push("feature/upload");
       } catch (error) {
@@ -113,9 +157,6 @@ const HomePage = () => {
     >
       {/* BACKGROUND */}
       <HeroPattern />
-
-      {/* FOR ERRORS */}
-      <ToastContainer pauseOnHover={false} draggable={false} />
 
       {/* LOADING SCREEN */}
       <LoadingOverlay loading={loading} />
@@ -218,6 +259,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+      {/* Storage Quota Test Component (Development Only)
+      <StorageQuotaTestComponent /> */}
     </main>
   );
 };

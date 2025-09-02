@@ -7,8 +7,6 @@ import AboutPage from "@/pages/about/page";
 import ShowCase from "@/pages/showcase/page";
 import ContactPage from "@/pages/contact/page";
 import useParallax from "@/hooks/useParallax";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const Page = () => {
   const homeRef = useRef(null);
@@ -37,7 +35,6 @@ const Page = () => {
 
   return (
     <div className="h-full w-full">
-      <ToastContainer />
       <Navbar
         scrollToSection={(ref) =>
           ref?.current?.scrollIntoView({ behavior: "smooth" })

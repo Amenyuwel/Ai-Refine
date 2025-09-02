@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import Navbar from "components/Navbar";
 import DragOverlay from "components/DragOverlay";
 import ImageFooter from "@/feature/upload/ImageFooter";
@@ -42,12 +42,17 @@ const ControlsPage = () => {
 
   // Load images from session storage
   const loadRedirectedImages = useCallback(() => {
-    const footer = sessionStorage.getItem("footerImages");
-    if (footer) {
-      const images = JSON.parse(footer);
-      images.forEach((image) => addImage(image));
-      setSelected(images[0]);
-      sessionStorage.removeItem("footerImages");
+    try {
+      const footer = sessionStorage.getItem("footerImages");
+      if (footer) {
+        const images = JSON.parse(footer);
+        images.forEach((image) => addImage(image));
+        setSelected(images[0]);
+        sessionStorage.removeItem("footerImages");
+      }
+    } catch (error) {
+      console.error("Error loading images from session storage:", error);
+      toast.error("Failed to load images from session storage.");
     }
   }, [addImage, setSelected]);
 
@@ -190,7 +195,6 @@ const ControlsPage = () => {
       )}
 
       <ImageFooter onImageClick={setSelected} onImageDelete={removeImage} />
-      <ToastContainer />
     </main>
   );
 };
