@@ -9,9 +9,8 @@ const ControlsModal = ({
   onClose,
   onSettingsChange,
   settings,
+  isInline = false,
 }) => {
-  if (!isOpen) return null;
-
   const [localSettings, setLocalSettings] = useState(settings);
 
   useEffect(() => {
@@ -51,33 +50,63 @@ const ControlsModal = ({
     onSettingsChange(newSettings);
   };
 
+  if (!isOpen) return null;
+
   return (
     <div
-      className="bg-opacity-50 pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-      style={{ pointerEvents: "auto" }}
+      className={`${
+        isInline
+          ? "relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg"
+          : "bg-opacity-50 pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+      }`}
+      onClick={
+        isInline
+          ? undefined
+          : (e) => {
+              if (e.target === e.currentTarget) {
+                onClose();
+              }
+            }
+      }
+      style={isInline ? {} : { pointerEvents: "auto" }}
     >
-      <div className="pointer-events-auto relative h-auto max-h-[80vh] w-full max-w-xs overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:max-h-[85vh] sm:max-w-sm sm:rounded-3xl sm:p-6 md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:w-[20%]">
-        <button
-          title="Close"
-          className="absolute top-2 right-2 rounded-full p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 sm:top-3 sm:right-3"
-          onClick={onClose}
+      <div
+        className={
+          isInline
+            ? "w-full"
+            : "pointer-events-auto relative h-auto max-h-[80vh] w-full max-w-xs overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:max-h-[85vh] sm:max-w-sm sm:rounded-3xl sm:p-6 md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:w-[20%]"
+        }
+      >
+        {!isInline && (
+          <button
+            title="Close"
+            className="absolute top-2 right-2 rounded-full p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 sm:top-3 sm:right-3"
+            onClick={onClose}
+          >
+            <FaTimes size={16} className="sm:h-5 sm:w-5" />
+          </button>
+        )}
+        <h2
+          className={`${
+            isInline ? "" : "pr-8"
+          } text-lg font-bold text-gray-800 sm:text-xl md:text-2xl lg:text-3xl`}
         >
-          <FaTimes size={16} className="sm:h-5 sm:w-5" />
-        </button>
-        <h2 className="pr-8 text-lg font-bold text-gray-800 sm:text-xl md:text-2xl lg:text-3xl">
           CONTROLS
         </h2>
-        <p className="mt-2 text-left text-xs leading-relaxed text-gray-500 sm:text-sm">
+        <p
+          className={`${
+            isInline ? "mb-6" : "mt-2 mb-3 sm:mb-4"
+          } text-left text-xs leading-relaxed text-gray-500 sm:text-sm`}
+        >
           Click the toggle buttons to enable modifications, then use the sliders
           to adjust their intensity.
         </p>
 
-        <div className="mt-3 space-y-4 sm:mt-4 sm:space-y-5 md:space-y-6">
+        <div
+          className={`${
+            isInline ? "space-y-6" : "mt-3 space-y-4 sm:mt-4 sm:space-y-5 md:space-y-6"
+          }`}
+        >
           {/* Flip Toggle */}
           <div className="flex items-center justify-between py-1">
             <p className="text-main font-sans text-sm font-semibold uppercase sm:text-base md:text-base">
