@@ -8,7 +8,6 @@ import Image from "next/image";
 import DragOverlay from "components/DragOverlay";
 import LoadingOverlay from "components/LoadingOverlay";
 import HeroPattern from "components/HeroPattern";
-import StorageQuotaTestComponent from "../../../components/StorageQuotaTestComponent";
 import { safeSessionStorageSetItem, compressBase64Image, getStorageSize } from "../../utils/storageUtils";
 
 const HomePage = () => {

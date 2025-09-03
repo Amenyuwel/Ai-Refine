@@ -18,7 +18,6 @@ import Share from "components/Share";
 import { useImageContext } from "../../context/ImageContext";
 import "react-toastify/dist/ReactToastify.css";
 import BuildCircleIcon from "@mui/icons-material/BuildCircleOutlined";
-import CloseIcon from "@mui/icons-material/Close";
 import HeroPattern from "components/HeroPattern";
 
 const ControlsPage = () => {
