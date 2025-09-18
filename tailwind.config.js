@@ -17,9 +17,9 @@ module.exports = {
         foreground: 'var(--foreground)',
       },
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
-        heading: ['Oswald', 'sans-serif'],
-        headingSecondary: ['Poppins', 'serif'],
+        sans: ['var(--font-sans)', 'sans-serif'],
+        heading: ['var(--font-heading)', 'sans-serif'],
+        headingSecondary: ['var(--font-sans)', 'serif'],
       },
       backgroundImage: {
         main: 'var(--bg-main)',

@@ -1,16 +1,18 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Oswald, Poppins } from "next/font/google";
 import "./globals.css";
 import { ImageProvider } from "./context/ImageContext";
 import ToastProvider from "../components/ToastProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const oswald = Oswald({
+  variable: "--font-heading",
   subsets: ["latin"],
+  weight: ["300", "400", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const poppins = Poppins({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "700"],
 });
 
 export const metadata = {
@@ -29,7 +31,7 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/background/Wave.png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${oswald.variable} ${poppins.variable} antialiased`}
       >
         <ToastProvider>
           <ImageProvider>
