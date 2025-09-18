@@ -3,12 +3,9 @@ import React from "react";
 import description from "./descAbout";
 import { FaArrowCircleRight } from "react-icons/fa";
 import Link from "next/link"; // Import Link for navigation
+import MutantImage from "./MutantImage";
 
 const AboutPage = () => {
-  const preventImageActions = (event) => {
-    event.preventDefault();
-  };
-
   return (
     <main className="bg-main flex h-[100vh] w-full items-center justify-center px-6">
       <section className="flex flex-col sm:flex-row w-full sm:w-[80%] items-center justify-center gap-y-8 sm:gap-x-8">
@@ -31,14 +28,7 @@ const AboutPage = () => {
         </div>
 
         {/* Image */}
-        <img
-          src="/images/Mutant.png"
-          draggable="false"
-          onDragStart={preventImageActions}
-          onContextMenu={preventImageActions}
-          className="h-[50%] w-[50%] sm:h-[40%] sm:w-[40%] cursor-pointer object-contain transition-transform duration-300 ease-out hover:scale-105"
-          alt="Mutant"
-        />
+        <MutantImage />
       </section>
     </main>
   );

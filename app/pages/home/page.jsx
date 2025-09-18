@@ -8,7 +8,11 @@ import Image from "next/image";
 import DragOverlay from "components/DragOverlay";
 import LoadingOverlay from "components/LoadingOverlay";
 import HeroPattern from "components/HeroPattern";
-import { safeSessionStorageSetItem, compressBase64Image, getStorageSize } from "../../utils/storageUtils";
+import {
+  safeSessionStorageSetItem,
+  compressBase64Image,
+  getStorageSize,
+} from "../../utils/storageUtils";
 
 const HomePage = () => {
   const router = useRouter();
@@ -35,18 +39,31 @@ const HomePage = () => {
                 reader.onloadend = async () => {
                   try {
                     let base64Image = reader.result;
-                    
+
                     // Check if image is too large (> 500KB) and compress it
                     const imageSize = getStorageSize(base64Image);
-                    if (imageSize > 500 * 1024) { // 500KB threshold
-                      console.log(`Compressing image of size ${Math.round(imageSize / 1024)}KB`);
-                      base64Image = await compressBase64Image(base64Image, 0.7, 1600, 1200);
-                      console.log(`Compressed to ${Math.round(getStorageSize(base64Image) / 1024)}KB`);
+                    if (imageSize > 500 * 1024) {
+                      // 500KB threshold
+                      console.log(
+                        `Compressing image of size ${Math.round(imageSize / 1024)}KB`,
+                      );
+                      base64Image = await compressBase64Image(
+                        base64Image,
+                        0.7,
+                        1600,
+                        1200,
+                      );
+                      console.log(
+                        `Compressed to ${Math.round(getStorageSize(base64Image) / 1024)}KB`,
+                      );
                     }
-                    
+
                     resolve(base64Image);
                   } catch (compressionError) {
-                    console.warn("Failed to compress image, using original:", compressionError);
+                    console.warn(
+                      "Failed to compress image, using original:",
+                      compressionError,
+                    );
                     resolve(reader.result);
                   }
                 };
@@ -57,7 +74,7 @@ const HomePage = () => {
         );
 
         const uniqueImages = Array.from(new Set([...images, ...base64Images]));
-        
+
         // Use the safe storage utility with additional error handling
         let success = false;
         try {
@@ -66,26 +83,33 @@ const HomePage = () => {
             uniqueImages.slice(0, 100),
             (error) => {
               // Custom handling for quota exceeded
-              toast.error("Storage quota exceeded. Try uploading fewer or smaller images.");
+              toast.error(
+                "Storage quota exceeded. Try uploading fewer or smaller images.",
+              );
               console.error("Storage quota exceeded:", error);
-            }
+            },
           );
         } catch (error) {
           // Final safety net in case any QuotaExceededError escapes the utility function
-          if (error.name === 'QuotaExceededError') {
-            console.error("QuotaExceededError caught at component level:", error);
-            toast.error("Storage quota exceeded. Please try with fewer or smaller images.");
+          if (error.name === "QuotaExceededError") {
+            console.error(
+              "QuotaExceededError caught at component level:",
+              error,
+            );
+            toast.error(
+              "Storage quota exceeded. Please try with fewer or smaller images.",
+            );
             success = false;
           } else {
             // Re-throw non-quota errors
             throw error;
           }
         }
-        
+
         if (!success) {
           return; // Stop processing if storage failed
         }
-        
+
         setImages(uniqueImages.slice(0, 100));
         router.push("feature/upload");
       } catch (error) {
@@ -150,7 +174,7 @@ const HomePage = () => {
   return (
     <main
       {...getRootProps()}
-      className={`relative flex flex-col h-screen w-full sm:flex sm:flex-row md:flex-row lg:flex-row items-center justify-center transition-all duration-300 ${
+      className={`relative flex h-screen w-full flex-col items-center justify-center transition-all duration-300 sm:flex sm:flex-row md:flex-row lg:flex-row ${
         loading ? "backdrop-blur-md" : ""
       } ${isDragActive ? "bg-[#b8d5b8]" : ""}`}
     >
@@ -173,7 +197,7 @@ const HomePage = () => {
       />
 
       <section
-        className={`relative flex flex-col items-center transition-all duration-300 w-full sm:w-[60%] md:w-[55%] lg:w-[50%] ${
+        className={`relative flex w-full flex-col items-center transition-all duration-300 sm:w-[60%] md:w-[55%] lg:w-[50%] ${
           isDragActive || loading ? "opacity-50" : "opacity-100"
         }`}
       >
@@ -182,9 +206,9 @@ const HomePage = () => {
           src="/images/pixel.png"
           alt="Pixel"
           draggable="false"
-          className="h-full w-full pt-4 cursor-pointer object-contain transition-all duration-300 ease-out hover:scale-105 hover:grayscale"
+          className="h-full w-full cursor-pointer object-contain pt-4 transition-all duration-300 ease-out hover:scale-105 hover:grayscale xl:h-[80%] xl:w-[80%]"
         />
-        <h1 className="text-main relative mt-4 text-left ml-10  text-[clamp(2rem,5vw+2rem,4rem)] font-bold text-gray-800">
+        <h1 className="text-main relative mt-4 ml-10 text-left text-[clamp(2rem,5vw+2rem,4rem)] font-bold text-gray-800">
           AUGMENT YOUR <br /> IMAGES
           <span className="-mt-7 -ml-4 inline-block align-middle">
             <Image
@@ -201,19 +225,19 @@ const HomePage = () => {
 
       {/* UPLOAD BUTTON SECTION */}
       <section
-        className={`flex h-full w-full sm:w-[40%] md:w-[45%] lg:w-[50%] flex-col items-center justify-center transition-all duration-300 ${
+        className={`flex h-full w-full flex-col items-center justify-center transition-all duration-300 sm:w-[40%] md:w-[45%] lg:w-[50%] ${
           isDragActive || loading ? "opacity-55" : "opacity-100"
         }`}
       >
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="elevation-3 flex h-[60%] w-[90%] sm:w-[80%] cursor-pointer flex-col items-center justify-center rounded-[20px] sm:rounded-[50px] bg-white shadow-2xl"
+          className="elevation-3 flex h-[60%] w-[90%] cursor-pointer flex-col items-center justify-center rounded-[20px] bg-white shadow-2xl sm:w-[80%] sm:rounded-[50px]"
         >
-          <div className="flex h-[95%] w-[95%] flex-col items-center justify-center rounded-[20px] sm:rounded-[50px] border-4 sm:border-8 border-dashed border-gray-400 p-4 sm:p-8">
-            <p className="text-main text-xl sm:text-3xl font-bold text-center">
+          <div className="flex h-[95%] w-[95%] flex-col items-center justify-center rounded-[20px] border-4 border-dashed border-gray-400 p-4 sm:rounded-[50px] sm:border-8 sm:p-8">
+            <p className="text-main text-center text-xl font-bold sm:text-3xl">
               Drag and drop your images
             </p>
-            <p className="text-main mt-1 mb-4 sm:mb-8 text-xl sm:text-3xl font-bold text-center">
+            <p className="text-main mt-1 mb-4 text-center text-xl font-bold sm:mb-8 sm:text-3xl">
               or{" "}
               <span className="cursor-pointer text-[var(--secondary)] underline">
                 click to upload.
@@ -221,7 +245,7 @@ const HomePage = () => {
             </p>
             <button
               type="button"
-              className="cursor-pointer rounded-full bg-[var(--primary)] px-6 sm:px-8 py-3 sm:py-4 text-lg sm:text-2xl text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:brightness-105"
+              className="cursor-pointer rounded-full bg-[var(--primary)] px-6 py-3 text-lg text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:brightness-105 sm:px-8 sm:py-4 sm:text-2xl"
               onClick={(e) => {
                 e.stopPropagation();
                 fileInputRef.current?.click();
@@ -229,7 +253,7 @@ const HomePage = () => {
             >
               UPLOAD IMAGE
             </button>
-            <span className="text-main mt-4 sm:mt-8 text-xs sm:text-sm text-center">
+            <span className="text-main mt-4 text-center text-xs sm:mt-8 sm:text-sm">
               File must be <strong>JPG</strong> or <strong>PNG</strong>, and a
               maximum of <strong>100 images.</strong>
             </span>
@@ -237,15 +261,16 @@ const HomePage = () => {
         </div>
 
         {/* EXAMPLES */}
-        <div className="mt-4 sm:mt-8 flex h-auto w-[90%] sm:w-[80%] md:w-[85%] lg:w-[80%] flex-col sm:flex-row md:flex-row lg:flex-row sm:justify-between md:justify-between lg:justify-between items-center">
-          <p className="text-main mt-2 text-center sm:text-left md:text-left lg:text-left text-lg sm:text-xl">
-            No Image? <br className="hidden sm:block md:block lg:block" /> Try one of these:
+        <div className="mt-4 flex h-auto w-[90%] flex-col items-center sm:mt-8 sm:w-[80%] sm:flex-row sm:justify-between md:w-[85%] md:flex-row md:justify-between lg:w-[80%] lg:flex-row lg:justify-between">
+          <p className="text-main mt-2 text-center text-lg sm:text-left sm:text-xl md:text-left lg:text-left">
+            No Image? <br className="hidden sm:block md:block lg:block" /> Try
+            one of these:
           </p>
-          <div className="flex flex-row gap-4 sm:gap-4 mt-4 sm:mt-0 md:mt-0 lg:mt-0">
+          <div className="mt-4 flex flex-row gap-4 sm:mt-0 sm:gap-4 md:mt-0 lg:mt-0">
             {["Animal", "Object", "Pest"].map((item, index) => (
               <div
                 key={item}
-                className={`flex items-center justify-center h-24 w-24 sm:h-28 sm:w-28 xl:h-32 xl:w-32 cursor-pointer rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105 ${
+                className={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105 sm:h-28 sm:w-28 xl:h-32 xl:w-32 ${
                   index === 2 ? "md:hidden lg:hidden xl:flex" : ""
                 }`}
                 onClick={() => handleExampleImageClick(`/images/${item}.png`)}
@@ -253,7 +278,7 @@ const HomePage = () => {
                 <img
                   src={`/images/${item}.png`}
                   alt={item}
-                  className="h-full w-full object-contain rounded-[8px]"
+                  className="h-full w-full rounded-[8px] object-contain"
                 />
               </div>
             ))}
