@@ -1,3 +1,4 @@
+"use client";
 /**
  * Utility functions for handling storage operations with quota management
  */

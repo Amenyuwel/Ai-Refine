@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { toast } from "react-toastify";
 import useImageUpload from "@/hooks/useImageUpload";
