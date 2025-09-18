@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import description from "./descAbout";
 import { FaArrowCircleRight } from "react-icons/fa";

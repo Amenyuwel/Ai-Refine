@@ -22,20 +22,27 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleNavigation = useCallback(
-    (sectionRef, route) => {
+    (sectionRef, route, sectionName = null) => {
       setMenuOpen(false); // Close menu on navigation
       const navbarHeight = 80; // Set your navbar height here (in px)
 
       if (pathname === "/") {
         // If already on the home page and scrollToSection exists, scroll with an offset
-        if (scrollToSection) {
+        if (scrollToSection && sectionRef) {
           scrollToSection(sectionRef, navbarHeight); // Pass the navbar height as the offset
         }
       } else {
         // Navigate to home first, then scroll after the page loads
-        router.push(route);
+        if (sectionName) {
+          // Use hash routing for sections
+          router.push(`/${sectionName ? `#${sectionName}` : ''}`);
+        } else {
+          router.push(route);
+        }
+        
+        // If we have a section reference, scroll to it after navigation
         setTimeout(() => {
-          if (scrollToSection) {
+          if (scrollToSection && sectionRef) {
             scrollToSection(sectionRef, navbarHeight); // Add offset after navigation
           }
         }, 100); // Add a small delay to ensure navigation happens first
@@ -49,7 +56,7 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
       {/* NAVIGATION LINKS */}
       <h1
         className="cursor-pointer px-4 text-2xl font-bold sm:px-8 sm:text-4xl"
-        onClick={() => handleNavigation(homeRef, "/")}
+        onClick={() => handleNavigation(homeRef, "/", "home")}
       >
         ai-refine
       </h1>
@@ -77,19 +84,19 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
       >
         <button
           className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
-          onClick={() => handleNavigation(homeRef, "/")}
+          onClick={() => handleNavigation(homeRef, "/", "home")}
         >
           HOME
         </button>
         <button
           className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
-          onClick={() => handleNavigation(aboutRef, "/")}
+          onClick={() => handleNavigation(aboutRef, "/", "about")}
         >
           ABOUT
         </button>
         <button
           className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
-          onClick={() => handleNavigation(contactRef, "/")}
+          onClick={() => handleNavigation(contactRef, "/", "contact")}
         >
           CONTACT
         </button>

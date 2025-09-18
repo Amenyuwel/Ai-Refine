@@ -150,7 +150,7 @@ const HomePage = () => {
   return (
     <main
       {...getRootProps()}
-      className={`relative flex flex-col h-screen w-full sm:flex sm:flex-row items-center justify-center transition-all duration-300 ${
+      className={`relative flex flex-col h-screen w-full sm:flex sm:flex-row md:flex-row lg:flex-row items-center justify-center transition-all duration-300 ${
         loading ? "backdrop-blur-md" : ""
       } ${isDragActive ? "bg-[#b8d5b8]" : ""}`}
     >
@@ -173,7 +173,7 @@ const HomePage = () => {
       />
 
       <section
-        className={`relative flex flex-col items-center transition-all duration-300 ${
+        className={`relative flex flex-col items-center transition-all duration-300 w-full sm:w-[60%] md:w-[55%] lg:w-[50%] ${
           isDragActive || loading ? "opacity-50" : "opacity-100"
         }`}
       >
@@ -201,7 +201,7 @@ const HomePage = () => {
 
       {/* UPLOAD BUTTON SECTION */}
       <section
-        className={`flex h-full w-full sm:w-[40%] flex-col items-center justify-center transition-all duration-300 ${
+        className={`flex h-full w-full sm:w-[40%] md:w-[45%] lg:w-[50%] flex-col items-center justify-center transition-all duration-300 ${
           isDragActive || loading ? "opacity-55" : "opacity-100"
         }`}
       >
@@ -237,15 +237,17 @@ const HomePage = () => {
         </div>
 
         {/* EXAMPLES */}
-        <div className="mt-4 sm:mt-8 flex h-auto w-[90%] sm:w-[80%] flex-col sm:flex-row sm:justify-between items-center">
-          <p className="text-main mt-2 text-center sm:text-left text-lg sm:text-xl">
-            No Image? <br className="hidden sm:block" /> Try one of these:
+        <div className="mt-4 sm:mt-8 flex h-auto w-[90%] sm:w-[80%] md:w-[85%] lg:w-[80%] flex-col sm:flex-row md:flex-row lg:flex-row sm:justify-between md:justify-between lg:justify-between items-center">
+          <p className="text-main mt-2 text-center sm:text-left md:text-left lg:text-left text-lg sm:text-xl">
+            No Image? <br className="hidden sm:block md:block lg:block" /> Try one of these:
           </p>
-          <div className="flex flex-row gap-4 sm:gap-4 mt-4 sm:mt-0">
-            {["Animal", "Object", "Pest"].map((item) => (
+          <div className="flex flex-row gap-4 sm:gap-4 mt-4 sm:mt-0 md:mt-0 lg:mt-0">
+            {["Animal", "Object", "Pest"].map((item, index) => (
               <div
                 key={item}
-                className="flex items-center justify-center h-24 w-24 sm:h-28 sm:w-28 cursor-pointer rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105"
+                className={`flex items-center justify-center h-24 w-24 sm:h-28 sm:w-28 xl:h-32 xl:w-32 cursor-pointer rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105 ${
+                  index === 2 ? "md:hidden lg:hidden xl:flex" : ""
+                }`}
                 onClick={() => handleExampleImageClick(`/images/${item}.png`)}
               >
                 <img

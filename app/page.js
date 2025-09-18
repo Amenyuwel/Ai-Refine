@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import Navbar from "components/Navbar";
 import Footer from "components/Footer";
 import HomePage from "@/pages/home/page";
@@ -33,6 +33,44 @@ const Page = () => {
     },
   ]);
 
+  // Handle hash navigation for deep linking from other pages
+  useEffect(() => {
+    const handleHashNavigation = () => {
+      const hash = window.location.hash.substring(1); // Remove the '#'
+      let targetRef = null;
+      
+      switch (hash) {
+        case 'home':
+          targetRef = homeRef;
+          break;
+        case 'about':
+          targetRef = aboutRef;
+          break;
+        case 'contact':
+          targetRef = contactRef;
+          break;
+        default:
+          break;
+      }
+      
+      if (targetRef && targetRef.current) {
+        setTimeout(() => {
+          targetRef.current.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    };
+
+    // Handle initial load with hash
+    handleHashNavigation();
+    
+    // Handle hash changes
+    window.addEventListener('hashchange', handleHashNavigation);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashNavigation);
+    };
+  }, [homeRef, aboutRef, contactRef]);
+
   return (
     <div className="h-full w-full">
       <Navbar
@@ -44,16 +82,16 @@ const Page = () => {
         contactRef={contactRef}
       />
       <div className="overflow-y-hidden">
-        <section ref={homeRef} className="flex min-h-screen items-center">
+        <section id="home" ref={homeRef} className="flex min-h-screen items-center">
           <HomePage />
         </section>
-        <section ref={aboutRef} className="flex items-center">
+        <section id="about" ref={aboutRef} className="flex items-center">
           <AboutPage />
         </section>
-        <section ref={showcaseRef} className="flex min-h-screen items-center">
+        <section id="showcase" ref={showcaseRef} className="flex min-h-screen items-center">
           <ShowCase />
         </section>
-        <section ref={contactRef} className="flex items-center pb-16">
+        <section id="contact" ref={contactRef} className="flex items-center pb-16">
           <ContactPage
             scrollToHome={() =>
               homeRef.current.scrollIntoView({ behavior: "smooth" })
