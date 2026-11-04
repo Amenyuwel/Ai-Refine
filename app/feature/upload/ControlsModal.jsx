@@ -1,6 +1,6 @@
 "use client";
 import HeroPattern from "components/HeroPattern";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { FaTimes } from "react-icons/fa";
 
 const ControlsModal = ({
@@ -11,42 +11,33 @@ const ControlsModal = ({
   settings,
   isInline = false,
 }) => {
-  const [localSettings, setLocalSettings] = useState(settings);
-
-  useEffect(() => {
-    setLocalSettings(settings);
-  }, [settings]);
-
   // Toggle Flip
   const toggleFlip = () => {
     const newSettings = {
-      ...localSettings,
+      ...settings,
       flip: {
-        enabled: !localSettings.flip.enabled,
-        value: localSettings.flip.value === 1 ? -1 : 1,
+        enabled: !settings.flip.enabled,
+        value: settings.flip.value === 1 ? -1 : 1,
       },
     };
-    setLocalSettings(newSettings);
     onSettingsChange(newSettings);
   };
 
   // Toggle settings (Grayscale, Blur, Brightness)
   const toggleSetting = (key) => {
     const newSettings = {
-      ...localSettings,
-      [key]: { ...localSettings[key], enabled: !localSettings[key].enabled },
+      ...settings,
+      [key]: { ...settings[key], enabled: !settings[key].enabled },
     };
-    setLocalSettings(newSettings);
     onSettingsChange(newSettings); // Update parent here
   };
 
   // Update slider value (Grayscale, Blur, Brightness)
   const updateSlider = (key, value) => {
     const newSettings = {
-      ...localSettings,
-      [key]: { ...localSettings[key], value },
+      ...settings,
+      [key]: { ...settings[key], value },
     };
-    setLocalSettings(newSettings);
     onSettingsChange(newSettings);
   };
 
@@ -115,12 +106,12 @@ const ControlsModal = ({
             <button
               onClick={toggleFlip}
               className={`relative h-6 w-12 rounded-full p-0.5 transition-colors sm:h-7 sm:w-14 md:h-8 md:w-16 ${
-                localSettings.flip.enabled ? "bg-[#79c99e]" : "bg-gray-300"
+                settings.flip.enabled ? "bg-[#79c99e]" : "bg-gray-300"
               }`}
             >
               <div
                 className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out sm:h-6 sm:w-6 md:h-7 md:w-7 ${
-                  localSettings.flip.enabled
+                  settings.flip.enabled
                     ? "translate-x-6 sm:translate-x-7 md:translate-x-8"
                     : "translate-x-0"
                 }`}
@@ -137,14 +128,14 @@ const ControlsModal = ({
               <button
                 onClick={() => toggleSetting("grayscale")}
                 className={`relative h-6 w-12 rounded-full p-0.5 transition-colors sm:h-7 sm:w-14 md:h-8 md:w-16 ${
-                  localSettings.grayscale.enabled
+                  settings.grayscale.enabled
                     ? "bg-[#79c99e]"
                     : "bg-gray-300"
                 }`}
               >
                 <div
                   className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out sm:h-6 sm:w-6 md:h-7 md:w-7 md:rounded-2xl ${
-                    localSettings.grayscale.enabled
+                    settings.grayscale.enabled
                       ? "translate-x-6 sm:translate-x-7 md:translate-x-8"
                       : "translate-x-0"
                   }`}
@@ -155,15 +146,15 @@ const ControlsModal = ({
               type="range"
               min="0"
               max="100"
-              value={localSettings.grayscale.value}
+              value={settings.grayscale.value}
               onChange={(e) => updateSlider("grayscale", e.target.value)}
               className="slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 outline-none sm:h-3 md:h-3"
-              disabled={!localSettings.grayscale.enabled}
+              disabled={!settings.grayscale.enabled}
             />
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 sm:text-sm">0%</span>
               <span className="text-sm font-medium text-gray-700 sm:text-base">
-                {localSettings.grayscale.value}%
+                {settings.grayscale.value}%
               </span>
               <span className="text-xs text-gray-500 sm:text-sm">100%</span>
             </div>
@@ -179,12 +170,12 @@ const ControlsModal = ({
                 <button
                   onClick={() => toggleSetting(key)}
                   className={`relative h-6 w-12 rounded-full p-0.5 transition-colors sm:h-7 sm:w-14 md:h-8 md:w-16 ${
-                    localSettings[key].enabled ? "bg-[#79c99e]" : "bg-gray-300"
+                    settings[key].enabled ? "bg-[#79c99e]" : "bg-gray-300"
                   }`}
                 >
                   <div
                     className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out sm:h-6 sm:w-6 md:h-7 md:w-7 ${
-                      localSettings[key].enabled
+                      settings[key].enabled
                         ? "translate-x-6 sm:translate-x-7 md:translate-x-8"
                         : "translate-x-0"
                     }`}
@@ -195,18 +186,18 @@ const ControlsModal = ({
                 type="range"
                 min="0"
                 max={key === "brightness" ? "200" : "10"}
-                value={localSettings[key].value}
+                value={settings[key].value}
                 onChange={(e) => updateSlider(key, e.target.value)}
                 className="slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 outline-none sm:h-3 md:h-3"
-                disabled={!localSettings[key].enabled}
+                disabled={!settings[key].enabled}
               />
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 sm:text-sm">0%</span>
                 <span className="text-sm font-medium text-gray-700 sm:text-base">
                   {
                     key === "blur"
-                      ? Math.round(localSettings[key].value * 10) // Convert blur to percentage
-                      : Math.min(100, Math.round(localSettings[key].value / 2)) // Cap brightness at 100%
+                      ? Math.round(settings[key].value * 10) // Convert blur to percentage
+                      : Math.min(100, Math.round(settings[key].value / 2)) // Cap brightness at 100%
                   }
                   %
                 </span>

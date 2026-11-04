@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
+  useRef,
 } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -73,12 +74,17 @@ export const ImageProvider = ({ children }) => {
     setSelectedImage(image);
   }, []);
 
-  // Cleanup Object URLs when images are removed
+  // Revoke remaining Object URLs only on unmount. Running this on every list
+  // change would revoke URLs of images that are still displayed.
+  const uploadedImagesRef = useRef(uploadedImages);
+  useEffect(() => {
+    uploadedImagesRef.current = uploadedImages;
+  }, [uploadedImages]);
   useEffect(() => {
     return () => {
-      uploadedImages.forEach((img) => URL.revokeObjectURL(img));
+      uploadedImagesRef.current.forEach((img) => URL.revokeObjectURL(img));
     };
-  }, [uploadedImages]);
+  }, []);
 
   // Debugging - Check if uploadedImages updates
   useEffect(() => {

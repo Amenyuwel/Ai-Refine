@@ -31,7 +31,8 @@ const ControlsPage = () => {
   } = useImageContext();
 
   const imageRef = useRef(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+  // True while images restored from session storage are queued but not yet in the list.
+  const isRestoringImagesRef = useRef(false);
   const [showControls, setShowControls] = useState(false);
   const [settings, setSettings] = useState({
     grayscale: { value: 0 },
@@ -47,6 +48,7 @@ const ControlsPage = () => {
       if (footer) {
         const images = JSON.parse(footer);
         images.forEach((image) => addImage(image));
+        isRestoringImagesRef.current = images.length > 0;
         setSelected(images[0]);
         sessionStorage.removeItem("footerImages");
       }
@@ -57,17 +59,18 @@ const ControlsPage = () => {
   }, [addImage, setSelected]);
 
   useEffect(() => {
-    if (!isInitialized) {
-      loadRedirectedImages();
-      setIsInitialized(true);
-    }
-  }, [isInitialized, loadRedirectedImages]);
+    loadRedirectedImages();
+  }, [loadRedirectedImages]);
 
   useEffect(() => {
-    if (isInitialized && uploadedImages.length === 0) {
+    if (uploadedImages.length > 0) {
+      isRestoringImagesRef.current = false;
+      return;
+    }
+    if (!isRestoringImagesRef.current) {
       router.push("/");
     }
-  }, [uploadedImages, isInitialized, router]);
+  }, [uploadedImages, router]);
 
   // Handle image drop
   const onDrop = useCallback(
@@ -87,11 +90,6 @@ const ControlsPage = () => {
         if (!previewImage && newUploadedImages.length > 0) {
           setSelected(newUploadedImages[0]);
         }
-
-        // Cleanup object URLs
-        setTimeout(() => {
-          newUploadedImages.forEach((image) => URL.revokeObjectURL(image));
-        }, 5000);
       } catch (error) {
         console.error("Error during upload:", error);
         toast.error("Error during upload. Please try again.");

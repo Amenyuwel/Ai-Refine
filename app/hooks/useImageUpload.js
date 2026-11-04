@@ -1,13 +1,14 @@
-import { useState, useCallback } from "react";
-import PocketBase from "pocketbase";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
+import pb from "../utils/pocketbase";
 
 const useImageUpload = () => {
-  const pbUrl = process.env.NEXT_PUBLIC_PB_URL;
-  if (!pbUrl) {
-    toast.error("PocketBase URL is not defined in the environment variables.");
-  }
-  const pb = new PocketBase(pbUrl);
+  // Side effects like toasts must not run during render
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_PB_URL) {
+      toast.error("PocketBase URL is not defined in the environment variables.");
+    }
+  }, []);
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -67,7 +68,7 @@ const useImageUpload = () => {
         setIsUploading(false);
       }
     },
-    [pb],
+    [],
   );
 
   return {
