@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useImageContext } from "@/context/ImageContext";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,123 +10,51 @@ import DragOverlay from "components/DragOverlay";
 import LoadingOverlay from "components/LoadingOverlay";
 import HeroPattern from "components/HeroPattern";
 import {
-  safeSessionStorageSetItem,
-  compressBase64Image,
-  getStorageSize,
-} from "../../utils/storageUtils";
+  ACCEPTED_IMAGE_TYPES,
+  INVALID_IMAGE_FORMAT_MESSAGE,
+  isAcceptedImageFile,
+} from "@/utils/imageTypes";
+
+const MAX_IMAGES = 100;
 
 const HomePage = () => {
   const router = useRouter();
-  const [images, setImages] = useState([]);
+  const { addImage, setSelected } = useImageContext();
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
-  // Process images and navigate to the upload page
+  // Hand the files to the editor through the context: object URLs point at the
+  // original bytes, so nothing is re-encoded or resized.
   const processImages = useCallback(
-    async (files) => {
-      const imageFiles = files.filter((file) => file.type.startsWith("image"));
-      if (imageFiles.length + images.length > 100) {
-        toast.error("You can only upload up to 100 images.");
+    (files) => {
+      const imageFiles = files.filter(isAcceptedImageFile);
+      if (imageFiles.length < files.length) {
+        toast.error(INVALID_IMAGE_FORMAT_MESSAGE);
+      }
+      if (imageFiles.length === 0) return;
+      if (imageFiles.length > MAX_IMAGES) {
+        toast.error(`You can only upload up to ${MAX_IMAGES} images.`);
         return;
       }
 
-      setLoading(true);
-      try {
-        const base64Images = await Promise.all(
-          imageFiles.map(
-            (file) =>
-              new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                  try {
-                    let base64Image = reader.result;
+      const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
+      // The context cuts the list to its limit; free the URLs it left out
+      const addedImages = addImage(imageUrls);
+      imageUrls
+        .filter((imageUrl) => !addedImages.includes(imageUrl))
+        .forEach((imageUrl) => URL.revokeObjectURL(imageUrl));
+      if (addedImages.length === 0) return;
 
-                    // Check if image is too large (> 500KB) and compress it
-                    const imageSize = getStorageSize(base64Image);
-                    if (imageSize > 500 * 1024) {
-                      // 500KB threshold
-                      console.log(
-                        `Compressing image of size ${Math.round(imageSize / 1024)}KB`,
-                      );
-                      base64Image = await compressBase64Image(
-                        base64Image,
-                        0.7,
-                        1600,
-                        1200,
-                      );
-                      console.log(
-                        `Compressed to ${Math.round(getStorageSize(base64Image) / 1024)}KB`,
-                      );
-                    }
-
-                    resolve(base64Image);
-                  } catch (compressionError) {
-                    console.warn(
-                      "Failed to compress image, using original:",
-                      compressionError,
-                    );
-                    resolve(reader.result);
-                  }
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-              }),
-          ),
-        );
-
-        const uniqueImages = Array.from(new Set([...images, ...base64Images]));
-
-        // Use the safe storage utility with additional error handling
-        let success = false;
-        try {
-          success = safeSessionStorageSetItem(
-            "footerImages",
-            uniqueImages.slice(0, 100),
-            (error) => {
-              // Custom handling for quota exceeded
-              toast.error(
-                "Storage quota exceeded. Try uploading fewer or smaller images.",
-              );
-              console.error("Storage quota exceeded:", error);
-            },
-          );
-        } catch (error) {
-          // Final safety net in case any QuotaExceededError escapes the utility function
-          if (error.name === "QuotaExceededError") {
-            console.error(
-              "QuotaExceededError caught at component level:",
-              error,
-            );
-            toast.error(
-              "Storage quota exceeded. Please try with fewer or smaller images.",
-            );
-            success = false;
-          } else {
-            // Re-throw non-quota errors
-            throw error;
-          }
-        }
-
-        if (!success) {
-          return; // Stop processing if storage failed
-        }
-
-        setImages(uniqueImages.slice(0, 100));
-        router.push("feature/upload");
-      } catch (error) {
-        console.error("Error processing images:", error);
-        toast.error("Failed to process images. Please try again.");
-      } finally {
-        setLoading(false);
-      }
+      setSelected(addedImages[0]);
+      router.push("/feature/upload");
     },
-    [images, router],
+    [addImage, setSelected, router],
   );
 
   // Handle file drop
   const onDrop = useCallback(
     (acceptedFiles, fileRejections) => {
-      if (fileRejections.length > 0) toast.error("Invalid image format.");
+      if (fileRejections.length > 0) toast.error(INVALID_IMAGE_FORMAT_MESSAGE);
       if (acceptedFiles.length > 0) processImages(acceptedFiles);
     },
     [processImages],
@@ -166,15 +95,15 @@ const HomePage = () => {
 
   // Formats that are acceptable inside the DropZone
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"] },
+    accept: ACCEPTED_IMAGE_TYPES,
     noClick: true,
     onDrop,
   });
 
   return (
-    <main
+    <div
       {...getRootProps()}
-      className={`relative flex h-screen w-full flex-col items-center justify-center transition-all duration-300 sm:flex sm:flex-row md:flex-row lg:flex-row ${
+      className={`relative flex min-h-screen w-full flex-col items-center justify-center sm:h-screen transition-all duration-300 sm:flex sm:flex-row md:flex-row lg:flex-row ${
         loading ? "backdrop-blur-md" : ""
       } ${isDragActive ? "bg-[#b8d5b8]" : ""}`}
     >
@@ -202,9 +131,13 @@ const HomePage = () => {
         }`}
       >
         {/* ICON IMAGE */}
-        <img
+        <Image
           src="/images/pixel.png"
-          alt="Pixel"
+          alt=""
+          width={666}
+          height={375}
+          sizes="(min-width: 640px) 50vw, 100vw"
+          priority
           draggable="false"
           className="h-full w-full cursor-pointer object-contain pt-4 transition-all duration-300 ease-out hover:scale-105 hover:grayscale xl:h-[80%] xl:w-[80%]"
         />
@@ -212,12 +145,11 @@ const HomePage = () => {
           AUGMENT YOUR <br /> IMAGES
           <span className="-mt-7 -ml-4 inline-block align-middle">
             <Image
-              src="/images/light.svg"
+              src="/images/Light.svg"
               className="rotate-light cursor-pointer"
-              alt="Light"
+              alt=""
               width={100}
               height={100}
-              loading="eager"
             />
           </span>
         </h1>
@@ -245,7 +177,7 @@ const HomePage = () => {
             </p>
             <button
               type="button"
-              className="cursor-pointer rounded-full bg-[var(--primary)] px-6 py-3 text-lg text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:brightness-105 sm:px-8 sm:py-4 sm:text-2xl"
+              className="cursor-pointer rounded-full bg-[var(--primary)] px-6 py-3 text-lg text-main shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:brightness-105 sm:px-8 sm:py-4 sm:text-2xl"
               onClick={(e) => {
                 e.stopPropagation();
                 fileInputRef.current?.click();
@@ -268,26 +200,29 @@ const HomePage = () => {
           </p>
           <div className="mt-4 flex flex-row gap-4 sm:mt-0 sm:gap-4 md:mt-0 lg:mt-0">
             {["Animal", "Object", "Pest"].map((item, index) => (
-              <div
+              <button
+                type="button"
                 key={item}
+                aria-label={`Try the ${item} example image`}
                 className={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105 sm:h-28 sm:w-28 xl:h-32 xl:w-32 ${
                   index === 2 ? "md:hidden lg:hidden xl:flex" : ""
                 }`}
                 onClick={() => handleExampleImageClick(`/images/${item}.png`)}
               >
-                <img
+                <Image
                   src={`/images/${item}.png`}
-                  alt={item}
+                  alt=""
+                  width={128}
+                  height={128}
+                  sizes="128px"
                   className="h-full w-full rounded-[8px] object-contain"
                 />
-              </div>
+              </button>
             ))}
           </div>
         </div>
       </section>
-      {/* Storage Quota Test Component (Development Only)
-      <StorageQuotaTestComponent /> */}
-    </main>
+    </div>
   );
 };
 

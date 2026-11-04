@@ -11,42 +11,48 @@ import React, {
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const MAX_IMAGES = 100;
+const LIMIT_WARNING = "You have reached the maximum limit of 100 images.";
+
 const ImageContext = createContext();
 
 export const ImageProvider = ({ children }) => {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [maxLimitReached, setMaxLimitReached] = useState(false);
 
-  // Add a new image to the list (batch support)
+  // Mirrors the list synchronously so addImage can decide on the warning
+  // outside the state updater (React may run updaters twice).
+  const uploadedImagesRef = useRef(uploadedImages);
+
+  // Add images to the list. One call is one user attempt: pass every file of a
+  // drop in a single call so the limit warning shows once. Returns the images
+  // that were added so the caller can revoke the ones that were left out.
   const addImage = useCallback((newImages) => {
-    setUploadedImages((prevImages) => {
-      const newImagesArray = Array.isArray(newImages) ? newImages : [newImages];
-      const uniqueImages = newImagesArray.filter(
-        (img) => !prevImages.includes(img),
-      );
+    const currentImages = uploadedImagesRef.current;
+    const newImagesArray = Array.isArray(newImages) ? newImages : [newImages];
+    const uniqueImages = newImagesArray.filter(
+      (img) => !currentImages.includes(img),
+    );
+    const addedImages = uniqueImages.slice(
+      0,
+      MAX_IMAGES - currentImages.length,
+    );
 
-      if (prevImages.length + uniqueImages.length > 100) {
-        setMaxLimitReached(true); // Mark limit reached
-        return [
-          ...prevImages,
-          ...uniqueImages.slice(0, 100 - prevImages.length),
-        ];
-      }
-
-      return [...prevImages, ...uniqueImages];
-    });
-  }, []);
-
-  // Effect to show the toast when max limit is reached
-  useEffect(() => {
-    if (maxLimitReached) {
-      toast.warning("You have reached the maximum limit of 100 images.");
+    if (addedImages.length < uniqueImages.length) {
+      toast.warning(LIMIT_WARNING);
     }
-  }, [maxLimitReached]);
+    if (addedImages.length === 0) return addedImages;
+
+    uploadedImagesRef.current = [...currentImages, ...addedImages];
+    setUploadedImages(uploadedImagesRef.current);
+    return addedImages;
+  }, []);
 
   // Remove an image from the list
   const removeImage = useCallback((imageToRemove) => {
+    uploadedImagesRef.current = uploadedImagesRef.current.filter(
+      (img) => img !== imageToRemove,
+    );
     setUploadedImages((prevImages) => {
       const updatedImages = prevImages.filter((img) => img !== imageToRemove);
 
@@ -76,20 +82,11 @@ export const ImageProvider = ({ children }) => {
 
   // Revoke remaining Object URLs only on unmount. Running this on every list
   // change would revoke URLs of images that are still displayed.
-  const uploadedImagesRef = useRef(uploadedImages);
-  useEffect(() => {
-    uploadedImagesRef.current = uploadedImages;
-  }, [uploadedImages]);
   useEffect(() => {
     return () => {
       uploadedImagesRef.current.forEach((img) => URL.revokeObjectURL(img));
     };
   }, []);
-
-  // Debugging - Check if uploadedImages updates
-  useEffect(() => {
-    console.log("Uploaded images updated:", uploadedImages);
-  }, [uploadedImages]);
 
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(

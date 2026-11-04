@@ -11,26 +11,11 @@ const useImageUpload = () => {
   }, []);
 
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState([]);
-
-  // Load images from session storage
-  const loadRedirectedImages = useCallback(() => {
-    try {
-      const footer = sessionStorage.getItem("footerImages");
-      if (footer) {
-        const images = JSON.parse(footer);
-        setUploadedImages(images);
-        sessionStorage.removeItem("footerImages");
-      }
-    } catch (error) {
-      toast.error("Failed to load images from session storage.");
-    }
-  }, []);
 
   // Upload images to PocketBase
   const uploadImages = useCallback(
-    async (footerImages) => {
-      if (!Array.isArray(footerImages) || footerImages.length === 0) {
+    async (images) => {
+      if (!Array.isArray(images) || images.length === 0) {
         toast.warn("No images to upload.", { autoClose: 5000 });
         return { success: false, message: "No images to upload" };
       }
@@ -41,7 +26,7 @@ const useImageUpload = () => {
 
         // Convert image URLs to files
         const imageFiles = await Promise.all(
-          footerImages.map(async (imageUrl, index) => {
+          images.map(async (imageUrl, index) => {
             const response = await fetch(imageUrl);
             if (!response.ok) {
               throw new Error(`Failed to fetch image at ${imageUrl}`);
@@ -74,8 +59,6 @@ const useImageUpload = () => {
   return {
     uploadImages,
     isUploading,
-    uploadedImages,
-    loadRedirectedImages,
   };
 };
 

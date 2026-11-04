@@ -7,8 +7,16 @@ import useContactForm from "@/hooks/useContactForm";
 import HeroPattern from "components/HeroPattern";
 
 const ContactPage = ({ scrollToHome }) => {
-  const { name, email, message, setName, setEmail, setMessage, handleSubmit } =
-    useContactForm();
+  const {
+    name,
+    email,
+    message,
+    setName,
+    setEmail,
+    setMessage,
+    handleSubmit,
+    isSubmitting,
+  } = useContactForm();
 
   const validateAndSubmit = (e) => {
     e.preventDefault();
@@ -22,10 +30,11 @@ const ContactPage = ({ scrollToHome }) => {
   };
 
   return (
-    <main className="relative flex h-screen w-full flex-col items-center justify-center font-sans">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center font-sans sm:h-screen">
       <HeroPattern />
       <section className="flex h-auto w-full flex-col items-center justify-center space-y-6 p-6 text-center sm:h-[80%] sm:w-[40%] sm:p-8">
         <div className="flex w-full flex-col items-center">
+          <h2 className="sr-only">Contact</h2>
           <p className="text-main text-xl font-semibold sm:text-2xl">
             Drop me a message with your details, and I’ll get back to you as
             soon as I can!
@@ -49,9 +58,7 @@ const ContactPage = ({ scrollToHome }) => {
               placeholder="e.g. Amenyuwel"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[var(--primary)] focus:outline-none"
-              aria-label="Name"
-              aria-describedby="nameHelp"
+              className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[var(--secondary)] focus:outline-none"
             />
           </div>
 
@@ -68,9 +75,7 @@ const ContactPage = ({ scrollToHome }) => {
               placeholder="e.g. Amenyuwel@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[var(--primary)] focus:outline-none"
-              aria-label="Email"
-              aria-describedby="emailHelp"
+              className="bg-main w-full rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[var(--secondary)] focus:outline-none"
             />
           </div>
 
@@ -87,16 +92,15 @@ const ContactPage = ({ scrollToHome }) => {
               rows="4"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="bg-main w-full resize-none rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[var(--primary)] focus:outline-none"
-              aria-label="Message"
-              aria-describedby="messageHelp"
+              className="bg-main w-full resize-none rounded-md px-4 py-3 shadow-md focus:ring-2 focus:ring-[var(--secondary)] focus:outline-none"
             ></textarea>
           </div>
 
           <div className="flex justify-center sm:justify-end">
             <button
               type="submit"
-              className="text-main group relative cursor-pointer overflow-hidden rounded-md bg-transparent px-6 py-2 text-base font-semibold sm:text-lg"
+              disabled={isSubmitting}
+              className="text-main group relative cursor-pointer overflow-hidden rounded-md bg-transparent px-6 py-2 text-base font-semibold disabled:cursor-not-allowed disabled:opacity-60 sm:text-lg"
             >
               <span className="absolute inset-0 origin-bottom scale-y-0 transform bg-[#79C99E] transition-transform duration-150 ease-out group-hover:scale-y-100"></span>
               <span className="relative z-10 transition-colors duration-50 group-hover:text-white">
@@ -116,7 +120,7 @@ const ContactPage = ({ scrollToHome }) => {
       >
         <FaAngleDoubleUp />
       </button>
-    </main>
+    </div>
   );
 };
 

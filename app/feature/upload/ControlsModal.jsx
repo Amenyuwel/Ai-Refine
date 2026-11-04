@@ -1,7 +1,8 @@
 "use client";
 import HeroPattern from "components/HeroPattern";
-import React from "react";
+import React, { useEffect, useId, useRef } from "react";
 import { FaTimes } from "react-icons/fa";
+import ControlsPanel from "@/feature/upload/ControlsPanel";
 
 const ControlsModal = ({
   isOpen,
@@ -11,40 +12,60 @@ const ControlsModal = ({
   settings,
   isInline = false,
 }) => {
-  // Toggle Flip
-  const toggleFlip = () => {
-    const newSettings = {
-      ...settings,
-      flip: {
-        enabled: !settings.flip.enabled,
-        value: settings.flip.value === 1 ? -1 : 1,
-      },
-    };
-    onSettingsChange(newSettings);
-  };
+  const dialogRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const headingId = useId();
+  const isModal = isOpen && !isInline;
 
-  // Toggle settings (Grayscale, Blur, Brightness)
-  const toggleSetting = (key) => {
-    const newSettings = {
-      ...settings,
-      [key]: { ...settings[key], enabled: !settings[key].enabled },
-    };
-    onSettingsChange(newSettings); // Update parent here
-  };
+  useEffect(() => {
+    if (!isModal) return;
 
-  // Update slider value (Grayscale, Blur, Brightness)
-  const updateSlider = (key, value) => {
-    const newSettings = {
-      ...settings,
-      [key]: { ...settings[key], value },
+    // The opener is whatever has focus when the modal opens; every close path returns to it.
+    const opener = document.activeElement;
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusableElements = dialogRef.current.querySelectorAll(
+        "button:not([disabled]), input:not([disabled]), [href]",
+      );
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+      const active = document.activeElement;
+      const focusIsOutside = !dialogRef.current.contains(active);
+
+      if (event.shiftKey && (active === first || focusIsOutside)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || focusIsOutside)) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    onSettingsChange(newSettings);
-  };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      opener?.focus();
+    };
+  }, [isModal, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <div
+      ref={dialogRef}
+      {...(isModal && {
+        role: "dialog",
+        "aria-modal": "true",
+        "aria-labelledby": headingId,
+      })}
       className={`${
         isInline
           ? "relative w-80 flex-col rounded-3xl bg-white p-6 shadow-lg"
@@ -70,7 +91,9 @@ const ControlsModal = ({
       >
         {!isInline && (
           <button
+            ref={closeButtonRef}
             title="Close"
+            aria-label="Close"
             className="absolute top-2 right-2 rounded-full p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-800 sm:top-3 sm:right-3"
             onClick={onClose}
           >
@@ -78,6 +101,7 @@ const ControlsModal = ({
           </button>
         )}
         <h2
+          id={headingId}
           className={`${
             isInline ? "" : "pr-8"
           } text-lg font-bold text-gray-800 sm:text-xl md:text-2xl lg:text-3xl`}
@@ -93,120 +117,11 @@ const ControlsModal = ({
           to adjust their intensity.
         </p>
 
-        <div
-          className={`${
-            isInline ? "space-y-6" : "mt-3 space-y-4 sm:mt-4 sm:space-y-5 md:space-y-6"
-          }`}
-        >
-          {/* Flip Toggle */}
-          <div className="flex items-center justify-between py-1">
-            <p className="text-main font-sans text-sm font-semibold uppercase sm:text-base md:text-base">
-              Flip
-            </p>
-            <button
-              onClick={toggleFlip}
-              className={`relative h-6 w-12 rounded-full p-0.5 transition-colors sm:h-7 sm:w-14 md:h-8 md:w-16 ${
-                settings.flip.enabled ? "bg-[#79c99e]" : "bg-gray-300"
-              }`}
-            >
-              <div
-                className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out sm:h-6 sm:w-6 md:h-7 md:w-7 ${
-                  settings.flip.enabled
-                    ? "translate-x-6 sm:translate-x-7 md:translate-x-8"
-                    : "translate-x-0"
-                }`}
-              ></div>
-            </button>
-          </div>
-
-          {/* Grayscale Toggle + Intensity */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between py-1">
-              <label className="text-main font-sans text-sm font-semibold uppercase sm:text-base md:text-base">
-                Grayscale
-              </label>
-              <button
-                onClick={() => toggleSetting("grayscale")}
-                className={`relative h-6 w-12 rounded-full p-0.5 transition-colors sm:h-7 sm:w-14 md:h-8 md:w-16 ${
-                  settings.grayscale.enabled
-                    ? "bg-[#79c99e]"
-                    : "bg-gray-300"
-                }`}
-              >
-                <div
-                  className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out sm:h-6 sm:w-6 md:h-7 md:w-7 md:rounded-2xl ${
-                    settings.grayscale.enabled
-                      ? "translate-x-6 sm:translate-x-7 md:translate-x-8"
-                      : "translate-x-0"
-                  }`}
-                ></div>
-              </button>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={settings.grayscale.value}
-              onChange={(e) => updateSlider("grayscale", e.target.value)}
-              className="slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 outline-none sm:h-3 md:h-3"
-              disabled={!settings.grayscale.enabled}
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 sm:text-sm">0%</span>
-              <span className="text-sm font-medium text-gray-700 sm:text-base">
-                {settings.grayscale.value}%
-              </span>
-              <span className="text-xs text-gray-500 sm:text-sm">100%</span>
-            </div>
-          </div>
-
-          {/* Blur & Brightness Toggles */}
-          {["blur", "brightness"].map((key) => (
-            <div key={key} className="space-y-3">
-              <div className="flex items-center justify-between py-1">
-                <label className="text-main font-sans text-sm font-semibold uppercase sm:text-base md:text-base">
-                  {key}
-                </label>
-                <button
-                  onClick={() => toggleSetting(key)}
-                  className={`relative h-6 w-12 rounded-full p-0.5 transition-colors sm:h-7 sm:w-14 md:h-8 md:w-16 ${
-                    settings[key].enabled ? "bg-[#79c99e]" : "bg-gray-300"
-                  }`}
-                >
-                  <div
-                    className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out sm:h-6 sm:w-6 md:h-7 md:w-7 ${
-                      settings[key].enabled
-                        ? "translate-x-6 sm:translate-x-7 md:translate-x-8"
-                        : "translate-x-0"
-                    }`}
-                  ></div>
-                </button>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max={key === "brightness" ? "200" : "10"}
-                value={settings[key].value}
-                onChange={(e) => updateSlider(key, e.target.value)}
-                className="slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 outline-none sm:h-3 md:h-3"
-                disabled={!settings[key].enabled}
-              />
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 sm:text-sm">0%</span>
-                <span className="text-sm font-medium text-gray-700 sm:text-base">
-                  {
-                    key === "blur"
-                      ? Math.round(settings[key].value * 10) // Convert blur to percentage
-                      : Math.min(100, Math.round(settings[key].value / 2)) // Cap brightness at 100%
-                  }
-                  %
-                </span>
-                <span className="text-xs text-gray-500 sm:text-sm">
-                  {key === "brightness" ? "100%" : "100%"}
-                </span>
-              </div>
-            </div>
-          ))}
+        <div className={isInline ? "" : "mt-3 sm:mt-4"}>
+          <ControlsPanel
+            settings={settings}
+            onSettingsChange={onSettingsChange}
+          />
         </div>
       </div>
     </div>

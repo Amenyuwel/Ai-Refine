@@ -2,12 +2,33 @@
 import React, { useState } from "react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import { toast } from "react-toastify";
 import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDownOutlined";
 
-const Download = ({ uploadedImages = [], previewImage, settings = {} }) => {
+const Download = ({
+  uploadedImages = [],
+  previewImage,
+  settings = {},
+  previewFrameRef,
+}) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+
+  // The preview fits the image into its frame with object-contain, then blurs it
+  // in screen pixels. Dividing by that fit scale gives the same look in natural pixels.
+  const getBlurRadiusInImagePixels = (img) => {
+    if (!settings?.blur?.enabled) return 0;
+    const frame = previewFrameRef?.current;
+    if (!frame?.clientWidth || !frame?.clientHeight) {
+      throw new Error("Preview frame has no size to match the blur against");
+    }
+    const fitScale = Math.min(
+      frame.clientWidth / img.naturalWidth,
+      frame.clientHeight / img.naturalHeight,
+    );
+    return settings.blur.value / fitScale;
+  };
 
   const processImageWithFilters = (imageUrl) => {
     return new Promise((resolve, reject) => {
@@ -17,14 +38,21 @@ const Download = ({ uploadedImages = [], previewImage, settings = {} }) => {
       img.alt = "Filtered Image";
 
       img.onload = () => {
+        let blurRadius;
+        try {
+          blurRadius = getBlurRadiusInImagePixels(img);
+        } catch (error) {
+          reject(error);
+          return;
+        }
         const canvas = document.createElement("canvas");
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         const ctx = canvas.getContext("2d");
 
         ctx.filter = `
-          grayscale(${settings?.grayscale?.value || 0}%)
-          blur(${settings?.blur?.enabled ? `${settings.blur.value}px` : "0px"})
+          grayscale(${settings?.grayscale?.enabled ? settings.grayscale.value : 0}%)
+          blur(${blurRadius}px)
           brightness(${settings?.brightness?.enabled ? `${settings.brightness.value}%` : "100%"})
         `;
 
@@ -51,9 +79,10 @@ const Download = ({ uploadedImages = [], previewImage, settings = {} }) => {
 
     processImageWithFilters(previewImage)
       .then((blob) => saveAs(blob, "preview.png"))
-      .catch((error) =>
-        console.error("Error processing preview image:", error),
-      );
+      .catch((error) => {
+        console.error("Error processing preview image:", error);
+        toast.error("Could not download the image. Please try again.");
+      });
   };
 
   const handleDownloadAsZip = async () => {
@@ -64,7 +93,7 @@ const Download = ({ uploadedImages = [], previewImage, settings = {} }) => {
     const uniqueImages = Array.from(new Set(uploadedImages));
 
     try {
-      await Promise.all(
+      const results = await Promise.allSettled(
         uniqueImages.map((image, index) =>
           processImageWithFilters(image).then((blob) => {
             zip.file(`image_${index + 1}.png`, blob);
@@ -72,15 +101,30 @@ const Download = ({ uploadedImages = [], previewImage, settings = {} }) => {
         ),
       );
 
+      const failures = results.filter((result) => result.status === "rejected");
+      failures.forEach((failure) =>
+        console.error("Error processing image for ZIP:", failure.reason),
+      );
+      if (failures.length === uniqueImages.length) {
+        toast.error("Could not create the ZIP file. Please try again.");
+        return;
+      }
+      if (failures.length > 0) {
+        toast.error(
+          `${failures.length} of ${uniqueImages.length} images failed and are missing from the ZIP.`,
+        );
+      }
+
       const zipBlob = await zip.generateAsync({ type: "blob" });
       saveAs(zipBlob, "images.zip");
     } catch (error) {
       console.error("Error creating ZIP file:", error);
+      toast.error("Could not create the ZIP file. Please try again.");
     }
   };
 
   return (
-    <main className="relative">
+    <div className="relative">
       <button
         className="bg-main w-full justify-center text-main flex cursor-pointer items-center gap-1 sm:gap-2 rounded-3xl border border-gray-500 px-4 sm:px-6 py-2 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
         onClick={toggleDropdown}
@@ -104,7 +148,7 @@ const Download = ({ uploadedImages = [], previewImage, settings = {} }) => {
           </button>
         </div>
       )}
-    </main>
+    </div>
   );
 };
 

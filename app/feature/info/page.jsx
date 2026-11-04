@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import HeroPattern from "components/HeroPattern";
 import Navbar from "components/Navbar";
 import infoContent from "./infoContent";
@@ -20,16 +21,58 @@ const Info = () => {
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
 
-  const handleCardClick = (question) => {
+  const dialogRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const openerRef = useRef(null);
+  const isModalOpen = selectedQuestion !== null;
+
+  const handleCardClick = (event, question) => {
+    openerRef.current = event.currentTarget;
     setSelectedQuestion(question);
   };
 
   const closeModal = () => {
     setSelectedQuestion(null);
+    openerRef.current?.focus();
   };
 
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setSelectedQuestion(null);
+        openerRef.current?.focus();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusableElements = dialogRef.current.querySelectorAll(
+        "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])",
+      );
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+      const active = document.activeElement;
+      const focusIsOutside = !dialogRef.current.contains(active);
+
+      if (event.shiftKey && (active === first || focusIsOutside)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || focusIsOutside)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isModalOpen]);
+
   return (
-    <main className="scrollbar-thin scrollbar-thumb-[#008cff] scrollbar-track-gray-200 flex h-screen w-full flex-col items-center overflow-y-auto">
+    <main className="flex h-screen w-full flex-col items-center overflow-y-auto">
       {/* Sticky Navbar */}
       <Navbar />
 
@@ -37,7 +80,7 @@ const Info = () => {
       <HeroPattern />
 
       {/* Content Section with Grid Layout and Gridlines */}
-      <div className="mt-16 flex h-[130px] w-full max-w-[45%] items-center gap-x-4 bg-transparent p-2">
+      <div className="mt-16 flex w-full max-w-[90%] sm:h-[130px] sm:max-w-[45%] items-center gap-x-4 bg-transparent p-2">
         <h1 className="flex-1 text-2xl font-bold text-[#2F2F2F] md:text-4xl">
           UNDERSTANDING THE <br />
           <span className="text-[var(--secondary)]">
@@ -47,21 +90,30 @@ const Info = () => {
         </h1>
       </div>
 
-      <section className="grid h-screen w-[45%] grid-cols-1 gap-6 bg-transparent py-8 md:grid-cols-2 lg:grid-cols-3 cursor-pointer">
+      <section className="grid min-h-screen w-[90%] sm:h-screen sm:w-[45%] grid-cols-1 gap-6 bg-transparent py-8 md:grid-cols-2 lg:grid-cols-3 cursor-pointer">
         {questions.map((question, index) => (
           <article
             key={index}
-            className="bg-main flex flex-col items-center justify-between rounded-lg shadow-lg transition-transform hover:-translate-y-2 hover:shadow-xl"
-            onClick={() => handleCardClick(question)}
+            className="bg-main relative flex flex-col items-center justify-between rounded-lg shadow-lg transition-transform focus-within:-translate-y-2 hover:-translate-y-2 hover:shadow-xl"
           >
             {/* Render Image */}
-            <img
+            <Image
               src={question.image}
-              alt={question.heading}
+              alt=""
+              width={1440}
+              height={690}
+              sizes="25vw"
               className="mb-4 h-32 w-full object-cover"
             />
             <h2 className="text-main mb-2 px-4 text-left text-xl font-bold">
-              {question.heading}
+              {/* Stretched button makes the whole card clickable */}
+              <button
+                type="button"
+                className="cursor-pointer text-left after:absolute after:inset-0 after:content-['']"
+                onClick={(event) => handleCardClick(event, question)}
+              >
+                {question.heading}
+              </button>
             </h2>
             {/* Description */}
             <p className="text-main min-h-[80px] flex-grow px-4 pb-4 text-sm">
@@ -75,24 +127,35 @@ const Info = () => {
 
       {/* Modal */}
       {selectedQuestion && (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-[#3d3d3d50]">
-          <div className="bg-main relative w-[20%] rounded-lg shadow-lg">
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedQuestion.heading}
+          className="fixed inset-0 z-20 max-sm:z-[60] flex items-center justify-center bg-[#3d3d3d50]"
+        >
+          <div className="bg-main relative flex max-h-[90dvh] w-[90%] max-w-sm flex-col rounded-lg shadow-lg lg:w-[20%]">
             {/* Close Button */}
             <button
+              ref={closeButtonRef}
               className="bg-main absolute -top-4 -right-4 cursor-pointer rounded-full p-2 text-xl hover:bg-gray-300"
               onClick={closeModal}
+              aria-label="Close"
             >
               <FaTimesCircle className="text-main opacity-80 transition-colors duration-200 hover:text-gray-600 hover:opacity-100" />
             </button>
-            <img
+            <Image
               src={selectedQuestion.image}
               alt={selectedQuestion.heading}
-              className="w-full object-cover"
+              width={1440}
+              height={690}
+              sizes="20vw"
+              className="w-full shrink-0 rounded-t-lg object-cover"
             />
             <h2 className="text-main px-4 py-2 text-left text-2xl font-bold">
               {selectedQuestion.heading}
             </h2>
-            <p className="scrollbar-thin scrollbar-thumb-[#008cff] scrollbar-track-gray-200 text-[#A8A8A8] text-[#af3131]-h-80 overflow-y-auto px-4 py-2 text-left leading-relaxed">
+            <p className="text-main max-h-80 overflow-y-auto px-4 py-2 text-left leading-relaxed">
               {selectedQuestion.description}
             </p>
           </div>

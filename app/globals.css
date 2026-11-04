@@ -3,7 +3,7 @@
 :root {
   /* Colors */
   --primary: #79c99e;
-  --secondary: #5c946e;
+  --secondary: #4f7f61;
   --text-main: #3d3d3d;
   --cta-main: #008cff;
   --cta-hover: #0070e0; /* Darker blue for hover */
@@ -197,33 +197,73 @@ html {
   }
 }
 
-/* Custom slider styling for better mobile experience */
+/* Custom slider styling. The track and fill are painted on the input itself;
+   the browser track pseudo-elements stay transparent and as tall as the thumb
+   so the thumb is centered without offsets. */
+.slider {
+  --thumb-size: 20px;
+  appearance: none;
+  -moz-appearance: none;
+  height: var(--thumb-size);
+  background-image: linear-gradient(
+    to right,
+    var(--primary) var(--fill, 0%),
+    #d1d5db var(--fill, 0%)
+  );
+  background-size: 100% 8px;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: var(--thumb-size);
+  background: transparent;
+}
+
+.slider::-moz-range-track {
+  height: var(--thumb-size);
+  background: transparent;
+}
+
 .slider::-webkit-slider-thumb {
   appearance: none;
-  height: 20px;
-  width: 20px;
+  height: var(--thumb-size);
+  width: var(--thumb-size);
   border-radius: 50%;
-  background: #79c99e;
+  background: var(--primary);
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   border: 2px solid #ffffff;
 }
 
-.slider::-webkit-slider-thumb:hover {
-  background: #5c946e;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+.slider::-moz-range-thumb {
+  height: var(--thumb-size);
+  width: var(--thumb-size);
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
-.slider::-webkit-slider-track {
-  appearance: none;
-  height: 8px;
-  background: #e5e7eb;
-  border-radius: 4px;
-  outline: none;
+.slider::-webkit-slider-thumb:hover {
+  background: var(--secondary);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 }
 
 .slider:focus {
   outline: none;
+}
+
+.slider:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+}
+
+.slider:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
 }
 
 .slider:disabled {
@@ -231,57 +271,15 @@ html {
   cursor: not-allowed;
 }
 
-.slider:disabled::-webkit-slider-thumb {
+.slider:disabled::-webkit-slider-thumb,
+.slider:disabled::-moz-range-thumb {
   background: #9ca3af;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-/* Firefox slider styling */
-.slider {
-  appearance: none;
-  -moz-appearance: none;
-}
-
-.slider::-moz-range-thumb {
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: #79c99e;
-  cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-}
-
-.slider::-moz-range-track {
-  height: 8px;
-  background: #e5e7eb;
-  border-radius: 4px;
-}
-
 @media (max-width: 640px) {
-  .slider::-webkit-slider-thumb {
-    height: 22px;
-    width: 22px;
-  }
-  
-  .slider::-webkit-slider-track {
-    height: 10px;
-  }
-  
-  .slider::-moz-range-thumb {
-    height: 22px;
-    width: 22px;
-  }
-  
-  .slider::-moz-range-track {
-    height: 10px;
-  }
-}
-
-/* Prevent horizontal scroll on smaller screens */
-@media (max-width: 640px) {
-  body {
-    overflow-x: hidden;
+  .slider {
+    --thumb-size: 22px;
   }
 }

@@ -78,11 +78,11 @@ Ai-Refine/
 │   ├── feature/          # Feature-specific components
 │   │   ├── info/         # Information pages
 │   │   └── upload/       # Upload and download functionality
-│   ├── pages/            # Static pages
 │   ├── utils/            # Utility functions and configurations
 │   ├── globals.css       # Global styles
 │   └── layout.js         # Root layout component
 ├── components/           # Reusable UI components
+│   ├── sections/         # Landing page sections
 │   ├── Footer.jsx        # Footer with social links
 │   └── ToastProvider.jsx # Toast notification provider
 └── public/               # Static assets
@@ -98,9 +98,9 @@ Ai-Refine/
 ## Image Augmentation Features
 
 - Grayscale conversion
-- Image flipping (horizontal/vertical)
+- Horizontal flip
 - Brightness adjustment
-- And more transformations to improve model performance
+- Blur
 
 ## Contributing
 
