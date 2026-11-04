@@ -19,7 +19,7 @@ An automated image augmentation tool built with Next.js that helps enhance datas
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 with React
+- **Frontend**: Next.js 16 with React
 - **Styling**: Tailwind CSS
 - **Icons**: React Icons (Font Awesome)
 - **File Processing**: JSZip for batch downloads
@@ -30,7 +30,7 @@ An automated image augmentation tool built with Next.js that helps enhance datas
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 20.9+
 - npm, yarn, pnpm, or bun
 
 ### Installation
@@ -67,7 +67,7 @@ pnpm dev
 bun dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+5. Open [http://localhost:6969](http://localhost:6969) with your browser to see the application.
 
 ## Project Structure
 

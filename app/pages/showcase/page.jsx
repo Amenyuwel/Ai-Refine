@@ -85,7 +85,7 @@ const ShowCase = () => {
   );
 };
 
-const ImageShowcase = React.memo(({ category }) => {
+const ImageShowcase = React.memo(function ImageShowcase({ category }) {
   const preventImageActions = (event) => event.preventDefault();
 
   if (!imagePaths[category]) {
