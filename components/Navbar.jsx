@@ -1,20 +1,19 @@
 "use client";
 import React, { useCallback, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 
-// The scrollToSection function (to be used with the Navbar)
+// offsetTop ignores the parallax translateY that getBoundingClientRect includes,
+// which made the landing position drift by the parallax offset.
 const scrollToSection = (sectionRef, offset = 0) => {
-  if (sectionRef && sectionRef.current) {
-    // Calculate the position of the section relative to the document
-    const sectionPosition =
-      sectionRef.current.getBoundingClientRect().top + window.scrollY;
-    // Scroll to the position with an offset to avoid overlap with the navbar
-    window.scrollTo({
-      top: sectionPosition - offset, // Subtract the navbar height
-      behavior: "smooth", // Smooth scrolling
-    });
-  }
+  if (!sectionRef?.current) return;
+  window.scrollTo({
+    top: Math.max(0, sectionRef.current.offsetTop - offset),
+    behavior: "smooth",
+  });
 };
+
+const NAV_ID = "main-navigation";
 
 const Navbar = ({ homeRef, aboutRef, contactRef }) => {
   const router = useRouter();
@@ -24,7 +23,7 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
   const handleNavigation = useCallback(
     (sectionRef, route, sectionName = null) => {
       setMenuOpen(false); // Close menu on navigation
-      const navbarHeight = 80; // Set your navbar height here (in px)
+      const navbarHeight = document.querySelector("header")?.offsetHeight ?? 0;
 
       if (pathname === "/") {
         // If already on the home page and scrollToSection exists, scroll with an offset
@@ -52,20 +51,27 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
   );
 
   return (
+    <>
     <header className="bg-main sticky top-0 z-[50] flex w-full items-center justify-between p-4 shadow-md">
       {/* NAVIGATION LINKS */}
-      <h1
-        className="cursor-pointer px-4 text-2xl font-bold sm:px-8 sm:text-4xl"
-        onClick={() => handleNavigation(homeRef, "/", "home")}
+      <Link
+        href="/#home"
+        className="px-4 text-2xl font-bold sm:px-8 sm:text-4xl"
+        onClick={(event) => {
+          event.preventDefault();
+          handleNavigation(homeRef, "/", "home");
+        }}
       >
         ai-refine
-      </h1>
+      </Link>
 
       {/* Hamburger Icon */}
       <button
         className="flex h-10 w-10 flex-col items-center justify-center sm:hidden"
         onClick={() => setMenuOpen((prev) => !prev)}
         aria-label="Toggle navigation"
+        aria-expanded={menuOpen}
+        aria-controls={NAV_ID}
       >
         <span
           className={`mb-1 block h-1 w-6 bg-[var(--text-main)] transition-all ${menuOpen ? "translate-y-2 rotate-45" : ""}`}
@@ -80,28 +86,45 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
 
       {/* Navigation Links */}
       <nav
+        id={NAV_ID}
+        aria-label="Main"
         className={` ${menuOpen ? "flex" : "hidden"} bg-main absolute top-full left-0 w-full flex-col items-center gap-4 p-4 sm:static sm:flex sm:w-auto sm:flex-row sm:items-center sm:gap-6 sm:p-0`}
       >
-        <button
+        <Link
+          href="/#home"
           className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
-          onClick={() => handleNavigation(homeRef, "/", "home")}
+          onClick={(event) => {
+            event.preventDefault();
+            handleNavigation(homeRef, "/", "home");
+          }}
         >
           HOME
-        </button>
-        <button
+        </Link>
+        <Link
+          href="/#about"
           className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
-          onClick={() => handleNavigation(aboutRef, "/", "about")}
+          onClick={(event) => {
+            event.preventDefault();
+            handleNavigation(aboutRef, "/", "about");
+          }}
         >
           ABOUT
-        </button>
-        <button
+        </Link>
+        <Link
+          href="/#contact"
           className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
-          onClick={() => handleNavigation(contactRef, "/", "contact")}
+          onClick={(event) => {
+            event.preventDefault();
+            handleNavigation(contactRef, "/", "contact");
+          }}
         >
           CONTACT
-        </button>
+        </Link>
       </nav>
     </header>
+    {/* Skip link target: after the header because some pages render Navbar inside <main> */}
+    <div id="main-content" tabIndex={-1} className="outline-none" />
+    </>
   );
 };
 

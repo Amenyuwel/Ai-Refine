@@ -1,6 +1,4 @@
 // tailwind.config.js
-const fluidType = require('tailwindcss-fluid-type');
-
 module.exports = {
   darkMode: 'class', // Enables dark mode manually using class
   theme: {
@@ -43,5 +41,4 @@ module.exports = {
       },
     },
   },
-  plugins: [fluidType()],
 };

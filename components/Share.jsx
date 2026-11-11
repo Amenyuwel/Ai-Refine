@@ -5,12 +5,12 @@ import useImageUpload from "@/hooks/useImageUpload";
 import "react-toastify/dist/ReactToastify.css";
 import RecommendOutlinedIcon from "@mui/icons-material/RecommendOutlined";
 
-const Share = ({ footerImages }) => {
+const Share = ({ images }) => {
   const { uploadImages, isUploading } = useImageUpload();
 
   const handleUpload = async () => {
     try {
-      const result = await uploadImages(footerImages);
+      const result = await uploadImages(images);
       if (result.success) {
         toast.success("Upload successful!");
       } else {

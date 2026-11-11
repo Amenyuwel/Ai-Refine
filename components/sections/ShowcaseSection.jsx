@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 
-const categories = ["People", "Object", "Pests", "Animals", "Plant"];
+const categories = ["People", "Object", "Pests", "Animals"];
 const augmentations = [
   "Original",
   "Flipped",
@@ -40,27 +41,20 @@ const imagePaths = {
     Grayscale: "/images/Animals/Animal_grayscale.png",
     Rotated: "/images/Animals/Animal_rotated.png",
   },
-  Plant: {
-    Original: "/images/Plant/PlantOriginal.png",
-    Flipped: "/images/Plant/Plant_flipped.png",
-    Blurred: "/images/Plant/Plant_blurred.png",
-    Grayscale: "/images/Plant/Plant_grayscale.png",
-    Rotated: "/images/Plant/Plant_rotated.png",
-  },
 };
 
 const ShowCase = () => {
   const [selectedCategory, setSelectedCategory] = useState("People");
 
   return (
-    <section className="bg-third flex h-screen w-full flex-col items-center justify-center px-6 py-12">
+    <section className="bg-third flex min-h-screen w-full flex-col items-center justify-center px-6 py-12 sm:min-h-screen">
       {/* Title */}
       <h2 className="mb-8 text-center text-5xl font-bold">
         SEE IT FOR YOURSELF!
       </h2>
 
       {/* Categories */}
-      <nav className="flex w-full overflow-x-auto sm:overflow-visible flex-nowrap sm:flex-wrap justify-start sm:justify-center space-x-4 sm:space-x-6 py-4 text-lg font-semibold px-4 sm:px-0">
+      <div role="group" aria-label="Showcase categories" className="flex w-fit max-w-full flex-nowrap gap-x-4 overflow-x-auto py-4 text-lg font-semibold px-4 sm:gap-x-6 sm:px-0">
         {categories.map((category) => (
           <button
             key={category}
@@ -70,12 +64,12 @@ const ShowCase = () => {
                 ? "bg-[var(--secondary)] text-white"
                 : "text-main bg-transparent"
             }`}
-            aria-label={`Select ${category} category`}
+            aria-pressed={selectedCategory === category}
           >
             {category.toUpperCase()}
           </button>
         ))}
-      </nav>
+      </div>
 
       {/* Image Augmentation Showcase */}
       <div className="mt-8 flex w-full flex-col items-center">
@@ -85,7 +79,7 @@ const ShowCase = () => {
   );
 };
 
-const ImageShowcase = React.memo(({ category }) => {
+const ImageShowcase = React.memo(function ImageShowcase({ category }) {
   const preventImageActions = (event) => event.preventDefault();
 
   if (!imagePaths[category]) {
@@ -98,21 +92,26 @@ const ImageShowcase = React.memo(({ category }) => {
 
   return (
     <div
-      className="flex w-full overflow-x-auto sm:overflow-visible flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-4 sm:gap-6 px-4 sm:px-0"
+      role="region"
+      aria-label={`${category} image augmentations`}
+      tabIndex={0}
+      className="flex w-full overflow-x-auto sm:overflow-visible flex-nowrap sm:flex-wrap items-center justify-start sm:justify-center gap-4 sm:gap-6 px-4 sm:px-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--secondary)]"
     >
       {augmentations.map((aug) => (
         <figure
           key={aug}
           className="flex-shrink-0 w-[80%] sm:w-auto rounded-lg bg-white p-4 shadow-lg"
         >
-          <img
+          <Image
             src={imagePaths[category][aug]}
             alt={`${category} - ${aug}`}
+            width={540}
+            height={612}
+            sizes="(min-width: 640px) 208px, 80vw"
             draggable="false"
             onDragStart={preventImageActions}
             onContextMenu={preventImageActions}
             className="h-48 w-full sm:h-64 sm:w-52 cursor-pointer object-contain transition-transform duration-300 ease-in-out hover:scale-105"
-            aria-label={`${category} - ${aug}`}
           />
           <figcaption className="mt-2 text-center text-sm sm:text-lg font-semibold">
             {aug.toUpperCase()}

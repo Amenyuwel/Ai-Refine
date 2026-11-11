@@ -19,7 +19,7 @@ An automated image augmentation tool built with Next.js that helps enhance datas
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 with React
+- **Frontend**: Next.js 16 with React
 - **Styling**: Tailwind CSS
 - **Icons**: React Icons (Font Awesome)
 - **File Processing**: JSZip for batch downloads
@@ -30,7 +30,7 @@ An automated image augmentation tool built with Next.js that helps enhance datas
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 20.9+
 - npm, yarn, pnpm, or bun
 
 ### Installation
@@ -50,13 +50,29 @@ yarn install
 pnpm install
 ```
 
-3. Set up environment variables:
+3. Start PocketBase:
+Download PocketBase v0.23 or newer from [pocketbase.io/docs](https://pocketbase.io/docs/) and put the binary in the repo root (it is gitignored). Then, from the repo root, run:
+```bash
+./pocketbase serve --http 127.0.0.1:8090
+# Windows
+.\pocketbase.exe serve --http 127.0.0.1:8090
+```
+PocketBase looks for `pb_data/` next to the binary, so this uses the repo's `pb_data/` (created on first run) and applies the schema from `pb_migrations/`. If you keep the binary somewhere else, point it at the repo folders explicitly:
+```bash
+pocketbase serve --http 127.0.0.1:8090 --dir ./pb_data --migrationsDir ./pb_migrations
+```
+On first run, open the link PocketBase prints in the terminal to create a superuser.
+
+To check it worked, open [http://127.0.0.1:8090/_/](http://127.0.0.1:8090/_/), log in, and confirm the `uploaded_images` and `contact_messages` collections are listed.
+
+4. Set up environment variables:
 Create a `.env.local` file in the root directory and add:
 ```bash
-NEXT_PUBLIC_PB_URL=your_pocketbase_url
+NEXT_PUBLIC_PB_URL=http://127.0.0.1:8090
 ```
+Restart `npm run dev` after changing `.env.local`, because Next.js only reads it at start-up.
 
-4. Run the development server:
+5. Run the development server:
 ```bash
 npm run dev
 # or
@@ -67,7 +83,11 @@ pnpm dev
 bun dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+6. Open [http://localhost:6969](http://localhost:6969) with your browser to see the application.
+
+### Troubleshooting
+
+- **`404` on `/api/collections/uploaded_images/records`** ("Missing or invalid collection context."): PocketBase is running on the wrong data folder, or another process holds port 8090. Stop it and start PocketBase again from the repo root as in step 3.
 
 ## Project Structure
 
@@ -78,11 +98,11 @@ Ai-Refine/
 │   ├── feature/          # Feature-specific components
 │   │   ├── info/         # Information pages
 │   │   └── upload/       # Upload and download functionality
-│   ├── pages/            # Static pages
 │   ├── utils/            # Utility functions and configurations
 │   ├── globals.css       # Global styles
 │   └── layout.js         # Root layout component
 ├── components/           # Reusable UI components
+│   ├── sections/         # Landing page sections
 │   ├── Footer.jsx        # Footer with social links
 │   └── ToastProvider.jsx # Toast notification provider
 └── public/               # Static assets
@@ -98,9 +118,9 @@ Ai-Refine/
 ## Image Augmentation Features
 
 - Grayscale conversion
-- Image flipping (horizontal/vertical)
+- Horizontal flip
 - Brightness adjustment
-- And more transformations to improve model performance
+- Blur
 
 ## Contributing
 

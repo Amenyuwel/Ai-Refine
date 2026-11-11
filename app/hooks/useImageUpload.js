@@ -1,35 +1,21 @@
-import { useState, useCallback } from "react";
-import PocketBase from "pocketbase";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
+import pb from "../utils/pocketbase";
 
 const useImageUpload = () => {
-  const pbUrl = process.env.NEXT_PUBLIC_PB_URL;
-  if (!pbUrl) {
-    toast.error("PocketBase URL is not defined in the environment variables.");
-  }
-  const pb = new PocketBase(pbUrl);
-
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState([]);
-
-  // Load images from session storage
-  const loadRedirectedImages = useCallback(() => {
-    try {
-      const footer = sessionStorage.getItem("footerImages");
-      if (footer) {
-        const images = JSON.parse(footer);
-        setUploadedImages(images);
-        sessionStorage.removeItem("footerImages");
-      }
-    } catch (error) {
-      toast.error("Failed to load images from session storage.");
+  // Side effects like toasts must not run during render
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_PB_URL) {
+      toast.error("PocketBase URL is not defined in the environment variables.");
     }
   }, []);
 
+  const [isUploading, setIsUploading] = useState(false);
+
   // Upload images to PocketBase
   const uploadImages = useCallback(
-    async (footerImages) => {
-      if (!Array.isArray(footerImages) || footerImages.length === 0) {
+    async (images) => {
+      if (!Array.isArray(images) || images.length === 0) {
         toast.warn("No images to upload.", { autoClose: 5000 });
         return { success: false, message: "No images to upload" };
       }
@@ -40,7 +26,7 @@ const useImageUpload = () => {
 
         // Convert image URLs to files
         const imageFiles = await Promise.all(
-          footerImages.map(async (imageUrl, index) => {
+          images.map(async (imageUrl, index) => {
             const response = await fetch(imageUrl);
             if (!response.ok) {
               throw new Error(`Failed to fetch image at ${imageUrl}`);
@@ -67,14 +53,12 @@ const useImageUpload = () => {
         setIsUploading(false);
       }
     },
-    [pb],
+    [],
   );
 
   return {
     uploadImages,
     isUploading,
-    uploadedImages,
-    loadRedirectedImages,
   };
 };
 

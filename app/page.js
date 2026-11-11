@@ -2,10 +2,10 @@
 import React, { useRef, useEffect } from "react";
 import Navbar from "components/Navbar";
 import Footer from "components/Footer";
-import HomePage from "@/pages/home/page";
-import AboutPage from "@/pages/about/page";
-import ShowCase from "@/pages/showcase/page";
-import ContactPage from "@/pages/contact/page";
+import HomePage from "components/sections/HomeSection";
+import AboutPage from "components/sections/AboutSection";
+import ShowCase from "components/sections/ShowcaseSection";
+import ContactPage from "components/sections/ContactSection";
 import useParallax from "@/hooks/useParallax";
 
 const Page = () => {
@@ -55,7 +55,11 @@ const Page = () => {
       
       if (targetRef && targetRef.current) {
         setTimeout(() => {
-          targetRef.current.scrollIntoView({ behavior: 'smooth' });
+          // offsetTop ignores the parallax translateY; scrollIntoView would land that offset too far down.
+          // The sticky header sits in normal flow, so its real height is subtracted to clear it.
+          const headerHeight = document.querySelector('header')?.offsetHeight ?? 0;
+          const top = Math.max(0, targetRef.current.offsetTop - headerHeight);
+          window.scrollTo({ top, behavior: 'smooth' });
         }, 100);
       }
     };
@@ -74,14 +78,11 @@ const Page = () => {
   return (
     <div className="h-full w-full">
       <Navbar
-        scrollToSection={(ref) =>
-          ref?.current?.scrollIntoView({ behavior: "smooth" })
-        }
         homeRef={homeRef}
         aboutRef={aboutRef}
         contactRef={contactRef}
       />
-      <div className="overflow-y-hidden">
+      <main className="overflow-y-hidden">
         <section id="home" ref={homeRef} className="flex min-h-screen items-center">
           <HomePage />
         </section>
@@ -93,13 +94,18 @@ const Page = () => {
         </section>
         <section id="contact" ref={contactRef} className="flex items-center pb-16">
           <ContactPage
-            scrollToHome={() =>
-              homeRef.current.scrollIntoView({ behavior: "smooth" })
-            }
+            scrollToHome={() => {
+              // offsetTop ignores the parallax translateY, unlike scrollIntoView.
+              const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
+              window.scrollTo({
+                top: Math.max(0, homeRef.current.offsetTop - headerHeight),
+                behavior: "smooth",
+              });
+            }}
           />
         </section>
-        <Footer />
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 };
