@@ -30,9 +30,9 @@ const ContactPage = ({ scrollToHome }) => {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center font-sans sm:h-screen">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center font-sans sm:min-h-screen">
       <HeroPattern />
-      <section className="flex h-auto w-full flex-col items-center justify-center space-y-6 p-6 text-center sm:h-[80%] sm:w-[40%] sm:p-8">
+      <section className="flex h-auto w-full flex-col items-center justify-center space-y-6 p-6 text-center sm:max-w-xl sm:p-8 lg:w-[40%] lg:max-w-none">
         <div className="flex w-full flex-col items-center">
           <h2 className="sr-only">Contact</h2>
           <p className="text-main text-xl font-semibold sm:text-2xl">
@@ -43,7 +43,7 @@ const ContactPage = ({ scrollToHome }) => {
 
         <form
           onSubmit={validateAndSubmit}
-          className="flex w-full flex-col space-y-4 text-left sm:w-[60%]"
+          className="flex w-full flex-col space-y-4 text-left lg:w-[60%]"
         >
           <div>
             <label
@@ -96,7 +96,7 @@ const ContactPage = ({ scrollToHome }) => {
             ></textarea>
           </div>
 
-          <div className="flex justify-center sm:justify-end">
+          <div className="flex justify-center lg:justify-end">
             <button
               type="submit"
               disabled={isSubmitting}

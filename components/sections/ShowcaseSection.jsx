@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 
-const categories = ["People", "Object", "Pests", "Animals", "Plant"];
+const categories = ["People", "Object", "Pests", "Animals"];
 const augmentations = [
   "Original",
   "Flipped",
@@ -41,27 +41,20 @@ const imagePaths = {
     Grayscale: "/images/Animals/Animal_grayscale.png",
     Rotated: "/images/Animals/Animal_rotated.png",
   },
-  Plant: {
-    Original: "/images/Plant/PlantOriginal.png",
-    Flipped: "/images/Plant/Plant_flipped.png",
-    Blurred: "/images/Plant/Plant_blurred.png",
-    Grayscale: "/images/Plant/Plant_grayscale.png",
-    Rotated: "/images/Plant/Plant_rotated.png",
-  },
 };
 
 const ShowCase = () => {
   const [selectedCategory, setSelectedCategory] = useState("People");
 
   return (
-    <section className="bg-third flex min-h-screen w-full flex-col items-center justify-center px-6 py-12 sm:h-screen">
+    <section className="bg-third flex min-h-screen w-full flex-col items-center justify-center px-6 py-12 sm:min-h-screen">
       {/* Title */}
       <h2 className="mb-8 text-center text-5xl font-bold">
         SEE IT FOR YOURSELF!
       </h2>
 
       {/* Categories */}
-      <div role="group" aria-label="Showcase categories" className="flex w-full flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-x-6 py-4 text-lg font-semibold px-4 sm:px-0">
+      <div role="group" aria-label="Showcase categories" className="flex w-fit max-w-full flex-nowrap gap-x-4 overflow-x-auto py-4 text-lg font-semibold px-4 sm:gap-x-6 sm:px-0">
         {categories.map((category) => (
           <button
             key={category}

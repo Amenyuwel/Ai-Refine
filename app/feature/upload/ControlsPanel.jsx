@@ -1,14 +1,36 @@
 "use client";
 import React, { useId } from "react";
 
+import {
+  BLUR_MAX,
+  BRIGHTNESS_MAX,
+  BRIGHTNESS_MIN,
+} from "@/utils/filterSettings";
+
+// `format` shows the value in the unit the filter really uses.
 const SLIDER_CONTROLS = [
-  { key: "grayscale", label: "Grayscale", max: 100, toPercent: (value) => value },
-  { key: "blur", label: "Blur", max: 10, toPercent: (value) => value * 10 },
+  {
+    key: "grayscale",
+    label: "Grayscale",
+    min: 0,
+    max: 100,
+    format: (value) => `${value}%`,
+  },
+  {
+    key: "blur",
+    label: "Blur",
+    min: 0,
+    max: BLUR_MAX,
+    format: (value) => `${(value / 10).toFixed(1)}%`,
+    hint: "Percent of the image's shorter side",
+  },
   {
     key: "brightness",
     label: "Brightness",
-    max: 200,
-    toPercent: (value) => Math.min(100, value / 2),
+    min: BRIGHTNESS_MIN,
+    max: BRIGHTNESS_MAX,
+    format: (value) => `${value}%`,
+    hint: "100% is unchanged",
   },
 ];
 
@@ -58,7 +80,7 @@ const ControlsPanel = ({ settings, onSettingsChange }) => {
         />
       </li>
 
-      {SLIDER_CONTROLS.map(({ key, label, max, toPercent }) => {
+      {SLIDER_CONTROLS.map(({ key, label, min, max, format, hint }) => {
         const { enabled, value } = settings[key];
         const sliderId = `${panelId}-${key}`;
 
@@ -78,7 +100,7 @@ const ControlsPanel = ({ settings, onSettingsChange }) => {
                     enabled ? "text-main" : "text-gray-500"
                   }`}
                 >
-                  {Math.round(toPercent(value))}%
+                  {format(value)}
                 </output>
                 <Switch
                   label={`Enable ${label}`}
@@ -90,16 +112,18 @@ const ControlsPanel = ({ settings, onSettingsChange }) => {
             <input
               id={sliderId}
               type="range"
-              min="0"
+              min={min}
               max={max}
               value={value}
               disabled={!enabled}
+              aria-valuetext={format(value)}
               onChange={(event) =>
                 updateSetting(key, { value: Number(event.target.value) })
               }
-              style={{ "--fill": `${(value / max) * 100}%` }}
+              style={{ "--fill": `${((value - min) / (max - min)) * 100}%` }}
               className="slider w-full cursor-pointer"
             />
+            {hint && <p className="text-xs text-gray-500">{hint}</p>}
           </li>
         );
       })}

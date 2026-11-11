@@ -78,9 +78,6 @@ const Page = () => {
   return (
     <div className="h-full w-full">
       <Navbar
-        scrollToSection={(ref) =>
-          ref?.current?.scrollIntoView({ behavior: "smooth" })
-        }
         homeRef={homeRef}
         aboutRef={aboutRef}
         contactRef={contactRef}
@@ -97,9 +94,14 @@ const Page = () => {
         </section>
         <section id="contact" ref={contactRef} className="flex items-center pb-16">
           <ContactPage
-            scrollToHome={() =>
-              homeRef.current.scrollIntoView({ behavior: "smooth" })
-            }
+            scrollToHome={() => {
+              // offsetTop ignores the parallax translateY, unlike scrollIntoView.
+              const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
+              window.scrollTo({
+                top: Math.max(0, homeRef.current.offsetTop - headerHeight),
+                behavior: "smooth",
+              });
+            }}
           />
         </section>
       </main>

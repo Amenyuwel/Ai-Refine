@@ -11,8 +11,9 @@ import React, {
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const MAX_IMAGES = 100;
-const LIMIT_WARNING = "You have reached the maximum limit of 100 images.";
+// Matches maxSelect on uploaded_images.images in PocketBase
+export const MAX_IMAGES = 99;
+const LIMIT_WARNING = `You have reached the maximum limit of ${MAX_IMAGES} images.`;
 
 const ImageContext = createContext();
 

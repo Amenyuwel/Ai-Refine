@@ -7,6 +7,7 @@ import React, {
   useCallback,
 } from "react";
 import { useDropzone } from "react-dropzone";
+import useWindowFileDrop from "@/hooks/useWindowFileDrop";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Navbar from "components/Navbar";
@@ -16,7 +17,11 @@ import ControlsModal from "@/feature/upload/ControlsModal";
 import ControlsPanel from "@/feature/upload/ControlsPanel";
 import Download from "@/feature/upload/Download";
 import Share from "components/Share";
-import { ACCEPTED_IMAGE_TYPES } from "@/utils/imageTypes";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  INVALID_IMAGE_FORMAT_MESSAGE,
+} from "@/utils/imageTypes";
+import { blurSigma } from "@/utils/filterSettings";
 import { useImageContext } from "../../context/ImageContext";
 import "react-toastify/dist/ReactToastify.css";
 import BuildCircleIcon from "@mui/icons-material/BuildCircleOutlined";
@@ -33,8 +38,10 @@ const ControlsPage = () => {
   } = useImageContext();
 
   const imageRef = useRef(null);
-  // Export reads this frame's size to scale blur like the preview does.
   const previewFrameRef = useRef(null);
+  // Shorter side of the image as drawn in the frame, in CSS pixels. Blur is a
+  // fraction of the shorter side, so the preview scales it like the export does.
+  const [previewShortSide, setPreviewShortSide] = useState(0);
   const [showControls, setShowControls] = useState(false);
   const [settings, setSettings] = useState({
     grayscale: { enabled: false, value: 0 },
@@ -42,6 +49,34 @@ const ControlsPage = () => {
     brightness: { enabled: false, value: 100 },
     flip: { enabled: false, value: 1 },
   });
+
+  // object-contain fits the image into the frame; track that size across
+  // image changes and frame resizes.
+  useEffect(() => {
+    const frame = previewFrameRef.current;
+    const img = imageRef.current;
+    if (!frame || !img) return;
+
+    const measure = () => {
+      if (!img.naturalWidth || !frame.clientWidth || !frame.clientHeight) return;
+      const fitScale = Math.min(
+        frame.clientWidth / img.naturalWidth,
+        frame.clientHeight / img.naturalHeight,
+      );
+      setPreviewShortSide(
+        fitScale * Math.min(img.naturalWidth, img.naturalHeight),
+      );
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(frame);
+    img.addEventListener("load", measure);
+    return () => {
+      observer.disconnect();
+      img.removeEventListener("load", measure);
+    };
+  }, [previewImage]);
 
   // Direct visits with no images have nothing to edit
   useEffect(() => {
@@ -51,10 +86,8 @@ const ControlsPage = () => {
   // Handle image drop
   const onDrop = useCallback(
     async (acceptedFiles, rejectedFiles) => {
-      if (rejectedFiles.length > 0) {
-        toast.error("Invalid image format.");
-        return;
-      }
+      if (rejectedFiles.length > 0) toast.error(INVALID_IMAGE_FORMAT_MESSAGE);
+      if (acceptedFiles.length === 0) return;
 
       try {
         const newUploadedImages = acceptedFiles.map((file) =>
@@ -66,8 +99,8 @@ const ControlsPage = () => {
         newUploadedImages
           .filter((image) => !addedImages.includes(image))
           .forEach((image) => URL.revokeObjectURL(image));
-        if (!previewImage && newUploadedImages.length > 0) {
-          setSelected(newUploadedImages[0]);
+        if (!previewImage && addedImages.length > 0) {
+          setSelected(addedImages[0]);
         }
       } catch (error) {
         console.error("Error during upload:", error);
@@ -77,10 +110,12 @@ const ControlsPage = () => {
     [addImage, previewImage, setSelected],
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  // Drag and drop is handled on the window so the navbar is a drop target too
+  const isDragActive = useWindowFileDrop(onDrop);
+  const { getRootProps, getInputProps } = useDropzone({
     accept: ACCEPTED_IMAGE_TYPES,
-    onDrop,
     noClick: true,
+    noDrag: true,
   });
 
   const handleSettingsChange = useCallback((updatedSettings) => {
@@ -93,23 +128,23 @@ const ControlsPage = () => {
     () => ({
       filter: `
       grayscale(${settings.grayscale.enabled ? settings.grayscale.value : 0}%)
-      blur(${settings.blur.enabled ? settings.blur.value + "px" : "0px"})
+      blur(${settings.blur.enabled ? blurSigma(settings.blur.value, previewShortSide) : 0}px)
       brightness(${settings.brightness.enabled ? settings.brightness.value + "%" : "100%"})
     `,
       transform: `scaleX(${settings.flip.enabled ? settings.flip.value : "1"})`,
     }),
-    [settings],
+    [settings, previewShortSide],
   );
 
   return (
-    <main className="flex h-screen w-full flex-col overflow-hidden">
+    <main className="flex min-h-screen w-full flex-col overflow-x-hidden">
       <HeroPattern className="absolute inset-0 z-[-50]" />
       <Navbar />
       <h1 className="sr-only">Upload and augment your images</h1>
       {/* Dragging Dropzone */}
       <div
         {...getRootProps()}
-        className={`relative flex w-full flex-1 items-center justify-center p-2 transition-all duration-300 sm:p-4 md:p-6${
+        className={`relative flex w-full flex-1 items-center justify-center p-2 transition-all duration-300 sm:p-4 md:p-6 ${
           isDragActive ? "bg-opacity-80 z-50 bg-[#B2D3A8]" : ""
         }`}
       >
@@ -119,14 +154,17 @@ const ControlsPage = () => {
         <input id="fileUpload" {...getInputProps()} className="hidden" />
 
         {/* DragOverlay Component */}
-        <DragOverlay isDragActive={isDragActive} />
+        <DragOverlay
+          isDragActive={isDragActive}
+          tintClassName="bg-[#B2D3A8]/80"
+        />
 
         {/* Image and Controls Container */}
         {previewImage && (
           <div className="flex w-full flex-1 flex-col lg:flex-row gap-4 px-4 items-center lg:items-start justify-center">
             {/* Uploaded Image Display */}
             <div
-              className={`relative flex flex-col items-center${
+              className={`relative flex flex-col items-center ${
                 isDragActive ? "opacity-50" : "opacity-100"
               }`}
             >
@@ -150,7 +188,6 @@ const ControlsPage = () => {
                   uploadedImages={uploadedImages}
                   previewImage={previewImage}
                   settings={settings}
-                  previewFrameRef={previewFrameRef}
                 />
                 <button
                   className="bg-main text-main flex cursor-pointer items-center justify-center gap-2 rounded-full border border-gray-500 px-4 py-2 text-sm transition-all duration-300 hover:scale-105 hover:bg-[var(--primary)] sm:px-6 sm:text-base lg:hidden"

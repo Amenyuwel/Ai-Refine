@@ -7,7 +7,7 @@ import MutantImage from "./MutantImage";
 
 const AboutPage = () => {
   return (
-    <div className="bg-main flex min-h-screen w-full items-center sm:h-[100vh] justify-center px-6">
+    <div className="bg-main flex min-h-screen w-full items-center sm:min-h-screen justify-center px-6">
       <section className="flex flex-col sm:flex-row w-full sm:w-[80%] items-center justify-center gap-y-8 sm:gap-x-8">
         {/* Text Content and Button */}
         <div className="flex w-full sm:w-[50%] flex-col items-center sm:items-start justify-center text-center sm:text-left">

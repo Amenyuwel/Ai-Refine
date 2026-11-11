@@ -80,7 +80,7 @@ const Info = () => {
       <HeroPattern />
 
       {/* Content Section with Grid Layout and Gridlines */}
-      <div className="mt-16 flex w-full max-w-[90%] sm:h-[130px] sm:max-w-[45%] items-center gap-x-4 bg-transparent p-2">
+      <div className="mt-16 flex w-full max-w-[90%] sm:min-h-[130px] md:max-w-[75%] lg:max-w-[60%] xl:max-w-[45%] items-center gap-x-4 bg-transparent p-2">
         <h1 className="flex-1 text-2xl font-bold text-[#2F2F2F] md:text-4xl">
           UNDERSTANDING THE <br />
           <span className="text-[var(--secondary)]">
@@ -90,7 +90,7 @@ const Info = () => {
         </h1>
       </div>
 
-      <section className="grid min-h-screen w-[90%] sm:h-screen sm:w-[45%] grid-cols-1 gap-6 bg-transparent py-8 md:grid-cols-2 lg:grid-cols-3 cursor-pointer">
+      <section className="grid shrink-0 min-h-screen w-[90%] md:w-[75%] lg:w-[60%] xl:w-[45%] grid-cols-1 gap-6 bg-transparent py-8 md:grid-cols-2 lg:grid-cols-3 cursor-pointer">
         {questions.map((question, index) => (
           <article
             key={index}

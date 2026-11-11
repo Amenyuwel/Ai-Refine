@@ -3,18 +3,14 @@ import React, { useCallback, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 
-// The scrollToSection function (to be used with the Navbar)
+// offsetTop ignores the parallax translateY that getBoundingClientRect includes,
+// which made the landing position drift by the parallax offset.
 const scrollToSection = (sectionRef, offset = 0) => {
-  if (sectionRef && sectionRef.current) {
-    // Calculate the position of the section relative to the document
-    const sectionPosition =
-      sectionRef.current.getBoundingClientRect().top + window.scrollY;
-    // Scroll to the position with an offset to avoid overlap with the navbar
-    window.scrollTo({
-      top: sectionPosition - offset, // Subtract the navbar height
-      behavior: "smooth", // Smooth scrolling
-    });
-  }
+  if (!sectionRef?.current) return;
+  window.scrollTo({
+    top: Math.max(0, sectionRef.current.offsetTop - offset),
+    behavior: "smooth",
+  });
 };
 
 const NAV_ID = "main-navigation";
@@ -27,7 +23,7 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
   const handleNavigation = useCallback(
     (sectionRef, route, sectionName = null) => {
       setMenuOpen(false); // Close menu on navigation
-      const navbarHeight = 80; // Set your navbar height here (in px)
+      const navbarHeight = document.querySelector("header")?.offsetHeight ?? 0;
 
       if (pathname === "/") {
         // If already on the home page and scrollToSection exists, scroll with an offset

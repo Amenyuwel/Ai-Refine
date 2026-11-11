@@ -63,3 +63,6 @@ pb_data/
 pocketbase
 pocketbase.exe
 
+# local agent plans
+/docs/plan/
+
