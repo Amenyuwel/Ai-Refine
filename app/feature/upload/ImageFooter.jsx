@@ -83,7 +83,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
   }, [selectedImage, images, removeImage, setSelected, onImageDelete]);
 
   return (
-    <div className="bg-main flex w-full items-center gap-2 sm:gap-4 p-2">
+    <div data-tour="image-footer" className="bg-main flex w-full items-center gap-2 sm:gap-4 p-2">
       {/* Add Image Button */}
       <button
         type="button"

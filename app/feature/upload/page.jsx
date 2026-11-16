@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { useDropzone } from "react-dropzone";
 import useWindowFileDrop from "@/hooks/useWindowFileDrop";
+import useUploadTour from "@/hooks/useUploadTour";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Navbar from "components/Navbar";
@@ -77,6 +78,8 @@ const ControlsPage = () => {
       img.removeEventListener("load", measure);
     };
   }, [previewImage]);
+
+  useUploadTour(Boolean(previewImage));
 
   // Direct visits with no images have nothing to edit
   useEffect(() => {
@@ -191,6 +194,7 @@ const ControlsPage = () => {
                   settings={settings}
                 />
                 <button
+                  data-tour="controls-button"
                   className="bg-main text-main flex cursor-pointer items-center justify-center gap-2 rounded-full border border-gray-500 px-4 py-2 text-sm transition-all duration-300 hover:scale-105 hover:bg-[var(--primary)] sm:px-6 sm:text-base lg:hidden"
                   onClick={() => setShowControls(!showControls)}
                 >
@@ -201,7 +205,7 @@ const ControlsPage = () => {
             </div>
 
             {/* Controls Panel - Desktop Only */}
-            <div className="hidden lg:flex lg:flex-col lg:w-80 lg:rounded-3xl lg:bg-white lg:p-6 lg:shadow-lg">
+            <div data-tour="controls-panel" className="hidden lg:flex lg:flex-col lg:w-80 lg:rounded-3xl lg:bg-white lg:p-6 lg:shadow-lg">
               <h2 className="text-lg font-bold text-gray-800 mb-4">
                 CONTROLS
               </h2>

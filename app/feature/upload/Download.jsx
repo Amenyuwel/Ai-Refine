@@ -175,7 +175,7 @@ const Download = ({
   };
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className="relative" ref={containerRef} data-tour="download">
       <button
         className="bg-main text-main flex w-full cursor-pointer items-center justify-center gap-1 rounded-3xl border border-gray-500 px-4 py-2 text-sm transition-all duration-300 hover:scale-105 aria-disabled:cursor-wait aria-disabled:opacity-60 aria-disabled:hover:scale-100 sm:gap-2 sm:px-6 sm:text-base"
         ref={toggleButtonRef}
