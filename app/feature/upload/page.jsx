@@ -50,8 +50,8 @@ const ControlsPage = () => {
     flip: { enabled: false, value: 1 },
   });
 
-  // object-contain fits the image into the frame; track that size across
-  // image changes and frame resizes.
+  // The frame shrinks to the image as drawn; track that size across image
+  // changes and frame resizes.
   useEffect(() => {
     const frame = previewFrameRef.current;
     const img = imageRef.current;
@@ -168,9 +168,10 @@ const ControlsPage = () => {
                 isDragActive ? "opacity-50" : "opacity-100"
               }`}
             >
+              {/* The frame wraps the image, so its shape follows the image's aspect ratio */}
               <div
                 ref={previewFrameRef}
-                className="bg-main h-64 w-full max-w-xs overflow-hidden rounded-3xl shadow-lg sm:h-80 sm:max-w-md md:h-96 md:max-w-lg lg:h-[400px] lg:max-w-xl xl:h-[500px] xl:max-w-2xl"
+                className="bg-main w-fit max-w-xs overflow-hidden rounded-3xl shadow-lg sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
               >
                 {/* previewImage is a user-uploaded blob/data URL the optimizer cannot fetch */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -178,7 +179,7 @@ const ControlsPage = () => {
                   ref={imageRef}
                   src={previewImage}
                   alt="Uploaded Preview"
-                  className="z-[50] h-full w-full object-contain"
+                  className="z-[50] block h-auto max-h-64 w-auto max-w-full sm:max-h-80 md:max-h-96 lg:max-h-[400px] xl:max-h-[500px]"
                   style={imageStyles}
                 />
               </div>
