@@ -5,8 +5,9 @@ import { saveAs } from "file-saver";
 import { toast } from "react-toastify";
 import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDownOutlined";
 import { FilterError, renderImageWithFilters } from "@/utils/canvasFilters";
-import { blurSigma } from "@/utils/filterSettings";
+import { getExportFilters } from "@/utils/filterSettings";
 import { buildExportFileNames } from "@/utils/exportFileNames";
+import { MANIFEST_FILE_NAME, buildManifest } from "@/utils/exportManifest";
 
 const EXPORT_MIME_TYPE = "image/png";
 const EXPORT_EXTENSION = ".png";
@@ -76,23 +77,18 @@ const Download = ({
           const width = img.naturalWidth;
           const height = img.naturalHeight;
           // Blur scales with the image itself, never with the screen it was previewed on.
+          const filters = getExportFilters(settings, width, height);
           const canvas = await renderImageWithFilters(img, {
             width,
             height,
-            flip: settings?.flip?.enabled && settings.flip.value === -1,
-            grayscalePercent: settings?.grayscale?.enabled
-              ? settings.grayscale.value
-              : 0,
-            blurRadius: settings?.blur?.enabled
-              ? blurSigma(settings.blur.value, Math.min(width, height))
-              : 0,
-            brightnessPercent: settings?.brightness?.enabled
-              ? settings.brightness.value
-              : 100,
+            ...filters,
           });
 
           canvas.toBlob((blob) => {
-            if (blob) resolve(blob);
+            // Safari holds canvas memory until it is resized, which adds up over a 99-image ZIP.
+            canvas.width = 0;
+            canvas.height = 0;
+            if (blob) resolve({ blob, filters });
             else reject(new Error("Failed to convert image to blob"));
           }, EXPORT_MIME_TYPE);
         } catch (error) {
@@ -118,10 +114,8 @@ const Download = ({
 
   const downloadPreview = async () => {
     try {
-      saveAs(
-        await processImageWithFilters(previewImage.url),
-        `preview${EXPORT_EXTENSION}`,
-      );
+      const { blob } = await processImageWithFilters(previewImage.url);
+      saveAs(blob, `preview${EXPORT_EXTENSION}`);
     } catch (error) {
       console.error("Error processing preview image:", error);
       toast.error(getDownloadErrorMessage(error));
@@ -150,9 +144,16 @@ const Download = ({
     try {
       // One at a time: the pixel filter path holds two full-size buffers per image.
       const failures = [];
+      const manifestEntries = [];
       for (const [index, image] of uploadedImages.entries()) {
         try {
-          zip.file(fileNames[index], await processImageWithFilters(image.url));
+          const { blob, filters } = await processImageWithFilters(image.url);
+          zip.file(fileNames[index], blob);
+          manifestEntries.push({
+            output: fileNames[index],
+            source: image.file.name,
+            filters,
+          });
         } catch (error) {
           console.error("Error processing image for ZIP:", error);
           failures.push(error);
@@ -173,6 +174,7 @@ const Download = ({
         );
       }
 
+      zip.file(MANIFEST_FILE_NAME, buildManifest(manifestEntries));
       const zipBlob = await zip.generateAsync({ type: "blob" });
       saveAs(zipBlob, "images.zip");
     } catch (error) {

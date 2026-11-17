@@ -12,3 +12,16 @@ export const BRIGHTNESS_MAX = 150;
 // Gaussian standard deviation, in pixels, for an image whose shorter side is
 // `shortSide` pixels long.
 export const blurSigma = (blurValue, shortSide) => (blurValue / 1000) * shortSide;
+
+// The values the export renders with, at the image's natural size. The ZIP
+// manifest records these same values, so it lists exactly what was applied.
+export const getExportFilters = (settings, width, height) => ({
+  flip: Boolean(settings?.flip?.enabled && settings.flip.value === -1),
+  grayscalePercent: settings?.grayscale?.enabled ? settings.grayscale.value : 0,
+  blurRadius: settings?.blur?.enabled
+    ? blurSigma(settings.blur.value, Math.min(width, height))
+    : 0,
+  brightnessPercent: settings?.brightness?.enabled
+    ? settings.brightness.value
+    : 100,
+});
