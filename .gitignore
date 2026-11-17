@@ -66,3 +66,7 @@ pocketbase.exe
 # local agent plans
 /docs/plan/
 
+
+# playwright
+/test-results/
+/playwright-report/
