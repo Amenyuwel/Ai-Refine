@@ -13,7 +13,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
   const {
     uploadedImages: images,
     selectedImage,
-    addImage,
+    addFiles,
     removeImage,
     setSelected,
   } = useImageContext();
@@ -36,7 +36,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
 
   // Handle image upload
   const handleImageUpload = useCallback(
-    (event) => {
+    async (event) => {
       const input = event.target;
       const files = Array.from(input.files);
       // Reset so picking the same file again still fires onChange
@@ -49,18 +49,14 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
       }
       if (validFiles.length === 0) return;
 
-      const newImages = validFiles.map((file) => URL.createObjectURL(file));
-      // addImage shows the limit warning once and returns only what fit
-      const addedImages = addImage(newImages);
-      newImages
-        .filter((image) => !addedImages.includes(image))
-        .forEach((image) => URL.revokeObjectURL(image));
+      // addFiles shows the duplicate and limit notices and returns only what was added
+      const addedImages = await addFiles(validFiles);
       if (addedImages.length === 0) return;
 
       setSelected(addedImages[0]);
       onImageClick?.(addedImages[0]);
     },
-    [addImage, onImageClick, setSelected],
+    [addFiles, onImageClick, setSelected],
   );
 
   // Handle image deletion
@@ -110,7 +106,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
           {images.map((image, index) => (
             <button
               type="button"
-              key={index}
+              key={image.id}
               aria-pressed={selectedImage === image}
               onClick={() => handleImageClick(image)}
               onFocus={revealThumbnail}
@@ -121,7 +117,7 @@ const ImageFooter = ({ onImageClick, onImageDelete }) => {
               {/* thumbnails are user-uploaded blob/data URLs the optimizer cannot fetch */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={image}
+                src={image.url}
                 alt={`Uploaded Image ${index + 1}`}
                 className="h-full w-full rounded-lg object-cover"
               />

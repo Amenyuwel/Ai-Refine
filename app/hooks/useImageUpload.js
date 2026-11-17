@@ -24,18 +24,11 @@ const useImageUpload = () => {
         setIsUploading(true);
         const formData = new FormData();
 
-        // Convert image URLs to files
-        const imageFiles = await Promise.all(
-          images.map(async (imageUrl, index) => {
-            const response = await fetch(imageUrl);
-            if (!response.ok) {
-              throw new Error(`Failed to fetch image at ${imageUrl}`);
-            }
-            const blob = await response.blob();
-            return new File([blob], `image_${index}.jpg`, {
-              type: blob.type,
-            });
-          }),
+        // Uploads stay anonymised as image_N: sending the original names is
+        // open audit question Q1
+        const imageFiles = images.map(
+          ({ file }, index) =>
+            new File([file], `image_${index}.jpg`, { type: file.type }),
         );
 
         // Append files to formData

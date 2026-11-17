@@ -33,7 +33,7 @@ const ControlsPage = () => {
   const {
     uploadedImages,
     selectedImage: previewImage,
-    addImage,
+    addFiles,
     removeImage,
     setSelected,
   } = useImageContext();
@@ -92,25 +92,14 @@ const ControlsPage = () => {
       if (rejectedFiles.length > 0) toast.error(INVALID_IMAGE_FORMAT_MESSAGE);
       if (acceptedFiles.length === 0) return;
 
-      try {
-        const newUploadedImages = acceptedFiles.map((file) =>
-          URL.createObjectURL(file),
-        );
-
-        // The context cuts the drop down to the limit; free the URLs it left out
-        const addedImages = addImage(newUploadedImages);
-        newUploadedImages
-          .filter((image) => !addedImages.includes(image))
-          .forEach((image) => URL.revokeObjectURL(image));
-        if (!previewImage && addedImages.length > 0) {
-          setSelected(addedImages[0]);
-        }
-      } catch (error) {
-        console.error("Error during upload:", error);
-        toast.error("Error during upload. Please try again.");
+      // The context skips duplicates, cuts the drop to the limit and reports
+      // read errors itself
+      const addedImages = await addFiles(acceptedFiles);
+      if (!previewImage && addedImages.length > 0) {
+        setSelected(addedImages[0]);
       }
     },
-    [addImage, previewImage, setSelected],
+    [addFiles, previewImage, setSelected],
   );
 
   // Drag and drop is handled on the window so the navbar is a drop target too
@@ -180,7 +169,7 @@ const ControlsPage = () => {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   ref={imageRef}
-                  src={previewImage}
+                  src={previewImage.url}
                   alt="Uploaded Preview"
                   className="z-[50] block h-auto max-h-64 w-auto max-w-full sm:max-h-80 md:max-h-96 lg:max-h-[400px] xl:max-h-[500px]"
                   style={imageStyles}

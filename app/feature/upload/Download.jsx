@@ -6,6 +6,10 @@ import { toast } from "react-toastify";
 import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDownOutlined";
 import { FilterError, renderImageWithFilters } from "@/utils/canvasFilters";
 import { blurSigma } from "@/utils/filterSettings";
+import { buildExportFileNames } from "@/utils/exportFileNames";
+
+const EXPORT_MIME_TYPE = "image/png";
+const EXPORT_EXTENSION = ".png";
 
 const DOWNLOAD_ERROR = "Could not download the image. Please try again.";
 const FILTER_ERROR =
@@ -90,7 +94,7 @@ const Download = ({
           canvas.toBlob((blob) => {
             if (blob) resolve(blob);
             else reject(new Error("Failed to convert image to blob"));
-          }, "image/png");
+          }, EXPORT_MIME_TYPE);
         } catch (error) {
           reject(error);
         }
@@ -114,7 +118,10 @@ const Download = ({
 
   const downloadPreview = async () => {
     try {
-      saveAs(await processImageWithFilters(previewImage), "preview.png");
+      saveAs(
+        await processImageWithFilters(previewImage.url),
+        `preview${EXPORT_EXTENSION}`,
+      );
     } catch (error) {
       console.error("Error processing preview image:", error);
       toast.error(getDownloadErrorMessage(error));
@@ -135,24 +142,24 @@ const Download = ({
 
   const downloadZip = async () => {
     const zip = new JSZip();
-    const uniqueImages = Array.from(new Set(uploadedImages));
+    const fileNames = buildExportFileNames(
+      uploadedImages.map((image) => image.file.name),
+      EXPORT_EXTENSION,
+    );
 
     try {
       // One at a time: the pixel filter path holds two full-size buffers per image.
       const failures = [];
-      for (const [index, image] of uniqueImages.entries()) {
+      for (const [index, image] of uploadedImages.entries()) {
         try {
-          zip.file(
-            `image_${index + 1}.png`,
-            await processImageWithFilters(image),
-          );
+          zip.file(fileNames[index], await processImageWithFilters(image.url));
         } catch (error) {
           console.error("Error processing image for ZIP:", error);
           failures.push(error);
         }
       }
 
-      if (failures.length === uniqueImages.length) {
+      if (failures.length === uploadedImages.length) {
         toast.error(
           failures[0] instanceof FilterError
             ? FILTER_ERROR
@@ -162,7 +169,7 @@ const Download = ({
       }
       if (failures.length > 0) {
         toast.error(
-          `${failures.length} of ${uniqueImages.length} images failed and are missing from the ZIP.`,
+          `${failures.length} of ${uploadedImages.length} images failed and are missing from the ZIP.`,
         );
       }
 

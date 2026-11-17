@@ -18,32 +18,28 @@ import {
 
 const HomePage = () => {
   const router = useRouter();
-  const { addImage, setSelected } = useImageContext();
+  const { addFiles, setSelected } = useImageContext();
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
   // Hand the files to the editor through the context: object URLs point at the
   // original bytes, so nothing is re-encoded or resized.
   const processImages = useCallback(
-    (files) => {
+    async (files) => {
       const imageFiles = files.filter(isAcceptedImageFile);
       if (imageFiles.length < files.length) {
         toast.error(INVALID_IMAGE_FORMAT_MESSAGE);
       }
       if (imageFiles.length === 0) return;
 
-      const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
-      // The context cuts the list to its limit; free the URLs it left out
-      const addedImages = addImage(imageUrls);
-      imageUrls
-        .filter((imageUrl) => !addedImages.includes(imageUrl))
-        .forEach((imageUrl) => URL.revokeObjectURL(imageUrl));
+      // The context skips duplicates and cuts the list to its limit
+      const addedImages = await addFiles(imageFiles);
       if (addedImages.length === 0) return;
 
       setSelected(addedImages[0]);
       router.push("/feature/upload");
     },
-    [addImage, setSelected, router],
+    [addFiles, setSelected, router],
   );
 
   // Handle file drop
@@ -77,7 +73,7 @@ const HomePage = () => {
         const file = new File([blob], imagePath.split("/").pop(), {
           type: blob.type,
         });
-        processImages([file]);
+        await processImages([file]);
       } catch (error) {
         console.error("Error processing example image:", error);
         toast.error("Failed to process example image. Please try again.");
