@@ -218,7 +218,7 @@ for (const [width, height] of [
     expect(image.height).toBeGreaterThan(40);
 
     // The panel scrolls inside itself, so the last controls can be reached
-    for (const name of ["Brightness", "Grayscale", "Blur"]) {
+    for (const name of ["Brightness", "Grayscale", "Blur", "Rotate", "Zoom"]) {
       const slider = page.getByLabel(name, { exact: true });
       await slider.scrollIntoViewIfNeeded();
       await expect(slider).toBeInViewport();

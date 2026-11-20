@@ -22,7 +22,12 @@ import {
   ACCEPTED_IMAGE_TYPES,
   INVALID_IMAGE_FORMAT_MESSAGE,
 } from "@/utils/imageTypes";
-import { DEFAULT_SETTINGS, blurSigma } from "@/utils/filterSettings";
+import {
+  DEFAULT_SETTINGS,
+  blurSigma,
+  getExportFilters,
+  getRotationCoverScale,
+} from "@/utils/filterSettings";
 import { useImageContext } from "../context/ImageContext";
 import "react-toastify/dist/ReactToastify.css";
 import HeroPattern from "components/HeroPattern";
@@ -141,9 +146,22 @@ const ControlsPage = () => {
   }, [naturalSize]);
 
   const imageStyles = useMemo(() => {
+    const { rotateDegrees, zoomPercent } = getExportFilters(settings, 1, 1);
+    const coverScale = naturalSize
+      ? getRotationCoverScale(
+          rotateDegrees,
+          naturalSize.width,
+          naturalSize.height,
+        )
+      : 1;
+    const geometryScale = (zoomPercent / 100) * coverScale;
+    // CSS filters run before the transform, so the scale would enlarge the
+    // blur; the export blurs after zoom and rotate, so divide it back out.
     const blurPx = settings.blur.enabled
-      ? blurSigma(settings.blur.value, previewShortSide)
+      ? blurSigma(settings.blur.value, previewShortSide) / geometryScale
       : 0;
+    // Same order as the export (applyGeometry in canvasFilters.js); the
+    // preview frame clips the enlarged image back to the original size.
     // No-effect filters and transforms are left out: they still make the
     // browser draw the image on its own layer, and resampling that layer can
     // smear the edges of an image that should be shown untouched.
@@ -156,12 +174,14 @@ const ControlsPage = () => {
     const transforms = [];
     if (settings.flip.enabled && settings.flip.value !== 1)
       transforms.push(`scaleX(${settings.flip.value})`);
+    if (rotateDegrees !== 0) transforms.push(`rotate(${rotateDegrees}deg)`);
+    if (geometryScale !== 1) transforms.push(`scale(${geometryScale})`);
     return {
       ...sizeStyles,
       filter: filters.join(" ") || "none",
       transform: transforms.join(" ") || "none",
     };
-  }, [settings, previewShortSide, sizeStyles]);
+  }, [settings, previewShortSide, sizeStyles, naturalSize]);
 
   return (
     <main className="flex h-dvh w-full flex-col overflow-hidden">
@@ -227,6 +247,7 @@ const ControlsPage = () => {
                 className="w-fit max-w-full rounded-3xl bg-white shadow-lg"
                 style={{ padding: FRAME_PADDING_PX }}
               >
+                {/* Clips zoomed or rotated pixels to the image's own bounds */}
                 <div ref={previewClipRef} className="overflow-hidden">
                   {/* previewImage is a user-uploaded blob/data URL the optimizer cannot fetch */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}

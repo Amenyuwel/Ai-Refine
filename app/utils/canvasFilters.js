@@ -1,7 +1,10 @@
 // Export rendering. The pixel filters below are for browsers where canvas
 // ctx.filter is missing or ignored (WebKit). They follow the CSS filter
 // definitions the preview uses, applied in the preview's order: grayscale,
-// blur, brightness.
+// blur, brightness. The full export order is zoom, rotate, flip, then those
+// filters; see applyGeometry.
+
+import { getRotationCoverScale } from "@/utils/filterSettings";
 
 export class FilterError extends Error {}
 
@@ -147,7 +150,8 @@ const applyBlur = async (pixels, width, height, sigma) => {
   return source;
 };
 
-// Applies the filters to a canvas whose content is already drawn (flip included).
+// Applies the filters to a canvas whose content is already drawn (zoom, rotate
+// and flip included).
 // Throws FilterError when the pixels cannot be read or written, so the caller
 // never hands out an unfiltered file as if it were filtered.
 export const applyFiltersToCanvas = async (
@@ -181,10 +185,36 @@ export const applyFiltersToCanvas = async (
 // Past 4 standard deviations the Gaussian weight rounds to zero.
 const getBlurPadding = (sigma) => (sigma > 0 ? Math.ceil(sigma * 4) : 0);
 
-const createPaddedCanvas = (image, width, height, pad) => {
+// The cover scale puts the frame's corners exactly on the rotated image's edge.
+// Engines may antialias or interpolate that edge over about a pixel (Chromium
+// does not); this many extra edge pixels keep any soft edge outside the frame.
+const ROTATED_EDGE_PAD = 2;
+
+// Source padding, in source pixels, so the transformed source covers the frame
+// plus the blur padding around it. The image is only ever scaled up, so one
+// source pixel is at least one output pixel. Rotated, the farthest point blur
+// reads (a corner of the padded frame) lies up to √2 times the blur padding
+// away from the image.
+const getSourcePadding = (blurPad, rotateDegrees) =>
+  rotateDegrees === 0
+    ? blurPad
+    : Math.ceil(blurPad * Math.SQRT2) + ROTATED_EDGE_PAD;
+
+const createCanvas = (width, height) => {
   const canvas = document.createElement("canvas");
-  canvas.width = width + 2 * pad;
-  canvas.height = height + 2 * pad;
+  canvas.width = width;
+  canvas.height = height;
+  return canvas;
+};
+
+// Safari holds canvas memory until it is resized.
+const freeCanvas = (canvas) => {
+  canvas.width = 0;
+  canvas.height = 0;
+};
+
+const createPaddedCanvas = (image, width, height, pad) => {
+  const canvas = createCanvas(width + 2 * pad, height + 2 * pad);
   const ctx = canvas.getContext("2d");
   // Nearest-neighbour so the stretched edge strips copy the edge pixels exactly.
   ctx.imageSmoothingEnabled = false;
@@ -208,47 +238,77 @@ const createPaddedCanvas = (image, width, height, pad) => {
   return canvas;
 };
 
-// Draws `image` at its natural size with the filters (and flip) applied and
-// returns the canvas. Opaque images stay fully opaque, blur included.
+// Maps image coordinates to frame coordinates, about the image centre, in the
+// export's order: zoom, rotate, flip. Zoom crops the middle and scales it back
+// to the original size. Rotation also scales up just enough to cover the frame
+// (getRotationCoverScale), so no corner is left empty. The preview must match
+// with a CSS transform on the image, centre origin, inside a clipping frame:
+// `scaleX(-1) rotate(<degrees>deg) scale(<zoom × cover scale>)`, where CSS
+// applies the rightmost function first. The filters come after all of this.
+const applyGeometry = (
+  ctx,
+  { width, height, flip, rotateDegrees, zoomPercent },
+) => {
+  const scale =
+    (zoomPercent / 100) * getRotationCoverScale(rotateDegrees, width, height);
+  ctx.translate(width / 2, height / 2);
+  if (flip) ctx.scale(-1, 1);
+  if (rotateDegrees !== 0) ctx.rotate((rotateDegrees * Math.PI) / 180);
+  if (scale !== 1) ctx.scale(scale, scale);
+  ctx.translate(-width / 2, -height / 2);
+};
+
+// Draws `image` at its natural size with zoom, rotate, flip and then the
+// filters applied, and returns the canvas. Output size never changes. Opaque
+// images stay fully opaque, rotation and blur included.
 export const renderImageWithFilters = async (
   image,
-  { width, height, flip, grayscalePercent, blurRadius, brightnessPercent },
+  {
+    width,
+    height,
+    flip,
+    rotateDegrees,
+    zoomPercent,
+    grayscalePercent,
+    blurRadius,
+    brightnessPercent,
+  },
 ) => {
   const filters = { grayscalePercent, blurRadius, brightnessPercent };
   const hasFilterEffect =
     grayscalePercent > 0 || blurRadius > 0 || brightnessPercent !== 100;
-  const useNativeFilter = supportsCanvasFilter();
-  const pad = getBlurPadding(blurRadius);
-
-  let source = image;
-  if (pad > 0) source = createPaddedCanvas(image, width, height, pad);
   // Without ctx.filter (WebKit) the filters run on the pixels instead.
   // Skipped when no filter changes anything, so unreadable pixels cannot block a plain export.
-  if (hasFilterEffect && !useNativeFilter) {
-    if (source === image) source = createPaddedCanvas(image, width, height, 0);
-    await applyFiltersToCanvas(source, filters);
-  }
+  const usePixelFilters = hasFilterEffect && !supportsCanvasFilter();
+  const blurPad = getBlurPadding(blurRadius);
+  const sourcePad = getSourcePadding(blurPad, rotateDegrees);
 
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+  const source =
+    sourcePad > 0 ? createPaddedCanvas(image, width, height, sourcePad) : image;
+
+  // The pixel filters need the transformed image first, with the blur padding
+  // around it, so they run on a larger canvas that is cropped afterwards.
+  const canvasPad = usePixelFilters ? blurPad : 0;
+  const canvas = createCanvas(width + 2 * canvasPad, height + 2 * canvasPad);
   const ctx = canvas.getContext("2d");
-  if (hasFilterEffect && useNativeFilter) {
+  if (hasFilterEffect && !usePixelFilters) {
     // Same order as the preview: grayscale, blur, brightness.
     ctx.filter = `grayscale(${grayscalePercent}%) blur(${blurRadius}px) brightness(${brightnessPercent}%)`;
   }
-  // The padding is symmetric, so flipping the padded image keeps it aligned.
-  if (flip) {
-    ctx.translate(width, 0);
-    ctx.scale(-1, 1);
-  }
+  ctx.translate(canvasPad, canvasPad);
+  applyGeometry(ctx, { width, height, flip, rotateDegrees, zoomPercent });
+  // The padding is symmetric, so it stays aligned under every transform.
   if (source === image) ctx.drawImage(image, 0, 0, width, height);
-  else ctx.drawImage(source, -pad, -pad);
-
-  // Free the padded copy now; Safari holds canvas memory until it is resized.
-  if (source !== image) {
-    source.width = 0;
-    source.height = 0;
+  else {
+    ctx.drawImage(source, -sourcePad, -sourcePad);
+    freeCanvas(source);
   }
-  return canvas;
+  if (!usePixelFilters) return canvas;
+
+  await applyFiltersToCanvas(canvas, filters);
+  if (canvasPad === 0) return canvas;
+  const output = createCanvas(width, height);
+  output.getContext("2d").drawImage(canvas, -canvasPad, -canvasPad);
+  freeCanvas(canvas);
+  return output;
 };

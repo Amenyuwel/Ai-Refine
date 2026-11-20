@@ -263,3 +263,63 @@ test("a class only adds the folder: same images, names and sizes as a flat ZIP",
     })),
   }).toEqual(flatRest);
 });
+
+test("zoom and rotate are listed first with their values", () => {
+  const filters = getExportFilters(
+    {
+      ...ALL_ON,
+      rotate: { enabled: true, value: -15 },
+      zoom: { enabled: true, value: 130 },
+    },
+    400,
+    300,
+  );
+  expect(describeOperations(filters)).toEqual([
+    { name: "zoom", percent: 130 },
+    { name: "rotate", degrees: -15 },
+    { name: "grayscale", percent: 40 },
+    { name: "blur", sigmaPx: 3 },
+    { name: "brightness", percent: 120 },
+    { name: "flip", direction: "horizontal" },
+  ]);
+});
+
+test("rotate 0 and zoom 100 are not listed, even when enabled", () => {
+  const filters = getExportFilters(
+    {
+      ...ALL_OFF,
+      rotate: { enabled: true, value: 0 },
+      zoom: { enabled: true, value: 100 },
+    },
+    400,
+    300,
+  );
+  expect(describeOperations(filters)).toEqual([]);
+});
+
+test("manifest records each image's own rotate and zoom", () => {
+  const rotated = getExportFilters(
+    { ...ALL_OFF, rotate: { enabled: true, value: 10 } },
+    40,
+    30,
+  );
+  const zoomed = getExportFilters(
+    { ...ALL_OFF, zoom: { enabled: true, value: 150 } },
+    40,
+    30,
+  );
+  const manifest = JSON.parse(
+    buildManifest(
+      [
+        { ...GRAYSCALE_ENTRIES[0], filters: rotated },
+        { ...GRAYSCALE_ENTRIES[1], filters: zoomed },
+      ],
+      APP_VERSION,
+      null,
+    ),
+  );
+  expect(manifest.files.map(({ operations }) => operations)).toEqual([
+    [{ name: "rotate", degrees: 10 }],
+    [{ name: "zoom", percent: 150 }],
+  ]);
+});

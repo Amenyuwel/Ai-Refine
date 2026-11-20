@@ -3,15 +3,26 @@
 
 export const MANIFEST_FILE_NAME = "manifest.json";
 
-// Lists only operations that change pixels, in the order the preview applies
-// them. Flip is listed last; it commutes with these filters.
+// Lists only operations that change pixels, in the order the export applies
+// them: zoom, rotate, flip, then the filters. Flip is listed last; it commutes
+// with the filters, but not with rotate, which is why rotate comes before it.
+// Rotate includes the scale-up that covers the empty corners
+// (getRotationCoverScale), which follows from the angle and the image size.
 export const describeOperations = ({
   flip,
+  rotateDegrees,
+  zoomPercent,
   grayscalePercent,
   blurRadius,
   brightnessPercent,
 }) => {
   const operations = [];
+  if (zoomPercent > 100) {
+    operations.push({ name: "zoom", percent: zoomPercent });
+  }
+  if (rotateDegrees) {
+    operations.push({ name: "rotate", degrees: rotateDegrees });
+  }
   if (grayscalePercent > 0) {
     operations.push({ name: "grayscale", percent: grayscalePercent });
   }

@@ -5,6 +5,10 @@ import {
   BLUR_MAX,
   BRIGHTNESS_MAX,
   BRIGHTNESS_MIN,
+  ROTATE_MAX,
+  ROTATE_MIN,
+  ZOOM_MAX,
+  ZOOM_MIN,
 } from "@/utils/filterSettings";
 
 // `format` shows the value in the unit the filter really uses.
@@ -29,6 +33,22 @@ const SLIDER_CONTROLS = [
     label: "Brightness",
     min: BRIGHTNESS_MIN,
     max: BRIGHTNESS_MAX,
+    format: (value) => `${value}%`,
+    hint: "100% is unchanged",
+  },
+  {
+    key: "rotate",
+    label: "Rotate",
+    min: ROTATE_MIN,
+    max: ROTATE_MAX,
+    format: (value) => `${value}°`,
+    hint: "Degrees clockwise; the image is enlarged to fill the frame",
+  },
+  {
+    key: "zoom",
+    label: "Zoom",
+    min: ZOOM_MIN,
+    max: ZOOM_MAX,
     format: (value) => `${value}%`,
     hint: "100% is unchanged",
   },
