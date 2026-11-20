@@ -1,21 +1,29 @@
 import { useEffect, useRef, useState } from "react";
 import { isAcceptedImageFile } from "@/utils/imageTypes";
+import { EXAMPLE_DRAG_TYPE } from "@/utils/exampleImages";
 
 // Browsers repeat dragover every ~50-350ms while a drag is over the page, so
 // silence for longer than that means the drag ended without any end event.
 const DRAG_IDLE_TIMEOUT_MS = 600;
 
-const hasFiles = (event) => event.dataTransfer?.types.includes("Files");
+const isExampleDrag = (event) =>
+  event.dataTransfer?.types.includes(EXAMPLE_DRAG_TYPE);
+
+const hasFiles = (event) =>
+  isExampleDrag(event) || event.dataTransfer?.types.includes("Files");
 
 // Tracks file drags over the whole window, so the navbar counts as drop area.
 // onDrop receives (acceptedFiles, rejectedFiles) like react-dropzone does.
-const useWindowFileDrop = (onDrop) => {
+// onExampleDrop receives the example name when an in-page example is dropped.
+const useWindowFileDrop = (onDrop, onExampleDrop) => {
   const [isDragActive, setIsDragActive] = useState(false);
   const onDropRef = useRef(onDrop);
+  const onExampleDropRef = useRef(onExampleDrop);
 
   useEffect(() => {
     onDropRef.current = onDrop;
-  }, [onDrop]);
+    onExampleDropRef.current = onExampleDrop;
+  }, [onDrop, onExampleDrop]);
 
   useEffect(() => {
     // dragenter/dragleave fire for every child element crossed, so count them
@@ -68,6 +76,11 @@ const useWindowFileDrop = (onDrop) => {
       if (!hasFiles(event)) return;
       event.preventDefault();
       endDrag();
+
+      if (isExampleDrag(event)) {
+        onExampleDropRef.current(event.dataTransfer.getData(EXAMPLE_DRAG_TYPE));
+        return;
+      }
 
       const files = Array.from(event.dataTransfer.files);
       onDropRef.current(
