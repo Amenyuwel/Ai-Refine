@@ -52,7 +52,7 @@ test("duplicates are skipped and the ZIP keeps source names", async ({
 
   await page.goto("/");
   await dropFiles(page, [cat]);
-  await page.waitForURL("**/feature/upload");
+  await page.waitForURL("**/upload");
   await expect(thumbnails).toHaveCount(1);
 
   // The upload page starts a tour whose overlay would block the clicks below.

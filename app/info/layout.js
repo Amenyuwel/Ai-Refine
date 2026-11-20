@@ -1,9 +1,9 @@
-import { pageSocialMetadata } from "../../utils/pageMetadata";
+import { pageSocialMetadata } from "../utils/pageMetadata";
 
 const title = "Learn image augmentation";
 const description =
   "Short explanations of common image augmentation techniques such as flipping, blurring, grayscale and brightness changes, and why they help machine learning datasets.";
-const path = "/feature/info";
+const path = "/info";
 
 export const metadata = {
   title,

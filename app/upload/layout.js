@@ -1,8 +1,8 @@
-import { pageSocialMetadata } from "../../utils/pageMetadata";
+import { pageSocialMetadata } from "../utils/pageMetadata";
 
 const title = "Augment your images";
 const description = "Adjust, preview and download your augmented images.";
-const path = "/feature/upload";
+const path = "/upload";
 
 export const metadata = {
   title,

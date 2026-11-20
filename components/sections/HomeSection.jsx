@@ -37,7 +37,7 @@ const HomePage = () => {
       if (addedImages.length === 0) return;
 
       setSelected(addedImages[0]);
-      router.push("/feature/upload");
+      router.push("/upload");
     },
     [addFiles, setSelected, router],
   );

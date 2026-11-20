@@ -23,7 +23,7 @@ import {
   INVALID_IMAGE_FORMAT_MESSAGE,
 } from "@/utils/imageTypes";
 import { blurSigma } from "@/utils/filterSettings";
-import { useImageContext } from "../../context/ImageContext";
+import { useImageContext } from "../context/ImageContext";
 import "react-toastify/dist/ReactToastify.css";
 import BuildCircleIcon from "@mui/icons-material/BuildCircleOutlined";
 import HeroPattern from "components/HeroPattern";
