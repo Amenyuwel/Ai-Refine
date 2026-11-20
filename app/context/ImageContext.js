@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getFileKey } from "@/utils/fileKey";
 
-// Matches maxSelect on uploaded_images.images in PocketBase
+// Client-side cap on images per session
 export const MAX_IMAGES = 99;
 const LIMIT_WARNING = `You have reached the maximum limit of ${MAX_IMAGES} images.`;
 const DUPLICATE_NOTICE = "Skipped images that are already in the list.";

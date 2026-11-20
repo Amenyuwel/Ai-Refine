@@ -5,14 +5,12 @@ import Footer from "components/Footer";
 import HomePage from "components/sections/HomeSection";
 import AboutPage from "components/sections/AboutSection";
 import ShowCase from "components/sections/ShowcaseSection";
-import ContactPage from "components/sections/ContactSection";
 import useParallax from "@/hooks/useParallax";
 
 const Page = () => {
   const homeRef = useRef(null);
   const aboutRef = useRef(null);
   const showcaseRef = useRef(null);
-  const contactRef = useRef(null);
 
   useParallax([
     {
@@ -26,10 +24,6 @@ const Page = () => {
     {
       ref: showcaseRef,
       options: { startY: 120, endY: 0, duration: 0.6, scrub: 0.5 },
-    },
-    {
-      ref: contactRef,
-      options: { startY: 80, endY: 0, duration: 0.6, scrub: 0.5 },
     },
   ]);
 
@@ -45,9 +39,6 @@ const Page = () => {
           break;
         case 'about':
           targetRef = aboutRef;
-          break;
-        case 'contact':
-          targetRef = contactRef;
           break;
         default:
           break;
@@ -73,15 +64,11 @@ const Page = () => {
     return () => {
       window.removeEventListener('hashchange', handleHashNavigation);
     };
-  }, [homeRef, aboutRef, contactRef]);
+  }, [homeRef, aboutRef]);
 
   return (
     <div className="h-full w-full">
-      <Navbar
-        homeRef={homeRef}
-        aboutRef={aboutRef}
-        contactRef={contactRef}
-      />
+      <Navbar homeRef={homeRef} aboutRef={aboutRef} />
       <main className="overflow-y-hidden">
         <section id="home" ref={homeRef} className="flex min-h-screen items-center">
           <HomePage />
@@ -91,18 +78,6 @@ const Page = () => {
         </section>
         <section id="showcase" ref={showcaseRef} className="flex min-h-screen items-center">
           <ShowCase />
-        </section>
-        <section id="contact" ref={contactRef} className="flex items-center pb-16">
-          <ContactPage
-            scrollToHome={() => {
-              // offsetTop ignores the parallax translateY, unlike scrollIntoView.
-              const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
-              window.scrollTo({
-                top: Math.max(0, homeRef.current.offsetTop - headerHeight),
-                behavior: "smooth",
-              });
-            }}
-          />
         </section>
       </main>
       <Footer />

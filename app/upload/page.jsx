@@ -17,7 +17,6 @@ import ImageFooter from "@/feature/upload/ImageFooter";
 import ControlsModal from "@/feature/upload/ControlsModal";
 import ControlsPanel from "@/feature/upload/ControlsPanel";
 import Download from "@/feature/upload/Download";
-import Share from "components/Share";
 import {
   ACCEPTED_IMAGE_TYPES,
   INVALID_IMAGE_FORMAT_MESSAGE,
@@ -176,7 +175,6 @@ const ControlsPage = () => {
                 />
               </div>
               <div className="flex w-full max-w-xs flex-col justify-center gap-2 pt-4 sm:max-w-md sm:flex-row sm:gap-4">
-                <Share images={uploadedImages} />
                 <Download
                   uploadedImages={uploadedImages}
                   previewImage={previewImage}

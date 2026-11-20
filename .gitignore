@@ -42,27 +42,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# -------------------------
-# PocketBase
-# -------------------------
-# ignore live database + uploads
+# old local database + uploads; the backend is gone but local copies may still hold user data
 pb_data/
-
-# but KEEP migrations (schema changes)
-!pb_migrations/
-
-# -------------------------
-# PocketBase
-# -------------------------
-# ignore live database + uploads
-pb_data/
-
-# but KEEP migrations (schema changes)
-!pb_migrations/
-
-# ignore the pocketbase binary (exe or otherwise)
-pocketbase
-pocketbase.exe
 
 # local agent plans
 /docs/plan/

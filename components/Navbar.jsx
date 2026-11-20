@@ -15,7 +15,7 @@ const scrollToSection = (sectionRef, offset = 0) => {
 
 const NAV_ID = "main-navigation";
 
-const Navbar = ({ homeRef, aboutRef, contactRef }) => {
+const Navbar = ({ homeRef, aboutRef }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -109,16 +109,6 @@ const Navbar = ({ homeRef, aboutRef, contactRef }) => {
           }}
         >
           ABOUT
-        </Link>
-        <Link
-          href="/#contact"
-          className="cursor-pointer rounded-lg px-4 py-2 font-sans text-xl transition"
-          onClick={(event) => {
-            event.preventDefault();
-            handleNavigation(contactRef, "/", "contact");
-          }}
-        >
-          CONTACT
         </Link>
       </nav>
     </header>

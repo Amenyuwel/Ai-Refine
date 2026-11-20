@@ -61,7 +61,7 @@ h6 {
   background: var(--bg-second);
 }
 
-/* FIXED Background for the Contact Section */
+/* Wave background for the Showcase section */
 .bg-third {
   background-image: url("/background/Wave.png"); /* Ensure the path is correct */
   background-position: center;
