@@ -190,6 +190,13 @@ html {
   button, input[type="range"] {
     min-height: 44px;
   }
+
+  /* The Augment panel has to fit next to the image without scrolling, so its
+     controls (28px switch, 20px thumb, above the 24px WCAG minimum) opt out. */
+  .compact-controls button,
+  .compact-controls input[type="range"] {
+    min-height: 0;
+  }
   
   /* Better spacing for mobile */
   .space-y-6 > * + * {
@@ -282,4 +289,9 @@ html {
   .slider {
     --thumb-size: 22px;
   }
+}
+
+/* driver.js tour popover is appended to body; its stylesheet reads this variable */
+.driver-popover {
+  --driver-popover-font-family: var(--font-sans);
 }

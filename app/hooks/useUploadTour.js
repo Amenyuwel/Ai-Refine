@@ -3,20 +3,13 @@ import { useEffect } from "react";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 
-// The desktop panel is display:none below lg, where the CONTROLS button opens the modal instead.
-const findControlsTarget = () => {
-  const panel = document.querySelector('[data-tour="controls-panel"]');
-  if (panel?.offsetParent) return panel;
-  return document.querySelector('[data-tour="controls-button"]');
-};
-
 const TOUR_STEPS = [
   {
-    element: findControlsTarget,
+    element: '[data-tour="toolbar"]',
     popover: {
-      title: "Controls",
+      title: "Toolbar",
       description:
-        "Turn on grayscale, blur, brightness or flip, then drag the sliders to adjust them. On small screens, tap CONTROLS to open them.",
+        "Open Augment to turn on brightness, grayscale, blur, rotate or zoom and drag the sliders. Flip mirrors the image.",
     },
   },
   {

@@ -1,5 +1,14 @@
 // Ranges and units for the filter controls, shared by the preview and the export.
 
+// Every setting starts off and at its no-effect value. Flip stores its
+// direction in `value` (1 or -1).
+export const DEFAULT_SETTINGS = {
+  grayscale: { enabled: false, value: 0 },
+  blur: { enabled: false, value: 0 },
+  brightness: { enabled: false, value: 100 },
+  flip: { enabled: false, value: 1 },
+};
+
 // Blur is stored in tenths of a percent of the image's shorter side, so one
 // setting gives the same result on every screen and for every image size.
 export const BLUR_MAX = 20; // 2% of the shorter side

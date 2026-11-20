@@ -8,6 +8,7 @@ import { FilterError, renderImageWithFilters } from "@/utils/canvasFilters";
 import { getExportFilters } from "@/utils/filterSettings";
 import { buildExportFileNames } from "@/utils/exportFileNames";
 import { MANIFEST_FILE_NAME, buildManifest } from "@/utils/exportManifest";
+import { greenButtonClass } from "@/feature/upload/buttonStyles";
 
 const EXPORT_MIME_TYPE = "image/png";
 const EXPORT_EXTENSION = ".png";
@@ -36,7 +37,7 @@ const Download = ({
   useEffect(() => {
     if (!isDropdownOpen) return;
 
-    // pointerdown (not click) so the first tap on CONTROLS both closes the menu and still reaches CONTROLS.
+    // pointerdown (not click) so the first tap on a toolbar tab both closes the menu and still reaches the tab.
     const closeOnOutsidePress = (event) => {
       if (!containerRef.current?.contains(event.target)) setDropdownOpen(false);
     };
@@ -186,7 +187,7 @@ const Download = ({
   return (
     <div className="relative" ref={containerRef} data-tour="download">
       <button
-        className="bg-main text-main flex w-full cursor-pointer items-center justify-center gap-1 rounded-3xl border border-gray-500 px-4 py-2 text-sm transition-all duration-300 hover:scale-105 aria-disabled:cursor-wait aria-disabled:opacity-60 aria-disabled:hover:scale-100 sm:gap-2 sm:px-6 sm:text-base"
+        className={`${greenButtonClass} flex w-full cursor-pointer items-center justify-center gap-1 rounded-full px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--secondary)] aria-disabled:cursor-wait aria-disabled:opacity-60 sm:gap-2 sm:px-6`}
         ref={toggleButtonRef}
         onClick={toggleDropdown}
         aria-disabled={isExporting}
@@ -201,7 +202,7 @@ const Download = ({
         {isExporting ? "Preparing your download" : ""}
       </span>
       {isDropdownOpen && (
-        <div className="absolute left-1/2 z-10 mt-2 flex w-[180px] -translate-x-1/2 flex-col items-center overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-lg sm:w-[220px]">
+        <div className="absolute right-0 top-full z-[60] mt-2 flex w-[180px] flex-col items-center overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-lg sm:w-[220px]">
           <button
             className="w-full px-3 py-2 text-left text-xs hover:bg-gray-200 disabled:cursor-wait disabled:opacity-60 sm:px-4 sm:text-sm"
             onClick={handleDownloadPreview}

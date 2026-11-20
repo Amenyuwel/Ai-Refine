@@ -34,7 +34,7 @@ const SLIDER_CONTROLS = [
   },
 ];
 
-const Switch = ({ label, checked, onToggle }) => (
+export const Switch = ({ label, checked, onToggle }) => (
   <button
     type="button"
     role="switch"
@@ -53,39 +53,39 @@ const Switch = ({ label, checked, onToggle }) => (
   </button>
 );
 
-const ControlsPanel = ({ settings, onSettingsChange }) => {
-  const panelId = useId();
-  const updateSetting = (key, changes) => {
-    onSettingsChange({ ...settings, [key]: { ...settings[key], ...changes } });
-  };
+// Flip stores its direction in `value` so the preview and export read it like the other settings.
+export const toggleFlip = (settings) => ({
+  ...settings,
+  flip: {
+    enabled: !settings.flip.enabled,
+    value: settings.flip.value === 1 ? -1 : 1,
+  },
+});
 
-  const toggleFlip = () => {
-    onSettingsChange({
-      ...settings,
-      flip: {
-        enabled: !settings.flip.enabled,
-        value: settings.flip.value === 1 ? -1 : 1,
-      },
-    });
-  };
+// Renders the enable switch and slider for every filter setting.
+const ControlsPanel = ({
+  settings,
+  onSettingsChange,
+  onSliderDrag,
+  onSliderRelease,
+}) => {
+  const panelId = useId();
+  const withChanges = (key, changes) => ({
+    ...settings,
+    [key]: { ...settings[key], ...changes },
+  });
 
   return (
-    <ul className="space-y-3">
-      <li className="flex items-center justify-between rounded-2xl bg-[var(--bg-main)] px-4 py-3">
-        <span className="text-main text-sm font-semibold uppercase">Flip</span>
-        <Switch
-          label="Flip"
-          checked={settings.flip.enabled}
-          onToggle={toggleFlip}
-        />
-      </li>
-
+    <ul className="space-y-2">
       {SLIDER_CONTROLS.map(({ key, label, min, max, format, hint }) => {
         const { enabled, value } = settings[key];
         const sliderId = `${panelId}-${key}`;
 
         return (
-          <li key={key} className="space-y-3 rounded-2xl bg-[var(--bg-main)] px-4 py-3">
+          <li
+            key={key}
+            className="space-y-1.5 rounded-2xl bg-[var(--bg-main)] px-3 py-2"
+          >
             <div className="flex items-center justify-between gap-3">
               <label
                 htmlFor={sliderId}
@@ -105,7 +105,9 @@ const ControlsPanel = ({ settings, onSettingsChange }) => {
                 <Switch
                   label={`Enable ${label}`}
                   checked={enabled}
-                  onToggle={() => updateSetting(key, { enabled: !enabled })}
+                  onToggle={() =>
+                    onSettingsChange(withChanges(key, { enabled: !enabled }))
+                  }
                 />
               </div>
             </div>
@@ -118,12 +120,22 @@ const ControlsPanel = ({ settings, onSettingsChange }) => {
               disabled={!enabled}
               aria-valuetext={format(value)}
               onChange={(event) =>
-                updateSetting(key, { value: Number(event.target.value) })
+                onSliderDrag(
+                  withChanges(key, { value: Number(event.target.value) }),
+                )
               }
+              onPointerUp={onSliderRelease}
+              onKeyUp={onSliderRelease}
+              onBlur={onSliderRelease}
               style={{ "--fill": `${((value - min) / (max - min)) * 100}%` }}
               className="slider w-full cursor-pointer"
             />
-            {hint && <p className="text-xs text-gray-500">{hint}</p>}
+            {hint && (
+              // Hints take a row per slider; they show only when the screen is tall enough
+              <p className="sr-only text-xs text-gray-500 [@media(min-height:1000px)]:not-sr-only">
+                {hint}
+              </p>
+            )}
           </li>
         );
       })}

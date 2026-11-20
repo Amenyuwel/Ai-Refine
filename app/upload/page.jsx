@@ -2,30 +2,40 @@
 import React, {
   useEffect,
   useRef,
+  useId,
   useState,
   useMemo,
   useCallback,
 } from "react";
 import { useDropzone } from "react-dropzone";
 import useWindowFileDrop from "@/hooks/useWindowFileDrop";
+import useSettingsHistory from "@/hooks/useSettingsHistory";
 import useUploadTour from "@/hooks/useUploadTour";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Navbar from "components/Navbar";
 import DragOverlay from "components/DragOverlay";
 import ImageFooter from "@/feature/upload/ImageFooter";
-import ControlsModal from "@/feature/upload/ControlsModal";
-import ControlsPanel from "@/feature/upload/ControlsPanel";
-import Download from "@/feature/upload/Download";
+import Toolbar from "@/feature/upload/Toolbar";
+import AugmentPanel from "@/feature/upload/AugmentPanel";
 import {
   ACCEPTED_IMAGE_TYPES,
   INVALID_IMAGE_FORMAT_MESSAGE,
 } from "@/utils/imageTypes";
-import { blurSigma } from "@/utils/filterSettings";
+import { DEFAULT_SETTINGS, blurSigma } from "@/utils/filterSettings";
 import { useImageContext } from "../context/ImageContext";
 import "react-toastify/dist/ReactToastify.css";
-import BuildCircleIcon from "@mui/icons-material/BuildCircleOutlined";
 import HeroPattern from "components/HeroPattern";
+
+// Padding between the rounded frame and the image. A 24px corner radius cuts
+// about 7px off a square corner, so this keeps the image's own corners visible.
+const FRAME_PADDING_PX = 16;
+// Canvas size box: the image is scaled to fit inside it, never past MAX_UPSCALE
+// times its natural size so small images do not turn blurry.
+const CANVAS_MAX_WIDTH_PX = 960;
+// cqh is the height of the image area below, so the image fits without scrolling.
+const CANVAS_MAX_HEIGHT = `min(100cqh - ${FRAME_PADDING_PX * 2}px, 640px)`;
+const MAX_UPSCALE = 2;
 
 const ControlsPage = () => {
   const router = useRouter();
@@ -38,27 +48,35 @@ const ControlsPage = () => {
   } = useImageContext();
 
   const imageRef = useRef(null);
-  const previewFrameRef = useRef(null);
+  const previewClipRef = useRef(null);
+  const imageAreaRef = useRef(null);
   // Shorter side of the image as drawn in the frame, in CSS pixels. Blur is a
   // fraction of the shorter side, so the preview scales it like the export does.
   const [previewShortSide, setPreviewShortSide] = useState(0);
-  const [showControls, setShowControls] = useState(false);
-  const [settings, setSettings] = useState({
-    grayscale: { enabled: false, value: 0 },
-    blur: { enabled: false, value: 0 },
-    brightness: { enabled: false, value: 100 },
-    flip: { enabled: false, value: 1 },
-  });
+  // The image is centered in its area, which leaves the panel off to the side.
+  // Pulling the panel left by half the free space makes both one centered group.
+  const [panelShiftPx, setPanelShiftPx] = useState(0);
+  const [naturalSize, setNaturalSize] = useState(null);
+  const [isAugmentOpen, setIsAugmentOpen] = useState(false);
+  const augmentPanelId = useId();
+  const history = useSettingsHistory(DEFAULT_SETTINGS);
+  const { settings } = history;
 
   // The frame shrinks to the image as drawn; track that size across image
   // changes and frame resizes.
   useEffect(() => {
-    const frame = previewFrameRef.current;
+    const frame = previewClipRef.current;
     const img = imageRef.current;
-    if (!frame || !img) return;
+    const imageArea = imageAreaRef.current;
+    if (!frame || !img || !imageArea) return;
 
     const measure = () => {
-      if (!img.naturalWidth || !frame.clientWidth || !frame.clientHeight) return;
+      if (!img.naturalWidth || !frame.clientWidth || !frame.clientHeight)
+        return;
+      setPanelShiftPx(
+        (imageArea.clientWidth - frame.clientWidth - FRAME_PADDING_PX * 2) / 2,
+      );
+      setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
       const fitScale = Math.min(
         frame.clientWidth / img.naturalWidth,
         frame.clientHeight / img.naturalHeight,
@@ -71,6 +89,7 @@ const ControlsPage = () => {
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(frame);
+    observer.observe(imageArea);
     img.addEventListener("load", measure);
     return () => {
       observer.disconnect();
@@ -109,33 +128,63 @@ const ControlsPage = () => {
     noDrag: true,
   });
 
-  const handleSettingsChange = useCallback((updatedSettings) => {
-    setSettings(updatedSettings);
-  }, []);
+  // Width is the tightest of: the box width, the width that makes the height fit
+  // the box, and the upscale cap. Height follows from the aspect ratio, so the
+  // image is never cropped and the frame hugs it.
+  const sizeStyles = useMemo(() => {
+    if (!naturalSize) return {};
+    const { width, height } = naturalSize;
+    const aspectRatio = width / height;
+    return {
+      width: `min(100cqw - ${FRAME_PADDING_PX * 2}px, ${CANVAS_MAX_WIDTH_PX}px, ${width * MAX_UPSCALE}px, calc(min(${CANVAS_MAX_HEIGHT}, ${height * MAX_UPSCALE}px) * ${aspectRatio}))`,
+    };
+  }, [naturalSize]);
 
-  const closeControls = useCallback(() => setShowControls(false), []);
-
-  const imageStyles = useMemo(
-    () => ({
-      filter: `
-      grayscale(${settings.grayscale.enabled ? settings.grayscale.value : 0}%)
-      blur(${settings.blur.enabled ? blurSigma(settings.blur.value, previewShortSide) : 0}px)
-      brightness(${settings.brightness.enabled ? settings.brightness.value + "%" : "100%"})
-    `,
-      transform: `scaleX(${settings.flip.enabled ? settings.flip.value : "1"})`,
-    }),
-    [settings, previewShortSide],
-  );
+  const imageStyles = useMemo(() => {
+    const blurPx = settings.blur.enabled
+      ? blurSigma(settings.blur.value, previewShortSide)
+      : 0;
+    // No-effect filters and transforms are left out: they still make the
+    // browser draw the image on its own layer, and resampling that layer can
+    // smear the edges of an image that should be shown untouched.
+    const filters = [];
+    if (settings.grayscale.enabled)
+      filters.push(`grayscale(${settings.grayscale.value}%)`);
+    if (blurPx > 0) filters.push(`blur(${blurPx}px)`);
+    if (settings.brightness.enabled)
+      filters.push(`brightness(${settings.brightness.value}%)`);
+    const transforms = [];
+    if (settings.flip.enabled && settings.flip.value !== 1)
+      transforms.push(`scaleX(${settings.flip.value})`);
+    return {
+      ...sizeStyles,
+      filter: filters.join(" ") || "none",
+      transform: transforms.join(" ") || "none",
+    };
+  }, [settings, previewShortSide, sizeStyles]);
 
   return (
-    <main className="flex min-h-screen w-full flex-col overflow-x-hidden">
+    <main className="flex h-dvh w-full flex-col overflow-hidden">
       <HeroPattern className="absolute inset-0 z-[-50]" />
       <Navbar />
       <h1 className="sr-only">Upload and augment your images</h1>
+      {previewImage && (
+        <Toolbar
+          uploadedImages={uploadedImages}
+          previewImage={previewImage}
+          settings={settings}
+          onSettingsChange={history.change}
+          history={history}
+          isAugmentOpen={isAugmentOpen}
+          onAugmentToggle={() => setIsAugmentOpen((isOpen) => !isOpen)}
+          augmentPanelId={augmentPanelId}
+        />
+      )}
+
       {/* Dragging Dropzone */}
       <div
         {...getRootProps()}
-        className={`relative flex w-full flex-1 items-center justify-center p-2 transition-all duration-300 sm:p-4 md:p-6 ${
+        className={`relative flex min-h-0 w-full flex-1 overflow-hidden p-2 transition-all duration-300 sm:p-4 md:p-6 ${
           isDragActive ? "bg-opacity-80 z-50 bg-[#B2D3A8]" : ""
         }`}
       >
@@ -150,74 +199,50 @@ const ControlsPage = () => {
           tintClassName="bg-[#B2D3A8]/80"
         />
 
-        {/* Image and Controls Container */}
+        {/* Uploaded Image Display */}
         {previewImage && (
-          <div className="flex w-full flex-1 flex-col lg:flex-row gap-4 px-4 items-center lg:items-start justify-center">
-            {/* Uploaded Image Display */}
+          // Panel and image area share the space: stacked on narrow screens, side by side
+          // from md up. The image area takes what the panel leaves and the image shrinks to it.
+          <div
+            className={`relative flex h-full min-h-0 w-full min-w-0 flex-col items-center gap-2 md:flex-row md:gap-6 ${
+              isDragActive ? "opacity-50" : "opacity-100"
+            }`}
+          >
+            {isAugmentOpen && (
+              <AugmentPanel
+                id={augmentPanelId}
+                settings={settings}
+                onSettingsChange={history.change}
+                onSliderDrag={history.drag}
+                onSliderRelease={history.release}
+                style={{ "--panel-shift": `${panelShiftPx}px` }}
+              />
+            )}
             <div
-              className={`relative flex flex-col items-center ${
-                isDragActive ? "opacity-50" : "opacity-100"
-              }`}
+              ref={imageAreaRef}
+              className="[container-type:size] flex min-h-0 min-w-0 flex-1 items-center justify-center self-stretch"
             >
               {/* The frame wraps the image, so its shape follows the image's aspect ratio */}
               <div
-                ref={previewFrameRef}
-                className="bg-main w-fit max-w-xs overflow-hidden rounded-3xl shadow-lg sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
+                className="w-fit max-w-full rounded-3xl bg-white shadow-lg"
+                style={{ padding: FRAME_PADDING_PX }}
               >
-                {/* previewImage is a user-uploaded blob/data URL the optimizer cannot fetch */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  ref={imageRef}
-                  src={previewImage.url}
-                  alt="Uploaded Preview"
-                  className="z-[50] block h-auto max-h-64 w-auto max-w-full sm:max-h-80 md:max-h-96 lg:max-h-[400px] xl:max-h-[500px]"
-                  style={imageStyles}
-                />
+                <div ref={previewClipRef} className="overflow-hidden">
+                  {/* previewImage is a user-uploaded blob/data URL the optimizer cannot fetch */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    ref={imageRef}
+                    src={previewImage.url}
+                    alt="Uploaded Preview"
+                    className="z-[50] block h-auto max-w-full"
+                    style={imageStyles}
+                  />
+                </div>
               </div>
-              <div className="flex w-full max-w-xs flex-col justify-center gap-2 pt-4 sm:max-w-md sm:flex-row sm:gap-4">
-                <Download
-                  uploadedImages={uploadedImages}
-                  previewImage={previewImage}
-                  settings={settings}
-                />
-                <button
-                  data-tour="controls-button"
-                  className="bg-main text-main flex cursor-pointer items-center justify-center gap-2 rounded-full border border-gray-500 px-4 py-2 text-sm transition-all duration-300 hover:scale-105 hover:bg-[var(--primary)] sm:px-6 sm:text-base lg:hidden"
-                  onClick={() => setShowControls(!showControls)}
-                >
-                  CONTROLS
-                  <BuildCircleIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                </button>
-              </div>
-            </div>
-
-            {/* Controls Panel - Desktop Only */}
-            <div data-tour="controls-panel" className="hidden lg:flex lg:flex-col lg:w-80 lg:rounded-3xl lg:bg-white lg:p-6 lg:shadow-lg">
-              <h2 className="text-lg font-bold text-gray-800 mb-4">
-                CONTROLS
-              </h2>
-              <p className="text-xs leading-relaxed text-gray-500 mb-6">
-                Click the toggle buttons to enable modifications, then use the sliders
-                to adjust their intensity.
-              </p>
-
-              <ControlsPanel
-                settings={settings}
-                onSettingsChange={handleSettingsChange}
-              />
             </div>
           </div>
         )}
       </div>
-
-      {/* Mobile Controls Modal */}
-      <ControlsModal
-        isOpen={showControls}
-        type="controls"
-        onClose={closeControls}
-        settings={settings}
-        onSettingsChange={handleSettingsChange}
-      />
 
       <ImageFooter onImageClick={setSelected} onImageDelete={removeImage} />
     </main>
