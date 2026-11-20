@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { expect, test } from "vitest";
 import JSZip from "jszip";
 import {
@@ -6,7 +9,17 @@ import {
   describeOperations,
 } from "@/utils/exportManifest";
 import { getExportFilters } from "@/utils/filterSettings";
-import { buildExportFileNames } from "@/utils/exportFileNames";
+import {
+  buildExportFileNames,
+  getExportFormat,
+  getZipEntryPath,
+} from "@/utils/exportFileNames";
+import { getFileSha256 } from "@/utils/fileKey";
+
+const FIXTURES = path.resolve(import.meta.dirname, "../fixtures");
+const APP_VERSION = "1.2.3";
+const CAT_SHA256 = "a".repeat(64);
+const OTHER_CAT_SHA256 = "b".repeat(64);
 
 const ALL_OFF = {
   grayscale: { enabled: false, value: 0 },
@@ -57,66 +70,196 @@ test("blur sigma follows each image's own shorter side", () => {
   expect(blur).toEqual({ name: "blur", sigmaPx: 10.8 });
 });
 
+const grayscaleFilters = getExportFilters(
+  { ...ALL_OFF, grayscale: { enabled: true, value: 100 } },
+  40,
+  30,
+);
+const GRAYSCALE_ENTRIES = [
+  {
+    output: "cat.png",
+    source: "cat.jpg",
+    size: 1234,
+    sha256: CAT_SHA256,
+    filters: grayscaleFilters,
+  },
+  {
+    output: "cat_2.png",
+    source: "cat.png",
+    size: 5678,
+    sha256: OTHER_CAT_SHA256,
+    filters: grayscaleFilters,
+  },
+];
+
 test("manifest is valid JSON mapping each output to its source", () => {
-  const filters = getExportFilters(
-    { ...ALL_OFF, grayscale: { enabled: true, value: 100 } },
-    40,
-    30,
-  );
   const manifest = JSON.parse(
-    buildManifest([
-      { output: "cat.png", source: "cat.jpg", filters },
-      { output: "cat_2.png", source: "cat.png", filters },
-    ]),
+    buildManifest(GRAYSCALE_ENTRIES, APP_VERSION, null),
   );
   expect(manifest).toEqual({
+    appVersion: APP_VERSION,
+    class: null,
     files: [
       {
         output: "cat.png",
         source: "cat.jpg",
+        size: 1234,
+        sha256: CAT_SHA256,
         operations: [{ name: "grayscale", percent: 100 }],
       },
       {
         output: "cat_2.png",
         source: "cat.png",
+        size: 5678,
+        sha256: OTHER_CAT_SHA256,
         operations: [{ name: "grayscale", percent: 100 }],
       },
     ],
   });
 });
 
-test("ZIP holds one entry per output plus the manifest, and they match", async () => {
-  const sources = ["cat.jpg", "cat.png", "dog.jpeg"];
-  const outputs = buildExportFileNames(sources, ".png");
+test("same input and settings give a byte-identical manifest", () => {
+  expect(buildManifest(GRAYSCALE_ENTRIES, APP_VERSION, null)).toBe(
+    buildManifest(structuredClone(GRAYSCALE_ENTRIES), APP_VERSION, null),
+  );
+});
+
+test("source hash is the SHA-256 of the source file", async () => {
+  const bytes = await readFile(path.join(FIXTURES, "cat.png"));
+  const sha256 = await getFileSha256(new File([bytes], "cat.png"));
+  const manifest = JSON.parse(
+    buildManifest(
+      [
+        {
+          output: "cat.png",
+          source: "cat.png",
+          size: bytes.length,
+          sha256,
+          filters: {},
+        },
+      ],
+      APP_VERSION,
+      null,
+    ),
+  );
+
+  expect(manifest.files[0].sha256).toBe(
+    createHash("sha256").update(bytes).digest("hex"),
+  );
+});
+
+const ZIP_SOURCES = [
+  { name: "cat.jpg", type: "image/jpeg" },
+  { name: "cat.png", type: "image/png" },
+  { name: "cat.png", type: "image/png" },
+  { name: "dog.jpeg", type: "image/jpeg" },
+];
+
+// Builds the ZIP the way Download.jsx does and reads it back.
+const buildAndReadZip = async (className) => {
+  const paths = buildExportFileNames(
+    ZIP_SOURCES.map((source) => ({
+      name: source.name,
+      extension: getExportFormat(source).extension,
+    })),
+  ).map((fileName) => getZipEntryPath(className, fileName));
   const filters = getExportFilters(ALL_OFF, 40, 30);
+  // A different length per output, so a size taken from the wrong entry fails.
+  const contents = paths.map((_, index) => new Uint8Array(index + 1));
   const zip = new JSZip();
-  outputs.forEach((output) => zip.file(output, new Uint8Array([1])));
+  paths.forEach((zipPath, index) => zip.file(zipPath, contents[index]));
   zip.file(
     MANIFEST_FILE_NAME,
     buildManifest(
-      outputs.map((output, index) => ({
+      paths.map((output, index) => ({
         output,
-        source: sources[index],
+        source: ZIP_SOURCES[index].name,
+        size: contents[index].length,
+        sha256: CAT_SHA256,
         filters,
       })),
+      APP_VERSION,
+      className,
     ),
   );
 
   const unzipped = await JSZip.loadAsync(
     await zip.generateAsync({ type: "uint8array" }),
   );
-  const names = Object.keys(unzipped.files);
-  expect(names).toEqual(["cat.png", "cat_2.png", "dog.png", "manifest.json"]);
-
   const manifest = JSON.parse(
     await unzipped.file(MANIFEST_FILE_NAME).async("string"),
   );
+  return { unzipped, manifest };
+};
+
+const getFileEntryNames = (unzipped) =>
+  Object.values(unzipped.files)
+    .filter((entry) => !entry.dir)
+    .map((entry) => entry.name);
+
+const expectManifestSizesMatchEntries = async (unzipped, manifest) => {
+  for (const { output, size } of manifest.files) {
+    const entry = await unzipped.file(output).async("uint8array");
+    expect(size, output).toBe(entry.length);
+  }
+};
+
+test("ZIP holds one entry per output plus the manifest, and they match", async () => {
+  const { unzipped, manifest } = await buildAndReadZip(null);
+  const names = Object.keys(unzipped.files);
+  expect(names).toEqual([
+    "cat.jpg",
+    "cat.png",
+    "cat_2.png",
+    "dog.jpeg",
+    "manifest.json",
+  ]);
+
+  expect(manifest.class).toBeNull();
   expect(manifest.files.map(({ output, source }) => [output, source])).toEqual([
-    ["cat.png", "cat.jpg"],
+    ["cat.jpg", "cat.jpg"],
+    ["cat.png", "cat.png"],
     ["cat_2.png", "cat.png"],
-    ["dog.png", "dog.jpeg"],
+    ["dog.jpeg", "dog.jpeg"],
   ]);
   expect(manifest.files.map(({ output }) => output)).toEqual(
     names.filter((name) => name !== MANIFEST_FILE_NAME),
   );
+  await expectManifestSizesMatchEntries(unzipped, manifest);
+});
+
+test("with a class, every image sits in its folder and the manifest stays at the root", async () => {
+  const { unzipped, manifest } = await buildAndReadZip("cat");
+  expect(getFileEntryNames(unzipped)).toEqual([
+    "cat/cat.jpg",
+    "cat/cat.png",
+    "cat/cat_2.png",
+    "cat/dog.jpeg",
+    "manifest.json",
+  ]);
+
+  expect(manifest.class).toBe("cat");
+  expect(manifest.files.map(({ output, source }) => [output, source])).toEqual([
+    ["cat/cat.jpg", "cat.jpg"],
+    ["cat/cat.png", "cat.png"],
+    ["cat/cat_2.png", "cat.png"],
+    ["cat/dog.jpeg", "dog.jpeg"],
+  ]);
+  await expectManifestSizesMatchEntries(unzipped, manifest);
+});
+
+test("a class only adds the folder: same images, names and sizes as a flat ZIP", async () => {
+  const flat = await buildAndReadZip(null);
+  const withClass = await buildAndReadZip("cat");
+  const { class: flatClass, ...flatRest } = flat.manifest;
+  const { class: folderClass, ...folderRest } = withClass.manifest;
+
+  expect([flatClass, folderClass]).toEqual([null, "cat"]);
+  expect({
+    ...folderRest,
+    files: folderRest.files.map((file) => ({
+      ...file,
+      output: file.output.replace(/^cat\//, ""),
+    })),
+  }).toEqual(flatRest);
 });

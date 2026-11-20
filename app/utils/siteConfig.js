@@ -3,5 +3,7 @@ export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:6969";
 
 export const siteName = "AI-Refine";
+// package.json version, set by next.config.mjs
+export const appVersion = process.env.APP_VERSION;
 export const siteDescription =
   "Augment your images in the browser. Flip, blur, adjust brightness and convert to grayscale, then download the results for your machine learning datasets.";

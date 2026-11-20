@@ -23,13 +23,21 @@ export const describeOperations = ({
   return operations;
 };
 
-// entries: one { output, source, filters } per file actually written to the ZIP.
-export const buildManifest = (entries) =>
+// entries: one { output, source, size, sha256, filters } per file actually
+// written to the ZIP; output is the entry's path inside the ZIP, size is its
+// length in bytes and sha256 is the source's content hash. className is the
+// sanitized class folder, or null for a flat ZIP. No timestamp: the same input
+// and settings must give a byte-identical manifest.
+export const buildManifest = (entries, appVersion, className) =>
   JSON.stringify(
     {
-      files: entries.map(({ output, source, filters }) => ({
+      appVersion,
+      class: className,
+      files: entries.map(({ output, source, size, sha256, filters }) => ({
         output,
         source,
+        size,
+        sha256,
         operations: describeOperations(filters),
       })),
     },

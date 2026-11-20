@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getFileKey } from "@/utils/fileKey";
+import { getFileKey, getFileSha256 } from "@/utils/fileKey";
 
 // Client-side cap on images per session
 export const MAX_IMAGES = 99;
@@ -21,16 +21,20 @@ const READ_ERROR = "Could not read the images. Please try again.";
 const ImageContext = createContext();
 
 // One at a time: hashing reads each file fully into memory.
-const readFileKeys = async (files) => {
-  const fileKeys = [];
-  for (const file of files) fileKeys.push(await getFileKey(file));
-  return fileKeys;
+const readFileHashes = async (files) => {
+  const fileHashes = [];
+  for (const file of files) fileHashes.push(await getFileSha256(file));
+  return fileHashes;
 };
 
 export const ImageProvider = ({ children }) => {
-  // Each image is { id, file, url }: id is the content key, url a blob URL.
+  // Each image is { id, file, url, sha256 }: id is the content key, url a
+  // blob URL, sha256 the content hash (null outside secure contexts).
   const [uploadedImages, setUploadedImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
+  // One class for the whole batch, as typed. The export sanitizes it; empty
+  // keeps the ZIP flat.
+  const [className, setClassName] = useState("");
 
   // Mirrors the list synchronously so addFiles can decide on the warning
   // outside the state updater (React may run updaters twice).
@@ -40,9 +44,9 @@ export const ImageProvider = ({ children }) => {
   // of a drop in a single call so each notice shows once. Files whose content
   // is already listed are skipped. Returns the images that were added.
   const addFiles = useCallback(async (files) => {
-    let fileKeys;
+    let fileHashes;
     try {
-      fileKeys = await readFileKeys(files);
+      fileHashes = await readFileHashes(files);
     } catch (error) {
       console.error("Error reading image files:", error);
       toast.error(READ_ERROR);
@@ -54,9 +58,10 @@ export const ImageProvider = ({ children }) => {
     const listedIds = new Set(currentImages.map((image) => image.id));
     const uniqueFilesById = new Map();
     files.forEach((file, index) => {
-      const id = fileKeys[index];
+      const sha256 = fileHashes[index];
+      const id = getFileKey(file, sha256);
       if (!listedIds.has(id) && !uniqueFilesById.has(id)) {
-        uniqueFilesById.set(id, file);
+        uniqueFilesById.set(id, { file, sha256 });
       }
     });
 
@@ -65,7 +70,12 @@ export const ImageProvider = ({ children }) => {
     }
     const addedImages = Array.from(uniqueFilesById)
       .slice(0, MAX_IMAGES - currentImages.length)
-      .map(([id, file]) => ({ id, file, url: URL.createObjectURL(file) }));
+      .map(([id, { file, sha256 }]) => ({
+        id,
+        file,
+        url: URL.createObjectURL(file),
+        sha256,
+      }));
 
     if (addedImages.length < uniqueFilesById.size) {
       toast.warning(LIMIT_WARNING);
@@ -125,8 +135,17 @@ export const ImageProvider = ({ children }) => {
       addFiles,
       removeImage,
       setSelected,
+      className,
+      setClassName,
     }),
-    [uploadedImages, selectedImage, addFiles, removeImage, setSelected],
+    [
+      uploadedImages,
+      selectedImage,
+      addFiles,
+      removeImage,
+      setSelected,
+      className,
+    ],
   );
 
   return (

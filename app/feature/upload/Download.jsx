@@ -6,12 +6,23 @@ import { toast } from "react-toastify";
 import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDownOutlined";
 import { FilterError, renderImageWithFilters } from "@/utils/canvasFilters";
 import { getExportFilters } from "@/utils/filterSettings";
-import { buildExportFileNames } from "@/utils/exportFileNames";
+import {
+  buildExportFileNames,
+  getExportFormat,
+  getZipEntryPath,
+  sanitizeClassName,
+} from "@/utils/exportFileNames";
 import { MANIFEST_FILE_NAME, buildManifest } from "@/utils/exportManifest";
+import { appVersion } from "@/utils/siteConfig";
 import { greenButtonClass } from "@/feature/upload/buttonStyles";
+import { useImageContext } from "@/context/ImageContext";
 
-const EXPORT_MIME_TYPE = "image/png";
-const EXPORT_EXTENSION = ".png";
+// ZIP entries keep each source's format; the single preview download stays PNG.
+const PREVIEW_MIME_TYPE = "image/png";
+const PREVIEW_EXTENSION = ".png";
+// Ignored for PNG. Above the browser default so JPEG dataset images keep more
+// detail for YOLO/CNN training.
+const JPEG_QUALITY = 0.95;
 
 const DOWNLOAD_ERROR = "Could not download the image. Please try again.";
 const FILTER_ERROR =
@@ -24,6 +35,7 @@ const Download = ({
   previewImage,
   settings = {},
 }) => {
+  const { className } = useImageContext();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   // State updates land after the click handler returns, so a ref blocks a fast second click.
@@ -66,7 +78,7 @@ const Download = ({
     toggleButtonRef.current?.focus();
   };
 
-  const processImageWithFilters = (imageUrl) => {
+  const processImageWithFilters = (imageUrl, mimeType) => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = "anonymous";
@@ -85,13 +97,17 @@ const Download = ({
             ...filters,
           });
 
-          canvas.toBlob((blob) => {
-            // Safari holds canvas memory until it is resized, which adds up over a 99-image ZIP.
-            canvas.width = 0;
-            canvas.height = 0;
-            if (blob) resolve({ blob, filters });
-            else reject(new Error("Failed to convert image to blob"));
-          }, EXPORT_MIME_TYPE);
+          canvas.toBlob(
+            (blob) => {
+              // Safari holds canvas memory until it is resized, which adds up over a 99-image ZIP.
+              canvas.width = 0;
+              canvas.height = 0;
+              if (blob) resolve({ blob, filters });
+              else reject(new Error("Failed to convert image to blob"));
+            },
+            mimeType,
+            JPEG_QUALITY,
+          );
         } catch (error) {
           reject(error);
         }
@@ -115,8 +131,11 @@ const Download = ({
 
   const downloadPreview = async () => {
     try {
-      const { blob } = await processImageWithFilters(previewImage.url);
-      saveAs(blob, `preview${EXPORT_EXTENSION}`);
+      const { blob } = await processImageWithFilters(
+        previewImage.url,
+        PREVIEW_MIME_TYPE,
+      );
+      saveAs(blob, `preview${PREVIEW_EXTENSION}`);
     } catch (error) {
       console.error("Error processing preview image:", error);
       toast.error(getDownloadErrorMessage(error));
@@ -137,10 +156,14 @@ const Download = ({
 
   const downloadZip = async () => {
     const zip = new JSZip();
-    const fileNames = buildExportFileNames(
-      uploadedImages.map((image) => image.file.name),
-      EXPORT_EXTENSION,
-    );
+    const formats = uploadedImages.map((image) => getExportFormat(image.file));
+    const exportClassName = sanitizeClassName(className);
+    const zipPaths = buildExportFileNames(
+      uploadedImages.map((image, index) => ({
+        name: image.file.name,
+        extension: formats[index].extension,
+      })),
+    ).map((fileName) => getZipEntryPath(exportClassName, fileName));
 
     try {
       // One at a time: the pixel filter path holds two full-size buffers per image.
@@ -148,11 +171,16 @@ const Download = ({
       const manifestEntries = [];
       for (const [index, image] of uploadedImages.entries()) {
         try {
-          const { blob, filters } = await processImageWithFilters(image.url);
-          zip.file(fileNames[index], blob);
+          const { blob, filters } = await processImageWithFilters(
+            image.url,
+            formats[index].mimeType,
+          );
+          zip.file(zipPaths[index], blob);
           manifestEntries.push({
-            output: fileNames[index],
+            output: zipPaths[index],
             source: image.file.name,
+            size: blob.size,
+            sha256: image.sha256,
             filters,
           });
         } catch (error) {
@@ -175,7 +203,10 @@ const Download = ({
         );
       }
 
-      zip.file(MANIFEST_FILE_NAME, buildManifest(manifestEntries));
+      zip.file(
+        MANIFEST_FILE_NAME,
+        buildManifest(manifestEntries, appVersion, exportClassName),
+      );
       const zipBlob = await zip.generateAsync({ type: "blob" });
       saveAs(zipBlob, "images.zip");
     } catch (error) {
