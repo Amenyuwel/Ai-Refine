@@ -21,7 +21,7 @@ const AboutPage = () => {
             href="/info"
             className="mt-6 flex cursor-pointer gap-2 place-self-center sm:place-self-start rounded-full bg-[var(--primary)] px-6 sm:px-8 py-3 transition-transform hover:scale-105 hover:brightness-105"
           >
-              <span className="flex flex-row items-center text-base sm:text-lg text-main">
+              <span className="flex flex-row items-center text-base sm:text-lg text-white">
                 Learn augmentation
                 <FaArrowCircleRight className="ml-2 text-xl sm:text-2xl" />
               </span>

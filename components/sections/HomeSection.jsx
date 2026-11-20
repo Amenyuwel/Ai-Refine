@@ -173,7 +173,7 @@ const HomePage = () => {
             </p>
             <button
               type="button"
-              className="cursor-pointer rounded-full bg-[var(--primary)] px-6 py-3 text-lg text-main shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:brightness-105 sm:px-8 sm:py-4 sm:text-2xl"
+              className="cursor-pointer rounded-full bg-[var(--primary)] px-6 py-3 text-lg text-white shadow-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:brightness-105 sm:px-8 sm:py-4 sm:text-2xl"
               onClick={(e) => {
                 e.stopPropagation();
                 fileInputRef.current?.click();
