@@ -4,7 +4,7 @@ import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="relative flex h-[120px] w-full items-center justify-center space-x-6 bg-[#DCEEDF]">
+    <footer className="relative flex h-[120px] w-full items-center justify-center space-x-6 bg-white">
       {/* GitHub Icon */}
       <a
         href="https://github.com/Amenyuwel"

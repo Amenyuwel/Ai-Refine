@@ -10,36 +10,120 @@ import React, {
 } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getFileKey, getFileSha256 } from "@/utils/fileKey";
+import {
+  DEFAULT_RANGES,
+  VARIANT_COUNT_DEFAULT,
+  clampVariantCount,
+  syncRangeFlags,
+} from "@/utils/filterSettings";
 
-// Matches maxSelect on uploaded_images.images in PocketBase
+// Client-side cap on images per session
 export const MAX_IMAGES = 99;
 const LIMIT_WARNING = `You have reached the maximum limit of ${MAX_IMAGES} images.`;
+const DUPLICATE_NOTICE = "Skipped images that are already in the list.";
+const READ_ERROR = "Could not read the images. Please try again.";
 
 const ImageContext = createContext();
 
+// One at a time: hashing reads each file fully into memory.
+const readFileHashes = async (files) => {
+  const fileHashes = [];
+  for (const file of files) fileHashes.push(await getFileSha256(file));
+  return fileHashes;
+};
+
 export const ImageProvider = ({ children }) => {
+  // Each image is { id, file, url, sha256 }: id is the content key, url a
+  // blob URL, sha256 the content hash (null outside secure contexts).
   const [uploadedImages, setUploadedImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
+  // One class for the whole batch, as typed. The export sanitizes it; empty
+  // keeps the ZIP flat.
+  const [className, setClassName] = useState("");
 
-  // Mirrors the list synchronously so addImage can decide on the warning
+  // Random variants, read by the export. `ranges[key].enabled` mirrors the
+  // settings toggles (see syncRangeEnabled); a null seed means one is
+  // generated at export.
+  const [randomize, setRandomize] = useState(false);
+  const [ranges, setRanges] = useState(DEFAULT_RANGES);
+  const [variantCount, setVariantCountState] = useState(VARIANT_COUNT_DEFAULT);
+  const [seed, setSeed] = useState(null);
+
+  const setVariantCount = useCallback(
+    (count) => setVariantCountState(clampVariantCount(count)),
+    [],
+  );
+
+  // A range can never have its min above its max.
+  const setRange = useCallback((key, { min, max }) => {
+    setRanges((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], min: Math.min(min, max), max: Math.max(min, max) },
+    }));
+  }, []);
+
+  const syncRangeEnabled = useCallback((settings) => {
+    setRanges((prev) => syncRangeFlags(prev, settings));
+  }, []);
+
+  // The enabled flags stay: they follow the settings toggles, not this reset.
+  const resetRandomVariants = useCallback(() => {
+    setRandomize(false);
+    setRanges((prev) =>
+      Object.fromEntries(
+        Object.entries(DEFAULT_RANGES).map(([key, range]) => [
+          key,
+          { ...range, enabled: prev[key].enabled },
+        ]),
+      ),
+    );
+    setVariantCountState(VARIANT_COUNT_DEFAULT);
+    setSeed(null);
+  }, []);
+
+  // Mirrors the list synchronously so addFiles can decide on the warning
   // outside the state updater (React may run updaters twice).
   const uploadedImagesRef = useRef(uploadedImages);
 
-  // Add images to the list. One call is one user attempt: pass every file of a
-  // drop in a single call so the limit warning shows once. Returns the images
-  // that were added so the caller can revoke the ones that were left out.
-  const addImage = useCallback((newImages) => {
-    const currentImages = uploadedImagesRef.current;
-    const newImagesArray = Array.isArray(newImages) ? newImages : [newImages];
-    const uniqueImages = newImagesArray.filter(
-      (img) => !currentImages.includes(img),
-    );
-    const addedImages = uniqueImages.slice(
-      0,
-      MAX_IMAGES - currentImages.length,
-    );
+  // Add image files to the list. One call is one user attempt: pass every file
+  // of a drop in a single call so each notice shows once. Files whose content
+  // is already listed are skipped. Returns the images that were added.
+  const addFiles = useCallback(async (files) => {
+    let fileHashes;
+    try {
+      fileHashes = await readFileHashes(files);
+    } catch (error) {
+      console.error("Error reading image files:", error);
+      toast.error(READ_ERROR);
+      return [];
+    }
 
-    if (addedImages.length < uniqueImages.length) {
+    // Read the list after hashing: another drop may have landed meanwhile.
+    const currentImages = uploadedImagesRef.current;
+    const listedIds = new Set(currentImages.map((image) => image.id));
+    const uniqueFilesById = new Map();
+    files.forEach((file, index) => {
+      const sha256 = fileHashes[index];
+      const id = getFileKey(file, sha256);
+      if (!listedIds.has(id) && !uniqueFilesById.has(id)) {
+        uniqueFilesById.set(id, { file, sha256 });
+      }
+    });
+
+    if (uniqueFilesById.size < files.length) {
+      toast.info(DUPLICATE_NOTICE);
+    }
+    const addedImages = Array.from(uniqueFilesById)
+      .slice(0, MAX_IMAGES - currentImages.length)
+      .map(([id, { file, sha256 }]) => ({
+        id,
+        file,
+        url: URL.createObjectURL(file),
+        sha256,
+      }));
+
+    if (addedImages.length < uniqueFilesById.size) {
       toast.warning(LIMIT_WARNING);
     }
     if (addedImages.length === 0) return addedImages;
@@ -73,7 +157,7 @@ export const ImageProvider = ({ children }) => {
     });
 
     // Revoke Object URL to free memory
-    URL.revokeObjectURL(imageToRemove);
+    URL.revokeObjectURL(imageToRemove.url);
   }, []);
 
   // Set the selected image
@@ -85,7 +169,7 @@ export const ImageProvider = ({ children }) => {
   // change would revoke URLs of images that are still displayed.
   useEffect(() => {
     return () => {
-      uploadedImagesRef.current.forEach((img) => URL.revokeObjectURL(img));
+      uploadedImagesRef.current.forEach((img) => URL.revokeObjectURL(img.url));
     };
   }, []);
 
@@ -94,11 +178,38 @@ export const ImageProvider = ({ children }) => {
     () => ({
       uploadedImages,
       selectedImage,
-      addImage,
+      addFiles,
       removeImage,
       setSelected,
+      className,
+      setClassName,
+      randomize,
+      setRandomize,
+      ranges,
+      setRange,
+      syncRangeEnabled,
+      variantCount,
+      setVariantCount,
+      seed,
+      setSeed,
+      resetRandomVariants,
     }),
-    [uploadedImages, selectedImage, addImage, removeImage, setSelected],
+    [
+      uploadedImages,
+      selectedImage,
+      addFiles,
+      removeImage,
+      setSelected,
+      className,
+      randomize,
+      ranges,
+      setRange,
+      syncRangeEnabled,
+      variantCount,
+      setVariantCount,
+      seed,
+      resetRandomVariants,
+    ],
   );
 
   return (

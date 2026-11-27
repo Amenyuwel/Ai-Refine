@@ -1,0 +1,8 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "paths": {
+    "components/*": ["./components/*"]
+  },
+  "ignoreDependencies": ["@emotion/react", "@emotion/styled"],
+  "ignoreUnresolved": ["^/utils/"]
+}

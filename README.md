@@ -23,7 +23,6 @@ An automated image augmentation tool built with Next.js that helps enhance datas
 - **Styling**: Tailwind CSS
 - **Icons**: React Icons (Font Awesome)
 - **File Processing**: JSZip for batch downloads
-- **Backend**: PocketBase integration
 - **Fonts**: Oswald & Poppins
 
 ## Getting Started
@@ -50,29 +49,7 @@ yarn install
 pnpm install
 ```
 
-3. Start PocketBase:
-Download PocketBase v0.23 or newer from [pocketbase.io/docs](https://pocketbase.io/docs/) and put the binary in the repo root (it is gitignored). Then, from the repo root, run:
-```bash
-./pocketbase serve --http 127.0.0.1:8090
-# Windows
-.\pocketbase.exe serve --http 127.0.0.1:8090
-```
-PocketBase looks for `pb_data/` next to the binary, so this uses the repo's `pb_data/` (created on first run) and applies the schema from `pb_migrations/`. If you keep the binary somewhere else, point it at the repo folders explicitly:
-```bash
-pocketbase serve --http 127.0.0.1:8090 --dir ./pb_data --migrationsDir ./pb_migrations
-```
-On first run, open the link PocketBase prints in the terminal to create a superuser.
-
-To check it worked, open [http://127.0.0.1:8090/_/](http://127.0.0.1:8090/_/), log in, and confirm the `uploaded_images` and `contact_messages` collections are listed.
-
-4. Set up environment variables:
-Create a `.env.local` file in the root directory and add:
-```bash
-NEXT_PUBLIC_PB_URL=http://127.0.0.1:8090
-```
-Restart `npm run dev` after changing `.env.local`, because Next.js only reads it at start-up.
-
-5. Run the development server:
+3. Run the development server:
 ```bash
 npm run dev
 # or
@@ -83,11 +60,24 @@ pnpm dev
 bun dev
 ```
 
-6. Open [http://localhost:6969](http://localhost:6969) with your browser to see the application.
+4. Open [http://localhost:6969](http://localhost:6969) with your browser to see the application.
 
-### Troubleshooting
+### Testing
 
-- **`404` on `/api/collections/uploaded_images/records`** ("Missing or invalid collection context."): PocketBase is running on the wrong data folder, or another process holds port 8090. Stop it and start PocketBase again from the repo root as in step 3.
+```bash
+npm run lint
+npm test              # unit tests (Vitest)
+npm run test:e2e      # end-to-end tests in Chromium
+npm run test:e2e:all  # end-to-end tests in Chromium, Firefox and WebKit
+```
+
+The e2e scripts build the app and serve it on port 6969, so stop `npm run dev` first. Install the browsers once before the first run:
+
+```bash
+npx playwright install chromium firefox webkit
+```
+
+To run a single browser, pass its project: `npx playwright test --project=firefox` (or `chromium`, `webkit`). WebKit also needs system libraries; on Linux, `sudo npx playwright install-deps webkit` installs them, or run the suite in the `mcr.microsoft.com/playwright` Docker image that matches the installed `@playwright/test` version.
 
 ## Project Structure
 

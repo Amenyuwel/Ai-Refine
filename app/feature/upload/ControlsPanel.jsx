@@ -1,16 +1,22 @@
 "use client";
 import React, { useId } from "react";
+import EffectRow from "@/feature/upload/EffectRow";
 
 import {
   BLUR_MAX,
   BRIGHTNESS_MAX,
   BRIGHTNESS_MIN,
+  ROTATE_MAX,
+  ROTATE_MIN,
+  ZOOM_MAX,
+  ZOOM_MIN,
 } from "@/utils/filterSettings";
 
 // `format` shows the value in the unit the filter really uses.
 const SLIDER_CONTROLS = [
   {
     key: "grayscale",
+    group: "color",
     label: "Grayscale",
     min: 0,
     max: 100,
@@ -18,6 +24,7 @@ const SLIDER_CONTROLS = [
   },
   {
     key: "blur",
+    group: "color",
     label: "Blur",
     min: 0,
     max: BLUR_MAX,
@@ -26,108 +33,113 @@ const SLIDER_CONTROLS = [
   },
   {
     key: "brightness",
+    group: "color",
     label: "Brightness",
     min: BRIGHTNESS_MIN,
     max: BRIGHTNESS_MAX,
     format: (value) => `${value}%`,
     hint: "100% is unchanged",
   },
+  {
+    key: "rotate",
+    group: "position",
+    label: "Rotate",
+    min: ROTATE_MIN,
+    max: ROTATE_MAX,
+    format: (value) => `${value}°`,
+    hint: "Degrees clockwise; the image is enlarged to fill the frame",
+  },
+  {
+    key: "zoom",
+    group: "position",
+    label: "Zoom",
+    min: ZOOM_MIN,
+    max: ZOOM_MAX,
+    format: (value) => `${value}%`,
+    hint: "100% is unchanged",
+  },
 ];
 
-const Switch = ({ label, checked, onToggle }) => (
-  <button
-    type="button"
-    role="switch"
-    aria-checked={checked}
-    aria-label={label}
-    onClick={onToggle}
-    className={`relative h-7 w-12 shrink-0 cursor-pointer rounded-full p-0.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--secondary)] ${
-      checked ? "bg-[var(--primary)]" : "bg-gray-300"
-    }`}
-  >
-    <span
-      className={`block h-6 w-6 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-        checked ? "translate-x-5" : "translate-x-0"
-      }`}
-    />
-  </button>
-);
+// The panel shows the groups top to bottom in this order.
+const CONTROL_GROUPS = [
+  { id: "color", heading: "Color and detail" },
+  { id: "position", heading: "Position and size" },
+];
 
-const ControlsPanel = ({ settings, onSettingsChange }) => {
+// Flip stores its direction in `value` so the preview and export read it like the other settings.
+export const toggleFlip = (settings) => ({
+  ...settings,
+  flip: {
+    enabled: !settings.flip.enabled,
+    value: settings.flip.value === 1 ? -1 : 1,
+  },
+});
+
+// One row per filter setting. In randomize mode each row shows a min-max range.
+const ControlsPanel = ({
+  settings,
+  onSettingsChange,
+  onSliderDrag,
+  onSliderRelease,
+  randomize,
+  ranges,
+  onRangeChange,
+}) => {
   const panelId = useId();
-  const updateSetting = (key, changes) => {
-    onSettingsChange({ ...settings, [key]: { ...settings[key], ...changes } });
-  };
-
-  const toggleFlip = () => {
-    onSettingsChange({
-      ...settings,
-      flip: {
-        enabled: !settings.flip.enabled,
-        value: settings.flip.value === 1 ? -1 : 1,
-      },
-    });
-  };
+  const withChanges = (key, changes) => ({
+    ...settings,
+    [key]: { ...settings[key], ...changes },
+  });
 
   return (
-    <ul className="space-y-3">
-      <li className="flex items-center justify-between rounded-2xl bg-[var(--bg-main)] px-4 py-3">
-        <span className="text-main text-sm font-semibold uppercase">Flip</span>
-        <Switch
-          label="Flip"
-          checked={settings.flip.enabled}
-          onToggle={toggleFlip}
-        />
-      </li>
-
-      {SLIDER_CONTROLS.map(({ key, label, min, max, format, hint }) => {
-        const { enabled, value } = settings[key];
-        const sliderId = `${panelId}-${key}`;
-
+    // Spare panel height is shared by row count, so every row grows the same amount
+    <div
+      style={{ flexGrow: SLIDER_CONTROLS.length }}
+      className="flex flex-col gap-1"
+    >
+      {CONTROL_GROUPS.map(({ id, heading }) => {
+        const controls = SLIDER_CONTROLS.filter(({ group }) => group === id);
         return (
-          <li key={key} className="space-y-3 rounded-2xl bg-[var(--bg-main)] px-4 py-3">
-            <div className="flex items-center justify-between gap-3">
-              <label
-                htmlFor={sliderId}
-                className="text-main text-sm font-semibold uppercase"
-              >
-                {label}
-              </label>
-              <div className="flex items-center gap-3">
-                <output
-                  htmlFor={sliderId}
-                  className={`min-w-12 rounded-full bg-white px-2 py-0.5 text-center text-sm font-medium tabular-nums ${
-                    enabled ? "text-main" : "text-gray-500"
-                  }`}
-                >
-                  {format(value)}
-                </output>
-                <Switch
-                  label={`Enable ${label}`}
-                  checked={enabled}
-                  onToggle={() => updateSetting(key, { enabled: !enabled })}
+          <section
+            key={id}
+            aria-labelledby={`${panelId}-${id}`}
+            style={{ flexGrow: controls.length }}
+            className="flex flex-col"
+          >
+            <h2
+              id={`${panelId}-${id}`}
+              // Short screens have no room for a heading row; it stays for screen readers
+              className="text-main sr-only px-1 text-xs leading-tight font-semibold tracking-wide uppercase opacity-70 [@media(min-height:801px)]:not-sr-only [@media(min-height:801px)]:mt-1 [@media(min-height:801px)]:mb-2"
+            >
+              {heading}
+            </h2>
+            <ul className="flex flex-1 flex-col gap-1.5">
+              {controls.map((control) => (
+                <EffectRow
+                  key={control.key}
+                  control={control}
+                  setting={settings[control.key]}
+                  range={ranges[control.key]}
+                  randomize={randomize}
+                  onToggle={() =>
+                    onSettingsChange(
+                      withChanges(control.key, {
+                        enabled: !settings[control.key].enabled,
+                      }),
+                    )
+                  }
+                  onValueChange={(value) =>
+                    onSliderDrag(withChanges(control.key, { value }))
+                  }
+                  onValueCommit={onSliderRelease}
+                  onRangeChange={(bounds) => onRangeChange(control.key, bounds)}
                 />
-              </div>
-            </div>
-            <input
-              id={sliderId}
-              type="range"
-              min={min}
-              max={max}
-              value={value}
-              disabled={!enabled}
-              aria-valuetext={format(value)}
-              onChange={(event) =>
-                updateSetting(key, { value: Number(event.target.value) })
-              }
-              style={{ "--fill": `${((value - min) / (max - min)) * 100}%` }}
-              className="slider w-full cursor-pointer"
-            />
-            {hint && <p className="text-xs text-gray-500">{hint}</p>}
-          </li>
+              ))}
+            </ul>
+          </section>
         );
       })}
-    </ul>
+    </div>
   );
 };
 
