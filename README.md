@@ -62,6 +62,23 @@ bun dev
 
 4. Open [http://localhost:6969](http://localhost:6969) with your browser to see the application.
 
+### Testing
+
+```bash
+npm run lint
+npm test              # unit tests (Vitest)
+npm run test:e2e      # end-to-end tests in Chromium
+npm run test:e2e:all  # end-to-end tests in Chromium, Firefox and WebKit
+```
+
+The e2e scripts build the app and serve it on port 6969, so stop `npm run dev` first. Install the browsers once before the first run:
+
+```bash
+npx playwright install chromium firefox webkit
+```
+
+To run a single browser, pass its project: `npx playwright test --project=firefox` (or `chromium`, `webkit`). WebKit also needs system libraries; on Linux, `sudo npx playwright install-deps webkit` installs them, or run the suite in the `mcr.microsoft.com/playwright` Docker image that matches the installed `@playwright/test` version.
+
 ## Project Structure
 
 ```

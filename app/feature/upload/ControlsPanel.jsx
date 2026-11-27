@@ -1,5 +1,6 @@
 "use client";
 import React, { useId } from "react";
+import EffectRow from "@/feature/upload/EffectRow";
 
 import {
   BLUR_MAX,
@@ -15,6 +16,7 @@ import {
 const SLIDER_CONTROLS = [
   {
     key: "grayscale",
+    group: "color",
     label: "Grayscale",
     min: 0,
     max: 100,
@@ -22,6 +24,7 @@ const SLIDER_CONTROLS = [
   },
   {
     key: "blur",
+    group: "color",
     label: "Blur",
     min: 0,
     max: BLUR_MAX,
@@ -30,6 +33,7 @@ const SLIDER_CONTROLS = [
   },
   {
     key: "brightness",
+    group: "color",
     label: "Brightness",
     min: BRIGHTNESS_MIN,
     max: BRIGHTNESS_MAX,
@@ -38,6 +42,7 @@ const SLIDER_CONTROLS = [
   },
   {
     key: "rotate",
+    group: "position",
     label: "Rotate",
     min: ROTATE_MIN,
     max: ROTATE_MAX,
@@ -46,6 +51,7 @@ const SLIDER_CONTROLS = [
   },
   {
     key: "zoom",
+    group: "position",
     label: "Zoom",
     min: ZOOM_MIN,
     max: ZOOM_MAX,
@@ -54,24 +60,11 @@ const SLIDER_CONTROLS = [
   },
 ];
 
-export const Switch = ({ label, checked, onToggle }) => (
-  <button
-    type="button"
-    role="switch"
-    aria-checked={checked}
-    aria-label={label}
-    onClick={onToggle}
-    className={`relative h-7 w-12 shrink-0 cursor-pointer rounded-full p-0.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--secondary)] ${
-      checked ? "bg-[var(--primary)]" : "bg-gray-300"
-    }`}
-  >
-    <span
-      className={`block h-6 w-6 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-        checked ? "translate-x-5" : "translate-x-0"
-      }`}
-    />
-  </button>
-);
+// The panel shows the groups top to bottom in this order.
+const CONTROL_GROUPS = [
+  { id: "color", heading: "Color and detail" },
+  { id: "position", heading: "Position and size" },
+];
 
 // Flip stores its direction in `value` so the preview and export read it like the other settings.
 export const toggleFlip = (settings) => ({
@@ -82,12 +75,15 @@ export const toggleFlip = (settings) => ({
   },
 });
 
-// Renders the enable switch and slider for every filter setting.
+// One row per filter setting. In randomize mode each row shows a min-max range.
 const ControlsPanel = ({
   settings,
   onSettingsChange,
   onSliderDrag,
   onSliderRelease,
+  randomize,
+  ranges,
+  onRangeChange,
 }) => {
   const panelId = useId();
   const withChanges = (key, changes) => ({
@@ -96,70 +92,54 @@ const ControlsPanel = ({
   });
 
   return (
-    <ul className="space-y-2">
-      {SLIDER_CONTROLS.map(({ key, label, min, max, format, hint }) => {
-        const { enabled, value } = settings[key];
-        const sliderId = `${panelId}-${key}`;
-
+    // Spare panel height is shared by row count, so every row grows the same amount
+    <div
+      style={{ flexGrow: SLIDER_CONTROLS.length }}
+      className="flex flex-col gap-1"
+    >
+      {CONTROL_GROUPS.map(({ id, heading }) => {
+        const controls = SLIDER_CONTROLS.filter(({ group }) => group === id);
         return (
-          <li
-            key={key}
-            className="space-y-1.5 rounded-2xl bg-[var(--bg-main)] px-3 py-2"
+          <section
+            key={id}
+            aria-labelledby={`${panelId}-${id}`}
+            style={{ flexGrow: controls.length }}
+            className="flex flex-col"
           >
-            <div className="flex items-center justify-between gap-3">
-              <label
-                htmlFor={sliderId}
-                className="text-main text-sm font-semibold uppercase"
-              >
-                {label}
-              </label>
-              <div className="flex items-center gap-3">
-                <output
-                  htmlFor={sliderId}
-                  className={`min-w-12 rounded-full bg-white px-2 py-0.5 text-center text-sm font-medium tabular-nums ${
-                    enabled ? "text-main" : "text-gray-500"
-                  }`}
-                >
-                  {format(value)}
-                </output>
-                <Switch
-                  label={`Enable ${label}`}
-                  checked={enabled}
+            <h2
+              id={`${panelId}-${id}`}
+              // Short screens have no room for a heading row; it stays for screen readers
+              className="text-main sr-only px-1 text-xs leading-tight font-semibold tracking-wide uppercase opacity-70 [@media(min-height:801px)]:not-sr-only [@media(min-height:801px)]:mt-1 [@media(min-height:801px)]:mb-2"
+            >
+              {heading}
+            </h2>
+            <ul className="flex flex-1 flex-col gap-1.5">
+              {controls.map((control) => (
+                <EffectRow
+                  key={control.key}
+                  control={control}
+                  setting={settings[control.key]}
+                  range={ranges[control.key]}
+                  randomize={randomize}
                   onToggle={() =>
-                    onSettingsChange(withChanges(key, { enabled: !enabled }))
+                    onSettingsChange(
+                      withChanges(control.key, {
+                        enabled: !settings[control.key].enabled,
+                      }),
+                    )
                   }
+                  onValueChange={(value) =>
+                    onSliderDrag(withChanges(control.key, { value }))
+                  }
+                  onValueCommit={onSliderRelease}
+                  onRangeChange={(bounds) => onRangeChange(control.key, bounds)}
                 />
-              </div>
-            </div>
-            <input
-              id={sliderId}
-              type="range"
-              min={min}
-              max={max}
-              value={value}
-              disabled={!enabled}
-              aria-valuetext={format(value)}
-              onChange={(event) =>
-                onSliderDrag(
-                  withChanges(key, { value: Number(event.target.value) }),
-                )
-              }
-              onPointerUp={onSliderRelease}
-              onKeyUp={onSliderRelease}
-              onBlur={onSliderRelease}
-              style={{ "--fill": `${((value - min) / (max - min)) * 100}%` }}
-              className="slider w-full cursor-pointer"
-            />
-            {hint && (
-              // Hints take a row per slider; they show only when the screen is tall enough
-              <p className="sr-only text-xs text-gray-500 [@media(min-height:1000px)]:not-sr-only">
-                {hint}
-              </p>
-            )}
-          </li>
+              ))}
+            </ul>
+          </section>
         );
       })}
-    </ul>
+    </div>
   );
 };
 

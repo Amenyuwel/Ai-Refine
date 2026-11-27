@@ -34,24 +34,51 @@ export const describeOperations = ({
   return operations;
 };
 
+const describeFile = ({ output, source, size, sha256, filters }) => ({
+  output,
+  source,
+  size,
+  sha256,
+  operations: describeOperations(filters),
+});
+
+const describeDatasetFile = ({
+  output,
+  source,
+  size,
+  sha256,
+  variant,
+  filters,
+}) => ({
+  output,
+  source,
+  size,
+  sha256,
+  variant,
+  operations: describeOperations(filters),
+});
+
 // entries: one { output, source, size, sha256, filters } per file actually
 // written to the ZIP; output is the entry's path inside the ZIP, size is its
 // length in bytes and sha256 is the source's content hash. className is the
 // sanitized class folder, or null for a flat ZIP. No timestamp: the same input
 // and settings must give a byte-identical manifest.
-export const buildManifest = (entries, appVersion, className) =>
+//
+// dataset is null for a plain export, which keeps that manifest exactly as it
+// was before random variants. With random variants it is
+// { seed, variantCount }, and each entry also has variant (0 for the image
+// itself, 1..variantCount for its random variants).
+export const buildManifest = (entries, appVersion, className, dataset = null) =>
   JSON.stringify(
-    {
-      appVersion,
-      class: className,
-      files: entries.map(({ output, source, size, sha256, filters }) => ({
-        output,
-        source,
-        size,
-        sha256,
-        operations: describeOperations(filters),
-      })),
-    },
+    dataset
+      ? {
+          appVersion,
+          class: className,
+          seed: dataset.seed,
+          variantCount: dataset.variantCount,
+          files: entries.map(describeDatasetFile),
+        }
+      : { appVersion, class: className, files: entries.map(describeFile) },
     null,
     2,
   );

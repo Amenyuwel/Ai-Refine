@@ -12,7 +12,7 @@ let nativeFilterSupport;
 
 // Property presence is not enough: some engines expose ctx.filter but ignore it.
 // Draw one white pixel through brightness(0) and see if it came out black.
-export const supportsCanvasFilter = () => {
+const supportsCanvasFilter = () => {
   if (nativeFilterSupport !== undefined) return nativeFilterSupport;
   const probe = document.createElement("canvas");
   probe.width = 1;
@@ -154,7 +154,7 @@ const applyBlur = async (pixels, width, height, sigma) => {
 // and flip included).
 // Throws FilterError when the pixels cannot be read or written, so the caller
 // never hands out an unfiltered file as if it were filtered.
-export const applyFiltersToCanvas = async (
+const applyFiltersToCanvas = async (
   canvas,
   { grayscalePercent, blurRadius, brightnessPercent },
 ) => {
@@ -286,9 +286,11 @@ export const renderImageWithFilters = async (
   const source =
     sourcePad > 0 ? createPaddedCanvas(image, width, height, sourcePad) : image;
 
-  // The pixel filters need the transformed image first, with the blur padding
-  // around it, so they run on a larger canvas that is cropped afterwards.
-  const canvasPad = usePixelFilters ? blurPad : 0;
+  // The blur needs padding around the image: the pixel filters work on the
+  // transformed image first, and Firefox's ctx.filter blur stays inside the
+  // canvas, which leaves see-through edges. Both draw on a larger canvas that
+  // is cropped afterwards.
+  const canvasPad = blurPad;
   const canvas = createCanvas(width + 2 * canvasPad, height + 2 * canvasPad);
   const ctx = canvas.getContext("2d");
   if (hasFilterEffect && !usePixelFilters) {
@@ -303,9 +305,7 @@ export const renderImageWithFilters = async (
     ctx.drawImage(source, -sourcePad, -sourcePad);
     freeCanvas(source);
   }
-  if (!usePixelFilters) return canvas;
-
-  await applyFiltersToCanvas(canvas, filters);
+  if (usePixelFilters) await applyFiltersToCanvas(canvas, filters);
   if (canvasPad === 0) return canvas;
   const output = createCanvas(width, height);
   output.getContext("2d").drawImage(canvas, -canvasPad, -canvasPad);

@@ -11,6 +11,21 @@ export const DEFAULT_SETTINGS = {
   zoom: { enabled: false, value: 100 },
 };
 
+// The effects with a switch in the Augment panel. Flip has its own toolbar
+// button, so it is not among them.
+const EFFECT_KEYS = ["grayscale", "blur", "brightness", "rotate", "zoom"];
+
+// Switches every panel effect off and keeps the slider values. Returns the same
+// object when none is on, so callers can skip a history step.
+export const disableEffects = (settings) => {
+  if (EFFECT_KEYS.every((key) => !settings[key].enabled)) return settings;
+  const next = { ...settings };
+  EFFECT_KEYS.forEach((key) => {
+    next[key] = { ...settings[key], enabled: false };
+  });
+  return next;
+};
+
 // Blur is stored in tenths of a percent of the image's shorter side, so one
 // setting gives the same result on every screen and for every image size.
 export const BLUR_MAX = 20; // 2% of the shorter side
@@ -58,3 +73,60 @@ export const getExportFilters = (settings, width, height) => ({
     ? settings.brightness.value
     : 100,
 });
+
+// Variants per image when randomize is on.
+export const VARIANT_COUNT_MIN = 1;
+export const VARIANT_COUNT_MAX = 100;
+export const VARIANT_COUNT_DEFAULT = 5;
+
+export const clampVariantCount = (count) =>
+  Math.min(Math.max(count, VARIANT_COUNT_MIN), VARIANT_COUNT_MAX);
+
+// Random variants: each enabled augmentation draws from a min-max range. The
+// full ranges below match the single sliders' bounds. `enabled` mirrors the
+// settings toggle of the same name; flip is a 50% chance and has no range.
+export const DEFAULT_RANGES = {
+  grayscale: { enabled: false, min: 0, max: 100 },
+  blur: { enabled: false, min: 0, max: BLUR_MAX },
+  brightness: { enabled: false, min: BRIGHTNESS_MIN, max: BRIGHTNESS_MAX },
+  rotate: { enabled: false, min: ROTATE_MIN, max: ROTATE_MAX },
+  zoom: { enabled: false, min: ZOOM_MIN, max: ZOOM_MAX },
+  flip: { enabled: false },
+};
+
+// Copies the settings toggles into the ranges. Returns the same object when
+// nothing changed so callers can skip a state update.
+export const syncRangeFlags = (ranges, settings) => {
+  const isInSync = Object.keys(ranges).every(
+    (key) => ranges[key].enabled === settings[key].enabled,
+  );
+  if (isInSync) return ranges;
+  return Object.fromEntries(
+    Object.entries(ranges).map(([key, range]) => [
+      key,
+      { ...range, enabled: settings[key].enabled },
+    ]),
+  );
+};
+
+export const areRangesDefault = (ranges) =>
+  Object.entries(DEFAULT_RANGES).every(
+    ([key, { min, max }]) => ranges[key].min === min && ranges[key].max === max,
+  );
+
+// What the preview shows in randomize mode: each enabled value at the middle
+// of its range, and flip left unflipped since it has no range.
+export const getMidpointSettings = (settings, ranges) => {
+  const midpointSettings = {
+    ...settings,
+    flip: { ...settings.flip, value: 1 },
+  };
+  Object.keys(ranges).forEach((key) => {
+    if (key === "flip") return;
+    midpointSettings[key] = {
+      ...settings[key],
+      value: Math.round((ranges[key].min + ranges[key].max) / 2),
+    };
+  });
+  return midpointSettings;
+};

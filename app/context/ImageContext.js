@@ -11,6 +11,12 @@ import React, {
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getFileKey, getFileSha256 } from "@/utils/fileKey";
+import {
+  DEFAULT_RANGES,
+  VARIANT_COUNT_DEFAULT,
+  clampVariantCount,
+  syncRangeFlags,
+} from "@/utils/filterSettings";
 
 // Client-side cap on images per session
 export const MAX_IMAGES = 99;
@@ -35,6 +41,46 @@ export const ImageProvider = ({ children }) => {
   // One class for the whole batch, as typed. The export sanitizes it; empty
   // keeps the ZIP flat.
   const [className, setClassName] = useState("");
+
+  // Random variants, read by the export. `ranges[key].enabled` mirrors the
+  // settings toggles (see syncRangeEnabled); a null seed means one is
+  // generated at export.
+  const [randomize, setRandomize] = useState(false);
+  const [ranges, setRanges] = useState(DEFAULT_RANGES);
+  const [variantCount, setVariantCountState] = useState(VARIANT_COUNT_DEFAULT);
+  const [seed, setSeed] = useState(null);
+
+  const setVariantCount = useCallback(
+    (count) => setVariantCountState(clampVariantCount(count)),
+    [],
+  );
+
+  // A range can never have its min above its max.
+  const setRange = useCallback((key, { min, max }) => {
+    setRanges((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], min: Math.min(min, max), max: Math.max(min, max) },
+    }));
+  }, []);
+
+  const syncRangeEnabled = useCallback((settings) => {
+    setRanges((prev) => syncRangeFlags(prev, settings));
+  }, []);
+
+  // The enabled flags stay: they follow the settings toggles, not this reset.
+  const resetRandomVariants = useCallback(() => {
+    setRandomize(false);
+    setRanges((prev) =>
+      Object.fromEntries(
+        Object.entries(DEFAULT_RANGES).map(([key, range]) => [
+          key,
+          { ...range, enabled: prev[key].enabled },
+        ]),
+      ),
+    );
+    setVariantCountState(VARIANT_COUNT_DEFAULT);
+    setSeed(null);
+  }, []);
 
   // Mirrors the list synchronously so addFiles can decide on the warning
   // outside the state updater (React may run updaters twice).
@@ -137,6 +183,16 @@ export const ImageProvider = ({ children }) => {
       setSelected,
       className,
       setClassName,
+      randomize,
+      setRandomize,
+      ranges,
+      setRange,
+      syncRangeEnabled,
+      variantCount,
+      setVariantCount,
+      seed,
+      setSeed,
+      resetRandomVariants,
     }),
     [
       uploadedImages,
@@ -145,6 +201,14 @@ export const ImageProvider = ({ children }) => {
       removeImage,
       setSelected,
       className,
+      randomize,
+      ranges,
+      setRange,
+      syncRangeEnabled,
+      variantCount,
+      setVariantCount,
+      seed,
+      resetRandomVariants,
     ],
   );
 

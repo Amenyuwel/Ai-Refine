@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import DragOverlay from "components/DragOverlay";
 import HeroPattern from "components/HeroPattern";
+import ComparisonSlider from "components/ComparisonSlider";
 import {
   ACCEPTED_IMAGE_TYPES,
   INVALID_IMAGE_FORMAT_MESSAGE,
@@ -106,19 +107,6 @@ const HomePage = () => {
     [processImages],
   );
 
-  // Fetch on click so it works even before the prefetched files are ready
-  const handleExampleImageClick = useCallback(
-    async (name) => {
-      try {
-        const file = await fetchExampleFile(name);
-        await processImages([file]);
-      } catch {
-        toast.error("Failed to process example image");
-      }
-    },
-    [processImages],
-  );
-
   // Formats that are acceptable inside the DropZone
   // Drag and drop is handled on the window so the navbar is a drop target too
   const isDragActive = useWindowFileDrop(onDrop, handleExampleDrop);
@@ -158,16 +146,16 @@ const HomePage = () => {
           isDragActive ? "opacity-50" : "opacity-100"
         }`}
       >
-        {/* ICON IMAGE */}
-        <Image
-          src="/images/pixel.png"
-          alt=""
+        {/* BEFORE / AFTER SLIDER */}
+        <ComparisonSlider
+          beforeSrc="/images/Grasshopper-transparent.png"
+          afterSrc="/images/pixel.png"
+          beforeAlt="Original grasshopper image before augmentation"
+          afterAlt="Grasshopper after augmentation, with part of the image pixelated and in grayscale"
           width={666}
           height={375}
           sizes="(min-width: 640px) 50vw, 100vw"
-          priority
-          draggable="false"
-          className="h-full w-full cursor-pointer object-contain pt-4 transition-all duration-300 ease-out hover:scale-105 hover:grayscale md:w-1/2 lg:w-full xl:h-[80%] xl:w-[80%]"
+          className="mt-4 w-full md:w-1/2 lg:w-full xl:w-[80%]"
         />
         <h1 className="text-main relative mt-4 ml-10 text-left text-[clamp(2rem,5vw+2rem,4rem)] font-bold text-gray-800 md:mt-0 md:ml-4 md:text-[2.5rem] lg:mt-4 lg:ml-10 lg:text-[clamp(2rem,5vw+2rem,4rem)]">
           AUGMENT YOUR <br /> IMAGES
@@ -220,23 +208,25 @@ const HomePage = () => {
           </div>
         </div>
 
+        <p className="text-main mt-4 w-[90%] text-center text-base sm:w-[80%] sm:text-lg">
+          One image is enough to build a dataset.
+        </p>
+
         {/* EXAMPLES */}
         <div className="mt-4 flex h-auto w-[90%] flex-col items-center sm:mt-8 sm:w-[80%] md:w-[85%] lg:w-[80%] lg:flex-row lg:justify-between">
           <p className="text-main mt-2 text-center text-lg sm:text-xl lg:text-left">
-            No Image? <br className="hidden lg:block" /> Click or drag one of
-            these:
+            No Image? <br className="hidden lg:block" /> Drag one of these
           </p>
           <div className="mt-4 flex flex-row gap-4 sm:mt-0 sm:gap-4 md:mt-0 lg:mt-0">
             {EXAMPLE_NAMES.map((item, index) => (
-              <button
-                type="button"
+              <div
+                role="img"
                 key={item}
                 aria-label={`${item} example image`}
-                className={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105 sm:h-28 sm:w-28 xl:h-32 xl:w-32 ${
+                className={`flex h-24 w-24 cursor-grab items-center justify-center rounded-[12px] bg-white shadow-md transition-transform duration-300 ease-in-out hover:scale-105 sm:h-28 sm:w-28 xl:h-32 xl:w-32 ${
                   index === 2 ? "md:hidden lg:hidden xl:flex" : ""
                 }`}
                 draggable
-                onClick={() => handleExampleImageClick(item)}
                 onDragStart={(event) => handleExampleDragStart(event, item)}
               >
                 <Image
@@ -248,7 +238,7 @@ const HomePage = () => {
                   draggable="false"
                   className="h-full w-full rounded-[8px] object-contain"
                 />
-              </button>
+              </div>
             ))}
           </div>
         </div>

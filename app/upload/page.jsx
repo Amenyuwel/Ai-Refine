@@ -26,6 +26,7 @@ import {
   DEFAULT_SETTINGS,
   blurSigma,
   getExportFilters,
+  getMidpointSettings,
   getRotationCoverScale,
 } from "@/utils/filterSettings";
 import { useImageContext } from "../context/ImageContext";
@@ -50,6 +51,9 @@ const ControlsPage = () => {
     addFiles,
     removeImage,
     setSelected,
+    randomize,
+    ranges,
+    syncRangeEnabled,
   } = useImageContext();
 
   const imageRef = useRef(null);
@@ -66,6 +70,16 @@ const ControlsPage = () => {
   const augmentPanelId = useId();
   const history = useSettingsHistory(DEFAULT_SETTINGS);
   const { settings } = history;
+  // Randomize has no single value per setting; the preview shows range midpoints
+  const previewSettings = useMemo(
+    () => (randomize ? getMidpointSettings(settings, ranges) : settings),
+    [randomize, settings, ranges],
+  );
+
+  // The ranges mirror the settings toggles, including after Undo and Redo
+  useEffect(() => {
+    syncRangeEnabled(settings);
+  }, [settings, syncRangeEnabled]);
 
   // The frame shrinks to the image as drawn; track that size across image
   // changes and frame resizes.
@@ -146,7 +160,11 @@ const ControlsPage = () => {
   }, [naturalSize]);
 
   const imageStyles = useMemo(() => {
-    const { rotateDegrees, zoomPercent } = getExportFilters(settings, 1, 1);
+    const { rotateDegrees, zoomPercent } = getExportFilters(
+      previewSettings,
+      1,
+      1,
+    );
     const coverScale = naturalSize
       ? getRotationCoverScale(
           rotateDegrees,
@@ -157,8 +175,8 @@ const ControlsPage = () => {
     const geometryScale = (zoomPercent / 100) * coverScale;
     // CSS filters run before the transform, so the scale would enlarge the
     // blur; the export blurs after zoom and rotate, so divide it back out.
-    const blurPx = settings.blur.enabled
-      ? blurSigma(settings.blur.value, previewShortSide) / geometryScale
+    const blurPx = previewSettings.blur.enabled
+      ? blurSigma(previewSettings.blur.value, previewShortSide) / geometryScale
       : 0;
     // Same order as the export (applyGeometry in canvasFilters.js); the
     // preview frame clips the enlarged image back to the original size.
@@ -166,14 +184,14 @@ const ControlsPage = () => {
     // browser draw the image on its own layer, and resampling that layer can
     // smear the edges of an image that should be shown untouched.
     const filters = [];
-    if (settings.grayscale.enabled)
-      filters.push(`grayscale(${settings.grayscale.value}%)`);
+    if (previewSettings.grayscale.enabled)
+      filters.push(`grayscale(${previewSettings.grayscale.value}%)`);
     if (blurPx > 0) filters.push(`blur(${blurPx}px)`);
-    if (settings.brightness.enabled)
-      filters.push(`brightness(${settings.brightness.value}%)`);
+    if (previewSettings.brightness.enabled)
+      filters.push(`brightness(${previewSettings.brightness.value}%)`);
     const transforms = [];
-    if (settings.flip.enabled && settings.flip.value !== 1)
-      transforms.push(`scaleX(${settings.flip.value})`);
+    if (previewSettings.flip.enabled && previewSettings.flip.value !== 1)
+      transforms.push(`scaleX(${previewSettings.flip.value})`);
     if (rotateDegrees !== 0) transforms.push(`rotate(${rotateDegrees}deg)`);
     if (geometryScale !== 1) transforms.push(`scale(${geometryScale})`);
     return {
@@ -181,7 +199,7 @@ const ControlsPage = () => {
       filter: filters.join(" ") || "none",
       transform: transforms.join(" ") || "none",
     };
-  }, [settings, previewShortSide, sizeStyles, naturalSize]);
+  }, [previewSettings, previewShortSide, sizeStyles, naturalSize]);
 
   return (
     <main className="flex h-dvh w-full flex-col overflow-hidden">

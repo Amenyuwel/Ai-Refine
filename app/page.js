@@ -5,6 +5,7 @@ import Footer from "components/Footer";
 import HomePage from "components/sections/HomeSection";
 import AboutPage from "components/sections/AboutSection";
 import ShowCase from "components/sections/ShowcaseSection";
+import ScrollToTopButton from "components/ScrollToTopButton";
 import useParallax from "@/hooks/useParallax";
 
 const Page = () => {
@@ -66,6 +67,15 @@ const Page = () => {
     };
   }, [homeRef, aboutRef]);
 
+  const scrollToHome = () => {
+    // offsetTop ignores the parallax translateY, unlike scrollIntoView.
+    const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
+    window.scrollTo({
+      top: Math.max(0, homeRef.current.offsetTop - headerHeight),
+      behavior: "smooth",
+    });
+  };
+
   return (
     <div className="h-full w-full">
       <Navbar homeRef={homeRef} aboutRef={aboutRef} />
@@ -80,6 +90,9 @@ const Page = () => {
           <ShowCase />
         </section>
       </main>
+      <div className="relative z-10">
+        <ScrollToTopButton onClick={scrollToHome} />
+      </div>
       <Footer />
     </div>
   );

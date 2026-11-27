@@ -61,6 +61,45 @@ export const buildExportFileNames = (sources) => {
   });
 };
 
+// "cat.png", 1 gives "cat_aug01.png". The number is padded to two digits, or
+// to the digits of variantCount when that is longer (aug001 to aug100), so a
+// plain name sort keeps variants in order. Below 100 variants the names stay
+// two digits, as exports named them before 100 was allowed.
+const getVariantFileName = (fileName, variant, variantCount) => {
+  const { baseName, extension } = splitExtension(fileName);
+  const digits = Math.max(2, String(variantCount).length);
+  return `${baseName}_aug${String(variant).padStart(digits, "0")}${extension}`;
+};
+
+// One array per source: [original, variant 1, ..., variant variantCount].
+// Originals get exactly the names buildExportFileNames gives them, and each
+// variant is named after its own original. A variant that would take another
+// image's name (a source named "cat_aug01.png" next to "cat.png") gets the
+// same "_2", "_3"... suffix as any other collision.
+const buildVariantFileNames = (sources, variantCount) => {
+  const originalNames = buildExportFileNames(sources);
+  const variantNames = originalNames.flatMap((originalName) =>
+    Array.from({ length: variantCount }, (_, index) =>
+      getVariantFileName(originalName, index + 1, variantCount),
+    ),
+  );
+  // Originals come first and are already unique, so they keep their names.
+  const uniqueNames = buildExportFileNames(
+    [...originalNames, ...variantNames].map((name) => ({
+      name,
+      extension: splitExtension(name).extension,
+    })),
+  );
+  const uniqueVariantNames = uniqueNames.slice(originalNames.length);
+  return originalNames.map((originalName, sourceIndex) => [
+    originalName,
+    ...uniqueVariantNames.slice(
+      sourceIndex * variantCount,
+      (sourceIndex + 1) * variantCount,
+    ),
+  ]);
+};
+
 // Unsafe on at least one OS, or a path separator: / \ : * ? " < > | and
 // control characters (U+0000 to U+001F, U+007F).
 const UNSAFE_FOLDER_CHARACTERS = /[/\\:*?"<>|\u0000-\u001f\u007f]/g;
@@ -86,3 +125,13 @@ export const sanitizeClassName = (rawName) => {
 // className is the output of sanitizeClassName.
 export const getZipEntryPath = (className, fileName) =>
   className ? `${className}/${fileName}` : fileName;
+
+// The files the ZIP holds, one array per source: its original (variant 0),
+// then variants 1..variantCount.
+export const planExportFiles = (sources, className, variantCount) =>
+  buildVariantFileNames(sources, variantCount).map((fileNames) =>
+    fileNames.map((fileName, variant) => ({
+      variant,
+      path: getZipEntryPath(className, fileName),
+    })),
+  );

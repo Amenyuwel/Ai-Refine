@@ -109,7 +109,7 @@ const Info = () => {
               {/* Stretched button makes the whole card clickable */}
               <button
                 type="button"
-                className="cursor-pointer text-left after:absolute after:inset-0 after:content-['']"
+                className="cursor-pointer text-left after:absolute after:inset-0"
                 onClick={(event) => handleCardClick(event, question)}
               >
                 {question.heading}

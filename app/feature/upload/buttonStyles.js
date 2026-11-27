@@ -13,3 +13,6 @@ export const addButtonClass = `${tileButtonClass} border-[#009CFF] bg-[#87CEFA]/
 
 // Outlined and tinted rather than a flat fill, so it warns without shouting.
 export const deleteButtonClass = `${tileButtonClass} border-red-300 bg-red-50 text-red-600 hover:border-red-500 hover:bg-red-100 active:bg-red-200 focus-visible:outline-red-500`;
+
+// Effect rows and setting rows share one size. They grow with the panel height, up to the cap.
+export const rowSizeClass = "max-h-20 min-h-12 flex-1 md:min-h-11";

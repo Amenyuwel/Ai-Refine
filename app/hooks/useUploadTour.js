@@ -30,17 +30,45 @@ const TOUR_STEPS = [
   },
 ];
 
-// Starts on arrival, only when there is an image to point at. Not remembered between visits.
+const TOUR_SEEN_KEY = "ai-refine:upload-tour-seen";
+
+// Blocked storage reads as "not seen" so the tour still shows instead of crashing.
+const hasSeenTour = () => {
+  try {
+    return localStorage.getItem(TOUR_SEEN_KEY) === "true";
+  } catch {
+    return false;
+  }
+};
+
+const markTourSeen = () => {
+  try {
+    localStorage.setItem(TOUR_SEEN_KEY, "true");
+  } catch {
+    // Blocked storage only means the tour may show again next visit
+  }
+};
+
+// Starts on arrival, only when there is an image to point at and the tour has
+// not been finished, skipped or closed before in this browser.
 const useUploadTour = (hasImage) => {
   useEffect(() => {
-    if (!hasImage) return;
+    if (!hasImage || hasSeenTour()) return;
 
+    // Cleanup also destroys the tour; that is not the user dismissing it
+    let unmounting = false;
     const tour = driver({
       showProgress: true,
       steps: TOUR_STEPS,
+      onDestroyed: () => {
+        if (!unmounting) markTourSeen();
+      },
     });
     tour.drive();
-    return () => tour.destroy();
+    return () => {
+      unmounting = true;
+      tour.destroy();
+    };
   }, [hasImage]);
 };
 

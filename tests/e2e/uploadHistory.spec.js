@@ -47,12 +47,21 @@ test("undo and redo step through filter changes and export uses the current sett
 
   await page.getByRole("button", { name: "Augment", exact: true }).click();
   await page.getByRole("switch", { name: "Enable Grayscale" }).click();
-  await setSlider(page.getByLabel("Grayscale", { exact: true }), 60);
+  await setSlider(
+    page.getByRole("slider", { name: "Grayscale", exact: true }),
+    60,
+  );
   await page
-    .getByLabel("Grayscale", { exact: true })
+    .getByRole("slider", { name: "Grayscale", exact: true })
     .dispatchEvent("pointerup");
+  // Each switch opens its effect's popover, which hides the rest of the panel
+  await page.keyboard.press("Escape");
   await page.getByRole("switch", { name: "Enable Brightness" }).click();
-  await setSlider(page.getByLabel("Brightness", { exact: true }), 130);
+  await setSlider(
+    page.getByRole("slider", { name: "Brightness", exact: true }),
+    130,
+  );
+  await page.keyboard.press("Escape");
   await expect(image).toHaveCSS(
     "filter",
     /grayscale\(0\.6\).*brightness\(1\.3\)/,
